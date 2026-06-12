@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>لوحة المدير العام — حاويات برو</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,sans-serif}
+body{background:#EDF1F4;color:#141F28;padding:18px;max-width:1100px;margin:auto}
+header{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+h1{font-size:1.25rem}
+.grow{flex:1}
+.btn{border:0;border-radius:9px;padding:9px 16px;font-weight:600;font-size:.84rem;cursor:pointer}
+.b-amber{background:#F7A823}.b-ghost{background:#fff;border:1px solid #DDE5EB}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.kpi{background:#fff;border-radius:13px;padding:15px;border-top:4px solid #F7A823}
+.kpi b{font-size:1.6rem}.kpi span{font-size:.74rem;color:#5B7286;display:block}
+.card{background:#fff;border-radius:13px;padding:16px;margin-bottom:16px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.83rem;min-width:640px}
+th{background:#141F28;color:#fff;padding:10px;text-align:right;font-size:.74rem}
+td{padding:10px;border-bottom:1px solid #EDF1F4;white-space:nowrap}
+.badge{font-size:.68rem;font-weight:700;padding:3px 10px;border-radius:20px}
+.g{background:#E3F5EC;color:#1E9E6A}.r{background:#FBEAEA;color:#D64545}.a{background:#FFF3DC;color:#D88A06}
+form.add{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+input{border:1px solid #DDE5EB;border-radius:9px;padding:10px;font-size:.85rem;width:100%}
+.sm{padding:5px 10px;font-size:.72rem;border-radius:7px}
+</style>
+</head>
+<body>
+<header>
+  <h1>لوحة المدير العام</h1><div class="grow"></div>
+  <button class="btn b-ghost" onclick="localStorage.clear();location.href='/'">خروج</button>
+</header>
+
+<div class="kpis" id="kpis"></div>
+
+<div class="card">
+  <h3 style="margin-bottom:12px">إنشاء شركة جديدة (اشتراك 12 شهراً)</h3>
+  <form class="add" onsubmit="addCo(event)">
+    <input id="cName" placeholder="اسم الشركة" required>
+    <input id="cPhone" placeholder="جوال الشركة">
+    <input id="oName" placeholder="اسم مدير الشركة">
+    <input id="oPhone" placeholder="جوال المدير (للدخول)" required>
+    <input id="oPw" placeholder="كلمة مرور المدير" required>
+    <button class="btn b-amber">＋ إنشاء</button>
+  </form>
+</div>
+
+<div class="card">
+  <h3 style="margin-bottom:12px">الشركات المشتركة</h3>
+  <table><thead><tr><th>الشركة</th><th>الحالة</th><th>ينتهي في</th><th>مستخدمون</th><th>حاويات</th><th>طلبات</th><th>إجراءات</th></tr></thead>
+  <tbody id="rows"></tbody></table>
+</div>
+
+<script>
+const T=localStorage.getItem('token');
+if(!T)location.href='/';
+const api=(u,o={})=>fetch('/api/admin'+u,{...o,headers:{'Content-Type':'application/json','Authorization':'Bearer '+T}}).then(async r=>{const d=await r.json();if(!r.ok)throw d;return d});
+const fd=s=>new Date(s).toLocaleDateString('ar-SA');
+
+async function load(){
+  const [s,cos]=await Promise.all([api('/stats'),api('/companies')]);
+  kpis.innerHTML=`<div class="kpi"><b>${s.companies}</b><span>إجمالي الشركات</span></div>
+  <div class="kpi"><b>${s.active}</b><span>نشطة</span></div>
+  <div class="kpi"><b>${s.users}</b><span>مستخدمون</span></div>
+  <div class="kpi"><b>${s.orders}</b><span>طلبات على المنصة</span></div>`;
+  rows.innerHTML=cos.map(c=>{
+    const expired=new Date(c.expiresAt)<new Date();
+    const st=c.status==='SUSPENDED'?['موقوفة','r']:expired?['منتهية','r']:c.status==='TRIAL'?['تجريبية','a']:['نشطة','g'];
+    return `<tr><td><b>${c.name}</b></td>
+    <td><span class="badge ${st[1]}">${st[0]}</span></td>
+    <td>${fd(c.expiresAt)}</td>
+    <td>${c._count.users}</td><td>${c._count.containers}</td><td>${c._count.orders}</td>
+    <td>
+      <button class="btn b-ghost sm" onclick="ext(${c.id})">تمديد سنة</button>
+      <button class="btn sm" style="background:${c.status==='SUSPENDED'?'#E3F5EC':'#FBEAEA'}" onclick="tog(${c.id})">${c.status==='SUSPENDED'?'إعادة تفعيل':'إيقاف'}</button>
+    </td></tr>`}).join('');
+}
+async function addCo(e){
+  e.preventDefault();
+  try{
+    await api('/companies',{method:'POST',body:JSON.stringify({name:cName.value,phone:cPhone.value,ownerName:oName.value,ownerPhone:oPhone.value,ownerPassword:oPw.value})});
+    e.target.reset();load();
+  }catch(x){alert(x.error)}
+}
+async function ext(id){await api('/companies/'+id+'/extend',{method:'POST',body:JSON.stringify({months:12})});load()}
+async function tog(id){await api('/companies/'+id+'/toggle',{method:'POST'});load()}
+load();
+</script>
+</body>
+</html>

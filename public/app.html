@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>حاويات برو — لوحة الشركة</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,sans-serif}
+body{background:#EDF1F4;color:#141F28;padding:16px;max-width:1100px;margin:auto;padding-bottom:40px}
+header{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+h1{font-size:1.15rem}
+.s{font-size:.74rem;color:#5B7286}
+.grow{flex:1}
+.btn{border:0;border-radius:9px;padding:9px 15px;font-weight:600;font-size:.82rem;cursor:pointer}
+.b-amber{background:#F7A823}.b-ghost{background:#fff;border:1px solid #DDE5EB}.b-dark{background:#141F28;color:#fff}
+.tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.tab{background:#fff;border:1px solid #DDE5EB;border-radius:20px;padding:8px 18px;font-size:.8rem;cursor:pointer;border:0}
+.tab.on{background:#141F28;color:#fff}
+.card{background:#fff;border-radius:13px;padding:16px;margin-bottom:14px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.82rem;min-width:560px}
+th{background:#141F28;color:#fff;padding:9px;text-align:right;font-size:.72rem}
+td{padding:9px;border-bottom:1px solid #EDF1F4;white-space:nowrap}
+.badge{font-size:.66rem;font-weight:700;padding:3px 9px;border-radius:20px}
+.g{background:#E3F5EC;color:#1E9E6A}.r{background:#FBEAEA;color:#D64545}.a{background:#FFF3DC;color:#D88A06}.b{background:#E5F0FB;color:#2E7DD1}
+form.add{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin-top:10px}
+input,select{border:1px solid #DDE5EB;border-radius:9px;padding:10px;font-size:.83rem;width:100%}
+.sm{padding:4px 10px;font-size:.7rem;border-radius:7px}
+.alert-row{display:flex;gap:10px;align-items:center;background:#FFF3DC;border-radius:10px;padding:11px;margin-bottom:8px;font-size:.82rem}
+.loc-ok{color:#1E9E6A;font-size:.74rem;font-weight:700}
+section{display:none}section.on{display:block}
+</style>
+</head>
+<body>
+<header>
+  <div><h1 id="coName">لوحة الشركة</h1><div class="s" id="whoName"></div></div>
+  <div class="grow"></div>
+  <button class="btn b-ghost" onclick="localStorage.clear();location.href='/'">خروج</button>
+</header>
+
+<div class="tabs">
+  <button class="tab on" data-t="alerts">🔔 التنبيهات <span id="alertN"></span></button>
+  <button class="tab" data-t="orders">الطلبات</button>
+  <button class="tab" data-t="conts">الحاويات</button>
+  <button class="tab" data-t="users">المستخدمون</button>
+</div>
+
+<section class="on" id="s-alerts">
+  <div class="card"><h3 style="margin-bottom:10px">تنبيهات الاستحقاق والاشتراك <span class="s">— تتكرر كل 6 ساعات حتى تضغط «تم الاطلاع»، أو اكتم الطلب نفسه نهائياً من تبويب الطلبات</span></h3>
+  <div id="alertList"></div></div>
+</section>
+
+<section id="s-orders">
+  <div class="card">
+    <h3>طلب جديد — الموقع يُلتقط من مكان العمل</h3>
+    <form class="add" onsubmit="addOrder(event)">
+      <input id="oCust" placeholder="اسم العميل" required>
+      <input id="oP1" placeholder="رقم العميل الأساسي" required>
+      <input id="oPS" placeholder="رقم المسؤول في الموقع">
+      <input id="oP3" placeholder="رقم إضافي (اختياري)">
+      <select id="oType"><option value="DROP">إنزال</option><option value="PICKUP">رفع</option><option value="SWAP">تبديل</option><option value="MOVE">نقل</option><option value="PROJECT_CYCLE">دورة مشروع</option></select>
+      <input id="oSize" placeholder="الحجم (مثال: 8 ياردة)">
+      <input id="oContract" placeholder="رقم العقد (اتركه فارغاً = بدون عقد)">
+      <input id="oDue" type="date" title="تاريخ الاستحقاق">
+      <input id="oPrice" inputmode="numeric" placeholder="السعر ر.س">
+      <input id="oAddr" placeholder="وصف الموقع / الحي">
+      <button type="button" class="btn b-dark" onclick="getLoc()">📍 استخدم موقعي الحالي</button>
+      <button class="btn b-amber">＋ إنشاء الطلب</button>
+    </form>
+    <div class="loc-ok" id="locMsg" style="margin-top:8px"></div>
+  </div>
+  <div class="card"><table><thead><tr><th>#</th><th>النوع</th><th>العميل</th><th>الأرقام</th><th>العقد</th><th>الاستحقاق</th><th>الموقع</th><th>الحالة</th><th>إشعاره</th></tr></thead><tbody id="orderRows"></tbody></table></div>
+</section>
+
+<section id="s-conts">
+  <div class="card">
+    <h3>إضافة حاوية</h3>
+    <form class="add" onsubmit="addCont(event)">
+      <input id="cCode" placeholder="رقم الحاوية مثل HW-101" required>
+      <input id="cSize" placeholder="الحجم" required>
+      <button class="btn b-amber">＋ إضافة</button>
+    </form>
+  </div>
+  <div class="card"><table><thead><tr><th>الرقم</th><th>الحجم</th><th>الحالة</th></tr></thead><tbody id="contRows"></tbody></table></div>
+</section>
+
+<section id="s-users">
+  <div class="card">
+    <h3>إضافة مستخدم <span class="s">— السائق يحدد لغته لتصله الإشعارات بها لاحقاً</span></h3>
+    <form class="add" onsubmit="addUser(event)">
+      <input id="uName" placeholder="الاسم" required>
+      <input id="uPhone" placeholder="الجوال (للدخول)" required>
+      <input id="uPw" placeholder="كلمة المرور" required>
+      <select id="uRole"><option value="DISPATCHER">موزع عمليات</option><option value="DRIVER">سائق</option><option value="ACCOUNTANT">محاسب</option><option value="BRANCH_MGR">مدير فرع</option></select>
+      <select id="uLang"><option value="ar">العربية</option><option value="en">English</option><option value="ur">اردو</option><option value="hi">हिन्दी</option><option value="bn">বাংলা</option></select>
+      <button class="btn b-amber">＋ إضافة</button>
+    </form>
+  </div>
+  <div class="card"><table><thead><tr><th>الاسم</th><th>الجوال</th><th>الدور</th><th>اللغة</th></tr></thead><tbody id="userRows"></tbody></table></div>
+</section>
+
+<script>
+const T=localStorage.getItem('token');
+if(!T)location.href='/';
+const who=JSON.parse(localStorage.getItem('who')||'{}');
+coName.textContent=who.company||'لوحة الشركة';whoName.textContent='مرحباً، '+(who.name||'');
+const api=(u,o={})=>fetch('/api/co'+u,{...o,headers:{'Content-Type':'application/json','Authorization':'Bearer '+T}}).then(async r=>{const d=await r.json();if(!r.ok){if(r.status===401||r.status===403){alert(d.error);if(r.status===403&&d.error.includes('اشتراك')){localStorage.clear();location.href='/'}}throw d}return d});
+
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));t.classList.add('on');
+  document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id==='s-'+t.dataset.t));
+});
+
+const typeAr={DROP:'إنزال',PICKUP:'رفع',SWAP:'تبديل',MOVE:'نقل',PROJECT_CYCLE:'دورة مشروع'};
+const stAr={NEW:['جديد','b'],ASSIGNED:['مسند','a'],EN_ROUTE:['بالطريق','a'],DONE:['منفذ','g'],CANCELLED:['ملغي','r']};
+const cStAr={IN_DEPOT:['بالمستودع','g'],SCHEDULED:['مجدولة','b'],ON_SITE:['بالموقع','a'],AWAIT_PICKUP:['بانتظار الرفع','a'],IN_TRANSIT:['بالطريق','b'],MAINTENANCE:['صيانة','r']};
+const fd=s=>s?new Date(s).toLocaleDateString('ar-SA'):'—';
+let loc={lat:null,lng:null};
+
+function getLoc(){
+  locMsg.textContent='جارٍ تحديد الموقع…';locMsg.style.color='#5B7286';
+  navigator.geolocation.getCurrentPosition(p=>{
+    loc={lat:p.coords.latitude,lng:p.coords.longitude};
+    locMsg.style.color='#1E9E6A';
+    locMsg.textContent=`✓ تم التقاط الموقع (${loc.lat.toFixed(5)}, ${loc.lng.toFixed(5)}) — سيُحفظ مع الطلب`;
+  },e=>{locMsg.style.color='#D64545';locMsg.textContent='تعذر تحديد الموقع — تأكد من فتح الرابط عبر HTTPS ومنح الإذن'},{enableHighAccuracy:true,timeout:10000});
+}
+
+async function loadAlerts(){
+  const al=await api('/alerts');
+  alertN.textContent=al.length?`(${al.length})`:'';
+  alertList.innerHTML=al.length?al.map(a=>`<div class="alert-row">
+    <span style="flex:1">${a.message}<br><span class="s">${new Date(a.createdAt).toLocaleString('ar-SA')}</span></span>
+    <button class="btn b-ghost sm" onclick="ack(${a.id})">✓ تم الاطلاع</button>
+  </div>`).join(''):'<p class="s">لا توجد تنبيهات حالياً — ستظهر هنا تنبيهات الاستحقاق (قبل يومين) وتتجدد كل 6 ساعات</p>';
+}
+async function ack(id){await api('/alerts/'+id+'/ack',{method:'POST'});loadAlerts()}
+
+async function loadOrders(){
+  const os=await api('/orders');
+  orderRows.innerHTML=os.map(o=>{const[m,c]=stAr[o.status];return `<tr>
+    <td>${o.id}</td><td>${typeAr[o.type]}</td>
+    <td><b>${o.customerName}</b>${o.container?'<br><span class="s">'+o.container.code+'</span>':''}</td>
+    <td class="s">${o.phone1}${o.phoneSite?'<br>موقع: '+o.phoneSite:''}${o.phone3?'<br>'+o.phone3:''}</td>
+    <td>${o.contractNo||'<span class="s">بدون عقد</span>'}</td>
+    <td>${fd(o.dueDate)}</td>
+    <td>${o.lat?`<a href="https://www.google.com/maps?q=${o.lat},${o.lng}" target="_blank">⌖ خريطة</a>`:'—'}</td>
+    <td><span class="badge ${c}">${m}</span></td>
+    <td><button class="btn b-ghost sm" onclick="mute(${o.id},${!o.alertMuted})">${o.alertMuted?'🔕 مكتوم — تفعيل':'🔔 كتم التنبيه'}</button></td>
+  </tr>`}).join('');
+}
+async function mute(id,v){await api('/orders/'+id,{method:'PATCH',body:JSON.stringify({alertMuted:v})});loadOrders();loadAlerts()}
+async function addOrder(e){
+  e.preventDefault();
+  try{
+    await api('/orders',{method:'POST',body:JSON.stringify({
+      customerName:oCust.value,phone1:oP1.value,phoneSite:oPS.value,phone3:oP3.value,
+      type:oType.value,size:oSize.value,contractNo:oContract.value,dueDate:oDue.value||null,
+      price:oPrice.value,address:oAddr.value,lat:loc.lat,lng:loc.lng})});
+    e.target.reset();loc={lat:null,lng:null};locMsg.textContent='';loadOrders();
+  }catch(x){alert(x.error)}
+}
+
+async function loadConts(){
+  const cs=await api('/containers');
+  contRows.innerHTML=cs.map(c=>{const[m,cl]=cStAr[c.status];return `<tr><td><b>${c.code}</b></td><td>${c.size}</td><td><span class="badge ${cl}">${m}</span></td></tr>`}).join('');
+}
+async function addCont(e){e.preventDefault();try{await api('/containers',{method:'POST',body:JSON.stringify({code:cCode.value,size:cSize.value})});e.target.reset();loadConts()}catch(x){alert(x.error)}}
+
+const langAr={ar:'العربية',en:'English',ur:'اردو',hi:'हिन्दी',bn:'বাংলা'};
+const roleAr={OWNER:'مدير الشركة',BRANCH_MGR:'مدير فرع',DISPATCHER:'موزع',ACCOUNTANT:'محاسب',DRIVER:'سائق'};
+async function loadUsers(){
+  try{const us=await api('/users');
+  userRows.innerHTML=us.map(u=>`<tr><td>${u.name}</td><td>${u.phone}</td><td>${roleAr[u.role]||u.role}</td><td>${langAr[u.language]||u.language}</td></tr>`).join('');}catch{}
+}
+async function addUser(e){e.preventDefault();try{await api('/users',{method:'POST',body:JSON.stringify({name:uName.value,phone:uPhone.value,password:uPw.value,role:uRole.value,language:uLang.value})});e.target.reset();loadUsers()}catch(x){alert(x.error)}}
+
+loadAlerts();loadOrders();loadConts();loadUsers();
+setInterval(loadAlerts,60000);
+</script>
+</body>
+</html>

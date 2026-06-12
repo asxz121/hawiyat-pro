@@ -1,0 +1,148 @@
+// مخطط قاعدة البيانات — حاويات برو (المرحلة الأولى)
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ===== الشركات والاشتراكات =====
+enum CompanyStatus {
+  ACTIVE    // نشطة
+  SUSPENDED // موقوفة (يدوياً أو لانتهاء الاشتراك) — البيانات محفوظة
+  TRIAL     // تجريبية
+}
+
+model Company {
+  id         Int           @id @default(autoincrement())
+  name       String
+  status     CompanyStatus @default(TRIAL)
+  expiresAt  DateTime // تاريخ انتهاء الاشتراك
+  phone      String?
+  notes      String?
+  createdAt  DateTime      @default(now())
+  branches   Branch[]
+  users      User[]
+  containers Container[]
+  orders     Order[]
+  alerts     Alert[]
+}
+
+model Branch {
+  id         Int         @id @default(autoincrement())
+  name       String
+  company    Company     @relation(fields: [companyId], references: [id])
+  companyId  Int
+  users      User[]
+  containers Container[]
+  orders     Order[]
+}
+
+// ===== المستخدمون والأدوار =====
+enum Role {
+  SUPER_ADMIN // مدير المنصة (أنت)
+  OWNER       // مدير الشركة
+  BRANCH_MGR  // مدير فرع
+  DISPATCHER  // موزع عمليات
+  ACCOUNTANT  // محاسب
+  DRIVER      // سائق
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  phone     String   @unique // الدخول برقم الجوال
+  password  String // مشفرة bcrypt
+  role      Role
+  language  String   @default("ar") // لغة السائق: ar, en, ur, hi, bn
+  company   Company? @relation(fields: [companyId], references: [id])
+  companyId Int?
+  branch    Branch?  @relation(fields: [branchId], references: [id])
+  branchId  Int?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+// ===== الحاويات =====
+enum ContainerStatus {
+  IN_DEPOT     // بالمستودع
+  SCHEDULED    // مجدولة للتسليم
+  ON_SITE      // منزّلة بالموقع
+  AWAIT_PICKUP // بانتظار الرفع
+  IN_TRANSIT   // في الطريق
+  MAINTENANCE  // صيانة
+}
+
+model Container {
+  id        Int             @id @default(autoincrement())
+  code      String // رقم الحاوية مثل HW-101
+  size      String // 8 / 12 / 20 / 30 ياردة
+  status    ContainerStatus @default(IN_DEPOT)
+  company   Company         @relation(fields: [companyId], references: [id])
+  companyId Int
+  branch    Branch?         @relation(fields: [branchId], references: [id])
+  branchId  Int?
+  orders    Order[]
+  notes     String?
+
+  @@unique([companyId, code])
+}
+
+// ===== أوامر العمل / الطلبات =====
+enum OrderType {
+  DROP          // إنزال
+  PICKUP        // رفع نهائي
+  SWAP          // تبديل (رفع + إنزال)
+  MOVE          // نقل لموقع آخر
+  PROJECT_CYCLE // دورة ضمن مشروع مستمر
+}
+
+enum OrderStatus {
+  NEW       // جديد
+  ASSIGNED  // مسند لسائق
+  EN_ROUTE  // السائق في الطريق
+  DONE      // منفذ
+  CANCELLED // ملغي
+}
+
+model Order {
+  id           Int         @id @default(autoincrement())
+  type         OrderType   @default(DROP)
+  status       OrderStatus @default(NEW)
+  company      Company     @relation(fields: [companyId], references: [id])
+  companyId    Int
+  branch       Branch?     @relation(fields: [branchId], references: [id])
+  branchId     Int?
+  container    Container?  @relation(fields: [containerId], references: [id])
+  containerId  Int?
+  size         String? // الحجم المطلوب إن لم تُحدد حاوية بعد
+  customerName String
+  phone1       String // رقم العميل الأساسي
+  phoneSite    String? // رقم المسؤول في موقع الحاوية
+  phone3       String? // رقم إضافي اختياري
+  lat          Float? // موقع العمل — يُلتقط من جوال مرسل الطلب
+  lng          Float?
+  address      String?
+  contractNo   String? // برقم عقد أو بدون
+  startDate    DateTime    @default(now())
+  dueDate      DateTime? // تاريخ الاستحقاق — تعمل عليه الإشعارات
+  alertMuted   Boolean     @default(false) // تعطيل إشعار الاستحقاق لهذا الطلب
+  price        Float?
+  notes        String?
+  createdAt    DateTime    @default(now())
+}
+
+// ===== التنبيهات (للإدارة) =====
+model Alert {
+  id           Int      @id @default(autoincrement())
+  company      Company  @relation(fields: [companyId], references: [id])
+  companyId    Int
+  type         String // DUE_SOON | SUBSCRIPTION | ...
+  message      String
+  refOrderId   Int? // الطلب المرتبط إن وجد
+  acknowledged Boolean  @default(false) // تم الاطلاع → يتوقف التكرار
+  createdAt    DateTime @default(now())
+}
