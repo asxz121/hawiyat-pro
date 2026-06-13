@@ -15,6 +15,7 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 app.post('/api/login', login);
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/co', require('./routes/company'));
+app.use('/api/hr', require('./routes/hr'));
 
 app.get('/api/health', (req, res) => res.json({ ok: true, time: new Date() }));
 
