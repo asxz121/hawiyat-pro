@@ -311,4 +311,75 @@ router.post('/maintenance', requireRole('OWNER', 'BRANCH_MGR', 'DISPATCHER'), as
   }));
 });
 
+
+// ===== المعاملات المالية =====
+router.get('/transactions', async (req, res) => {
+  const { employeeId, month } = req.query;
+  const where = { ...scope(req) };
+  if (employeeId) where.employeeId = +employeeId;
+  if (month) where.month = month;
+  res.json(await prisma.employeeTransaction.findMany({
+    where,
+    include: { employee: { select: { name: true } } },
+    orderBy: { createdAt: 'desc' },
+    take: 100,
+  }));
+});
+
+router.post('/transactions', requireRole('OWNER','ACCOUNTANT','BRANCH_MGR'), async (req, res) => {
+  const { employeeId, type, amount, days, month, note } = req.body;
+  if (!employeeId || !type || !amount) return res.status(400).json({ error: 'البيانات ناقصة' });
+  const emp = await prisma.employee.findFirst({ where: { id: +employeeId, ...scope(req) } });
+  if (!emp) return res.status(404).json({ error: 'الموظف غير موجود' });
+  const t = await prisma.employeeTransaction.create({
+    data: {
+      ...scope(req),
+      employeeId: +employeeId,
+      type,
+      amount: +amount,
+      days: days ? +days : null,
+      month: month || new Date().toISOString().slice(0,7).replace('-','/'),
+      note,
+      createdBy: req.user.id,
+    },
+  });
+  res.json(t);
+});
+
+router.delete('/transactions/:id', requireRole('OWNER','ACCOUNTANT'), async (req, res) => {
+  const t = await prisma.employeeTransaction.findFirst({ where: { id: +req.params.id, ...scope(req) } });
+  if (!t) return res.status(404).json({ error: 'المعاملة غير موجودة' });
+  await prisma.employeeTransaction.delete({ where: { id: t.id } });
+  res.json({ ok: true });
+});
+
+// ملخص مالي للموظف
+router.get('/employees/:id/financial', async (req, res) => {
+  const emp = await prisma.employee.findFirst({ where: { id: +req.params.id, ...scope(req) } });
+  if (!emp) return res.status(404).json({ error: 'الموظف غير موجود' });
+  const month = req.query.month || new Date().toISOString().slice(0,7).replace('-','/');
+  const transactions = await prisma.employeeTransaction.findMany({
+    where: { employeeId: emp.id, ...scope(req), month },
+    orderBy: { createdAt: 'desc' },
+  });
+  const dayRate = Math.round(emp.salary / 30);
+  let bonusAmount = 0, bonusDays = 0, deductions = 0, advances = 0, overtime = 0, penalties = 0;
+  transactions.forEach(t => {
+    if (t.type === 'BONUS_AMOUNT') bonusAmount += t.amount;
+    else if (t.type === 'BONUS_DAYS') { bonusDays += t.days||0; bonusAmount += (t.days||0) * dayRate; }
+    else if (t.type === 'DEDUCTION') deductions += t.amount;
+    else if (t.type === 'ADVANCE') advances += t.amount;
+    else if (t.type === 'ADVANCE_REPAY') advances -= t.amount;
+    else if (t.type === 'OVERTIME') overtime += t.amount;
+    else if (t.type === 'PENALTY') penalties += t.amount;
+  });
+  res.json({
+    employee: emp, month, transactions, dayRate,
+    bonusAmount, bonusDays, deductions, advances, overtime, penalties,
+    netAdditions: bonusAmount + overtime,
+    netDeductions: deductions + advances + penalties,
+    netSalary: emp.salary + emp.extra + bonusAmount + overtime - deductions - penalties,
+  });
+});
+
 module.exports = router;

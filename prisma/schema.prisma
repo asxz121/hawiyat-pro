@@ -35,7 +35,8 @@ model Company {
   vehicles     Vehicle[]
   maintenance  Maintenance[]
   dailyReports DailyReport[]
-  warehouses   Warehouse[]
+  warehouses        Warehouse[]
+  empTransactions   EmployeeTransaction[]
 }
 
 model Branch {
@@ -196,9 +197,10 @@ model Employee {
   createdAt  DateTime       @default(now())
   updatedAt  DateTime       @updatedAt
   createdBy  Int?
-  attendance Attendance[]
-  payroll    Payroll[]
-  vehicles   Vehicle[]
+  attendance      Attendance[]
+  payroll         Payroll[]
+  vehicles        Vehicle[]
+  transactions    EmployeeTransaction[]
 }
 
 model Attendance {
@@ -304,4 +306,30 @@ model Warehouse {
   companyId   Int
   createdAt   DateTime    @default(now())
   containers  Container[]
+}
+
+// ===== المعاملات المالية للموظفين =====
+enum TransactionType {
+  BONUS_AMOUNT   // زيادة بالقيمة
+  BONUS_DAYS     // زيادة بالأيام
+  DEDUCTION      // خصم
+  ADVANCE        // سلفة
+  ADVANCE_REPAY  // سداد سلفة
+  OVERTIME       // أوفر تايم
+  PENALTY        // جزاء
+}
+
+model EmployeeTransaction {
+  id          Int             @id @default(autoincrement())
+  employee    Employee        @relation(fields: [employeeId], references: [id])
+  employeeId  Int
+  company     Company         @relation(fields: [companyId], references: [id])
+  companyId   Int
+  type        TransactionType
+  amount      Float           // القيمة بالريال
+  days        Float?          // عدد الأيام (للزيادة/الخصم بالأيام)
+  month       String?         // الشهر المطبق عليه مثل 2026/06
+  note        String?         // ملاحظة
+  createdBy   Int?
+  createdAt   DateTime        @default(now())
 }

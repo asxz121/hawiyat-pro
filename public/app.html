@@ -747,6 +747,59 @@ tbody tr:hover{background:#F8FAFB}
   </div>
 </div>
 
+
+<!-- ===== نافذة المعاملات المالية ===== -->
+<div class="modal-bg" id="mTrans" onclick="if(event.target===this)closeModal('mTrans')">
+  <div class="modal" style="max-width:540px">
+    <h3 id="mTransTitle">المعاملات المالية</h3>
+    <div id="mTransSummary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px"></div>
+    
+    <!-- إضافة معاملة جديدة -->
+    <div style="background:var(--bg);border-radius:10px;padding:12px;margin-bottom:12px">
+      <div style="font-size:.76rem;font-weight:700;color:var(--ink2);margin-bottom:10px">＋ إضافة معاملة</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <div class="field">
+          <label>النوع *</label>
+          <select id="tType">
+            <option value="BONUS_AMOUNT">زيادة بالقيمة</option>
+            <option value="BONUS_DAYS">زيادة بالأيام</option>
+            <option value="OVERTIME">أوفر تايم</option>
+            <option value="ADVANCE">سلفة</option>
+            <option value="ADVANCE_REPAY">سداد سلفة</option>
+            <option value="DEDUCTION">خصم</option>
+            <option value="PENALTY">جزاء</option>
+          </select>
+        </div>
+        <div class="field">
+          <label id="tAmountLabel">القيمة (ر.س) *</label>
+          <input id="tAmount" inputmode="numeric" placeholder="0">
+        </div>
+        <div class="field" id="tDaysField" style="display:none">
+          <label>عدد الأيام</label>
+          <input id="tDays" inputmode="numeric" placeholder="0">
+        </div>
+        <div class="field">
+          <label>الشهر</label>
+          <input id="tMonth" type="month">
+        </div>
+      </div>
+      <div class="field">
+        <label>ملاحظة</label>
+        <input id="tNote" placeholder="سبب المعاملة">
+      </div>
+      <button class="btn btn-amber" onclick="addTransaction()" style="padding:9px 16px;width:100%;justify-content:center">＋ إضافة</button>
+    </div>
+    
+    <!-- سجل المعاملات -->
+    <div style="font-size:.76rem;font-weight:700;color:var(--ink2);margin-bottom:8px">سجل المعاملات</div>
+    <div id="mTransList" style="max-height:220px;overflow-y:auto"></div>
+    
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn btn-ghost" onclick="closeModal('mTrans')" style="flex:1;justify-content:center;padding:10px">إغلاق</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"><span class="dot"></span><span id="toastTxt"></span></div>
 
 <script>
@@ -808,6 +861,9 @@ function ctxAdd(){
   if(el)el.scrollIntoView({behavior:'smooth'});
 }
 function refreshPage(){if(loaders[curPage])loaders[curPage]()}
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+}
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sOverlay').classList.toggle('open')}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sOverlay').classList.remove('open')}
 function logout(){localStorage.clear();location.href='/'}
@@ -1000,6 +1056,8 @@ async function loadEmps(){
             <div style="border-top:1px solid var(--line);margin:4px 0"></div>
             <button onclick="editEmpSalary(${e.id},${e.salary},${e.extra})" style="display:block;width:100%;text-align:right;padding:8px 12px;font:inherit;font-size:.78rem;background:none;border:0;cursor:pointer;border-radius:7px" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='none'">﷼ تعديل الراتب</button>
             <button onclick="editEmpShift(${e.id})" style="display:block;width:100%;text-align:right;padding:8px 12px;font:inherit;font-size:.78rem;background:none;border:0;cursor:pointer;border-radius:7px" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='none'">🕐 تغيير الشفت</button>
+            <div style="border-top:1px solid var(--line);margin:4px 0"></div>
+            <button onclick="openTransactions(${e.id},'${e.name}')" style="display:block;width:100%;text-align:right;padding:8px 12px;font:inherit;font-size:.78rem;background:none;border:0;cursor:pointer;border-radius:7px;color:var(--violet)" onmouseover="this.style.background='var(--violet-soft)'" onmouseout="this.style.background='none'">💰 المعاملات المالية</button>
             <div style="border-top:1px solid var(--line);margin:4px 0"></div>
             <button onclick="empAction(${e.id},'INACTIVE')" style="display:block;width:100%;text-align:right;padding:8px 12px;font:inherit;font-size:.78rem;background:none;border:0;cursor:pointer;border-radius:7px;color:var(--red)" onmouseover="this.style.background='var(--red-soft)'" onmouseout="this.style.background='none'">✕ إنهاء العمل</button>
           </div>
@@ -1708,6 +1766,105 @@ async function editEmpShift(id){
   await hrApi('/employees/'+id,{method:'PATCH',body:JSON.stringify({shift:s})});
   loadEmps();loadShifts();
   showToast('تم تغيير الشفت ✓');
+}
+
+
+/* ===== المعاملات المالية ===== */
+let currentTransEmpId = null;
+const typeAr2 = {
+  BONUS_AMOUNT:'زيادة قيمة', BONUS_DAYS:'زيادة أيام',
+  OVERTIME:'أوفر تايم', ADVANCE:'سلفة',
+  ADVANCE_REPAY:'سداد سلفة', DEDUCTION:'خصم', PENALTY:'جزاء'
+};
+const typeColor = {
+  BONUS_AMOUNT:'var(--green)', BONUS_DAYS:'var(--green)',
+  OVERTIME:'var(--blue)', ADVANCE:'var(--red)',
+  ADVANCE_REPAY:'var(--green)', DEDUCTION:'var(--red)', PENALTY:'var(--red)'
+};
+
+// تحديث حقل الأيام عند تغيير النوع
+document.getElementById('tType').addEventListener('change', function(){
+  const isDays = this.value === 'BONUS_DAYS';
+  document.getElementById('tDaysField').style.display = isDays ? 'block' : 'none';
+  document.getElementById('tAmountLabel').textContent = isDays ? 'القيمة (تحسب تلقائياً)' : 'القيمة (ر.س) *';
+  if(isDays) document.getElementById('tAmount').placeholder = 'اختياري';
+  else document.getElementById('tAmount').placeholder = '0';
+});
+
+// تعيين الشهر الحالي
+document.getElementById('tMonth').value = new Date().toISOString().slice(0,7);
+
+async function openTransactions(empId, empName){
+  document.querySelectorAll('[id^="empMenu-"]').forEach(m=>m.style.display='none');
+  currentTransEmpId = empId;
+  document.getElementById('mTransTitle').textContent = `💰 المعاملات المالية — ${empName}`;
+  document.getElementById('mTrans').classList.add('open');
+  await loadTransactions();
+}
+
+async function loadTransactions(){
+  if(!currentTransEmpId) return;
+  try{
+    const data = await hrApi('/employees/'+currentTransEmpId+'/financial');
+    // الملخص
+    document.getElementById('mTransSummary').innerHTML = `
+      <div style="background:var(--green-soft);border-radius:9px;padding:10px;text-align:center">
+        <div class="num" style="font-size:1.2rem;font-weight:700;color:var(--green)">${fmt(data.netAdditions)} ر.س</div>
+        <div style="font-size:.66rem;color:var(--green);margin-top:2px">إجمالي الزيادات</div>
+      </div>
+      <div style="background:var(--red-soft);border-radius:9px;padding:10px;text-align:center">
+        <div class="num" style="font-size:1.2rem;font-weight:700;color:var(--red)">${fmt(data.netDeductions)} ر.س</div>
+        <div style="font-size:.66rem;color:var(--red);margin-top:2px">إجمالي الخصومات</div>
+      </div>
+      <div style="background:var(--blue-soft);border-radius:9px;padding:10px;text-align:center">
+        <div class="num" style="font-size:1.2rem;font-weight:700;color:var(--blue)">${fmt(data.netSalary)} ر.س</div>
+        <div style="font-size:.66rem;color:var(--blue);margin-top:2px">الصافي المتوقع</div>
+      </div>`;
+    // السجل
+    document.getElementById('mTransList').innerHTML = data.transactions.length ?
+      data.transactions.map(t=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)">
+          <div style="width:32px;height:32px;border-radius:8px;background:var(--bg);display:grid;place-items:center;font-size:.8rem;flex-shrink:0">
+            ${{BONUS_AMOUNT:'⬆️',BONUS_DAYS:'📅',OVERTIME:'⏰',ADVANCE:'💳',ADVANCE_REPAY:'✓',DEDUCTION:'⬇️',PENALTY:'⚠️'}[t.type]||'💰'}
+          </div>
+          <div style="flex:1">
+            <div style="font-size:.8rem;font-weight:600">${typeAr2[t.type]||t.type}</div>
+            <div style="font-size:.66rem;color:var(--steel)">${t.note||'—'} · ${t.month||''}</div>
+          </div>
+          <div class="num" style="font-weight:700;color:${typeColor[t.type]||'var(--ink)'}">
+            ${['DEDUCTION','ADVANCE','PENALTY'].includes(t.type)?'−':'+'}${fmt(t.amount)} ر.س
+            ${t.days?`<div style="font-size:.62rem;color:var(--muted)">${t.days} أيام</div>`:''}
+          </div>
+          <button onclick="deleteTransaction(${t.id})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.8rem;padding:4px" title="حذف">✕</button>
+        </div>`).join('') :
+      '<div style="text-align:center;padding:20px;color:var(--muted);font-size:.8rem">لا توجد معاملات هذا الشهر</div>';
+  }catch(e){console.error(e)}
+}
+
+async function addTransaction(){
+  const type = document.getElementById('tType').value;
+  const amount = document.getElementById('tAmount').value;
+  const days = document.getElementById('tDays').value;
+  const month = document.getElementById('tMonth').value?.replace('-','/');
+  const note = document.getElementById('tNote').value;
+  if(!amount && !days){showToast('⚠ أدخل القيمة أو عدد الأيام');return}
+  try{
+    await hrApi('/transactions',{method:'POST',body:JSON.stringify({
+      employeeId:currentTransEmpId, type, amount:amount||0, days:days||null, month, note
+    })});
+    document.getElementById('tAmount').value='';
+    document.getElementById('tDays').value='';
+    document.getElementById('tNote').value='';
+    await loadTransactions();
+    showToast('تمت إضافة المعاملة ✓');
+  }catch(e){console.error(e)}
+}
+
+async function deleteTransaction(id){
+  if(!confirm('هل تريد حذف هذه المعاملة؟')) return;
+  await hrApi('/transactions/'+id,{method:'DELETE'});
+  await loadTransactions();
+  showToast('تم حذف المعاملة ✓');
 }
 
 /* ===== التشغيل الأولي ===== */
