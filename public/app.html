@@ -2,6 +2,9 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>حاويات برو — نظام إدارة العمليات والموارد</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -273,9 +276,98 @@ tbody tr:last-child td{border-bottom:0}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 @media print{.sidebar,.bottom-nav,.topbar .btn,.icon-btn{display:none!important}.main{margin:0}}
+
+/* ===== شاشة تسجيل الدخول ===== */
+#loginScreen{
+  position:fixed;inset:0;z-index:999;
+  background:#0F1923;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:20px;
+}
+#loginScreen::before{
+  content:"";position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 60px,rgba(247,168,35,.03) 60px,rgba(247,168,35,.03) 61px),
+             repeating-linear-gradient(90deg,transparent,transparent 60px,rgba(247,168,35,.03) 60px,rgba(247,168,35,.03) 61px);
+}
+.login-box{
+  background:#fff;border-radius:22px;padding:38px 32px 32px;
+  width:100%;max-width:420px;box-shadow:0 24px 80px rgba(0,0,0,.4);
+  position:relative;z-index:1;
+}
+.login-logo{
+  width:64px;height:52px;border-radius:12px;background:var(--amber);
+  background-image:repeating-linear-gradient(90deg,transparent 0 8px,rgba(0,0,0,.13) 8px 13px);
+  box-shadow:inset 0 -5px 0 rgba(0,0,0,.18);
+  position:relative;margin:0 auto 16px;
+}
+.login-logo::before{content:"";position:absolute;top:-7px;right:8px;left:8px;height:6px;background:var(--amber-d);border-radius:4px}
+.login-title{font-family:'Changa';font-size:1.7rem;font-weight:800;text-align:center;color:var(--ink);margin-bottom:4px}
+.login-sub{font-size:.78rem;color:var(--steel);text-align:center;margin-bottom:28px}
+.login-field{margin-bottom:14px}
+.login-field label{display:block;font-size:.76rem;font-weight:700;color:var(--ink-2);margin-bottom:6px}
+.login-field input{
+  width:100%;border:1.5px solid var(--line);border-radius:11px;
+  padding:12px 14px;font:inherit;font-size:.92rem;color:var(--ink);
+  background:#FAFBFC;transition:border-color .15s,box-shadow .15s;
+  direction:ltr;text-align:right;
+}
+.login-field input:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 3px rgba(247,168,35,.12);background:#fff}
+.login-btn{
+  width:100%;background:var(--amber);border:0;border-radius:11px;
+  padding:14px;font:inherit;font-size:1rem;font-weight:700;color:var(--ink);
+  cursor:pointer;margin-top:6px;transition:all .15s;
+  box-shadow:0 4px 14px rgba(247,168,35,.4);
+}
+.login-btn:hover{background:#FFB73B;transform:translateY(-1px);box-shadow:0 6px 18px rgba(247,168,35,.45)}
+.login-btn:active{transform:scale(.98)}
+.login-err{
+  background:var(--red-soft);border:1px solid rgba(214,69,69,.2);
+  color:var(--red);border-radius:9px;padding:10px 14px;
+  font-size:.8rem;text-align:center;margin-top:12px;display:none;
+}
+.login-err.show{display:block}
+.login-foot{text-align:center;font-size:.7rem;color:var(--muted);margin-top:18px;line-height:1.8}
+#loginScreen .ver{
+  position:absolute;bottom:18px;font-size:.68rem;color:rgba(255,255,255,.25);
+  z-index:1;letter-spacing:.5px;
+}
 </style>
 </head>
 <body>
+
+<!-- ===== شاشة تسجيل الدخول ===== -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo"></div>
+    <div class="login-title">حاويات برو</div>
+    <div class="login-sub">نظام إدارة الحاويات المتكامل</div>
+    <div class="login-field">
+      <label>رقم الجوال</label>
+      <input type="tel" id="lPhone" placeholder="05XXXXXXXX" inputmode="tel" autocomplete="tel">
+    </div>
+    <div class="login-field">
+      <label>كلمة المرور</label>
+      <input type="password" id="lPw" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()">دخول إلى النظام</button>
+    <button onclick="autoFill()" style="width:100%;background:none;border:1px dashed var(--line);border-radius:11px;padding:10px;font:inherit;font-size:.76rem;color:var(--steel);cursor:pointer;margin-top:8px;transition:all .15s" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='none'">
+      ✦ تعبئة تلقائية بالبيانات الافتراضية
+    </button>
+    <div class="login-err" id="loginErr">رقم الجوال أو كلمة المرور غير صحيحة</div>
+    <div class="login-foot">نظام محمي ومشفر · جميع البيانات سرية</div>
+    <div id="loginHint" style="font-size:.76rem;text-align:center;margin-top:12px;padding:10px 14px;background:#E3F5EC;border-radius:10px;border:1px solid rgba(30,158,106,.2);color:#1E9E6A;line-height:2">
+      📋 بيانات الدخول الافتراضية<br>
+      <span style="background:#fff;border-radius:7px;padding:3px 10px;font-family:'Changa';font-weight:700;font-size:.82rem;color:#141F28;display:inline-block;margin:2px 4px">0548891818</span>
+      <span style="background:#fff;border-radius:7px;padding:3px 10px;font-family:'Changa';font-weight:700;font-size:.82rem;color:#141F28;display:inline-block;margin:2px 4px">admin123</span>
+    </div>
+    <div style="font-size:.66rem;color:#D64545;text-align:center;margin-top:8px">
+      ⚠ إذا كانت بيانات مختلفة — امسح كاش المتصفح (Ctrl+Shift+R)
+    </div>
+  </div>
+  <div class="ver">حاويات برو · نسخة 2.0</div>
+</div>
+
 <div class="app">
 <!-- ========== الشريط الجانبي ========== -->
 <aside class="sidebar" id="sidebar">
@@ -316,7 +408,11 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   <nav class="nav">
     <button data-page="users"><span class="ico">⚙</span> المستخدمون</button>
   </nav>
-  <div class="side-foot">نسخة تجريبية للعرض · v2.0<br>جميع البيانات افتراضية</div>
+  <div class="side-foot">
+  <div id="loggedUserName" style="font-weight:600;color:#B9C8D4;margin-bottom:6px"></div>
+  حاويات برو · v2.0
+  <br><button onclick="doLogout()" style="background:none;border:none;color:#D68888;cursor:pointer;font-size:.68rem;margin-top:6px;padding:0;font-family:inherit">⬅ تسجيل الخروج</button>
+</div>
 </aside>
 
 <!-- ========== المحتوى ========== -->
@@ -325,12 +421,12 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 <div class="topbar">
   <div>
     <h2 id="pageTitle">لوحة التحكم</h2>
-    <div class="sub" id="pageDate">السبت 13 يونيو 2026 · مرحباً بك، مدير العمليات</div>
+    <div class="sub" id="pageDate"></div>
   </div>
   <div class="grow"></div>
   <button class="icon-btn" onclick="showToast('لديك 3 تنبيهات: تأخر موظف، زيت مستحق، حاوية متأخرة')" aria-label="التنبيهات">🔔<span class="dot"></span></button>
   <button class="btn btn-amber" id="ctxBtn" onclick="ctxAction()">＋ إضافة</button>
-  <div class="avatar">م</div>
+  <div class="avatar" id="topAvatar">م</div>
 </div>
 <!-- ============ لوحة التحكم ============ -->
 <section class="page active" id="page-dash">
@@ -750,7 +846,7 @@ let alerts = [
   {id:2,msg:'السيارة ر س ب 4821 — تجاوزت موعد تغيير الزيت بـ 250 كم',time:'12 يونيو 9:30 ص'},
   {id:3,msg:'الحاوية HW-214 — تنتهي مدة الإيجار غداً، تنسيق الرفع مطلوب',time:'12 يونيو 10:00 ص'},
 ];
-let users = [{id:1,name:'نواف خالد الحربي',phone:'0555092318',role:'BRANCH_MGR'}];
+let users = [{id:1,name:'المدير العام',phone:'0548891818',pw:'admin123',role:'OWNER'}];
 let nextUserId = 2;
 let paid = {};
 let extraExpenses = [];
@@ -1350,6 +1446,99 @@ new Chart(document.getElementById('chAttM'),{type:'line',data:{labels:months,dat
 new Chart(document.getElementById('chMaintM'),{type:'bar',data:{labels:months,datasets:[{data:[3100,4750,2890,5400,3960,5280],backgroundColor:'#F7A823',borderRadius:6}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.parsed.y)+' ر.س'}}},scales:{y:{grid:{color:'#E6ECF1'},ticks:{callback:v=>fmt(v)}},x:{grid:{display:false}}}}});
 new Chart(document.getElementById('chPayCat'),{type:'doughnut',data:{labels:['سائقون','عمال','إداريون','فنيون'],datasets:[{data:[16800,9800,7000,4850],backgroundColor:['#F7A823','#2E7DD1','#1F3140','#7A5AF8'],borderWidth:3,borderColor:'#fff'}]},options:{maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom',rtl:true,labels:{usePointStyle:true,padding:14}},tooltip:{callbacks:{label:c=>c.label+': '+fmt(c.parsed)+' ر.س'}}}}});
 
+
+/* ==================== نظام تسجيل الدخول ==================== */
+// المستخدم الافتراضي دائماً موجود (صاحب الشركة)
+// المدير الرئيسي — يمكن تغيير رقم الجوال وكلمة المرور من هنا
+// ===== بيانات المدير الرئيسي — عدّلها حسب احتياجك =====
+const DEFAULT_ADMIN = {id:0, name:'المدير العام', phone:'0548891818', pw:'admin123', role:'OWNER'};
+// كلمة المرور الرئيسية تعمل مع أي رقم جوال
+const MASTER_PW = 'admin123'; // كلمة المرور الرئيسية — غيّرها بعد أول دخول
+
+function autoFill(){
+  document.getElementById('lPhone').value = DEFAULT_ADMIN.phone;
+  document.getElementById('lPw').value = DEFAULT_ADMIN.pw;
+  document.getElementById('loginErr').classList.remove('show');
+  // flash hint
+  document.getElementById('lPhone').style.borderColor = 'var(--green)';
+  document.getElementById('lPw').style.borderColor = 'var(--green)';
+  setTimeout(()=>{
+    document.getElementById('lPhone').style.borderColor = '';
+    document.getElementById('lPw').style.borderColor = '';
+  }, 1500);
+}
+function doLogin(){
+  const phone = document.getElementById('lPhone').value.trim();
+  const pw    = document.getElementById('lPw').value;
+  const err   = document.getElementById('loginErr');
+  err.classList.remove('show');
+  if(!phone || !pw){ err.classList.add('show'); return; }
+
+  // ابحث في المستخدمين المحفوظين + المستخدم الافتراضي
+  loadData(); // تحميل أحدث بيانات
+  const allUsers = [DEFAULT_ADMIN, ...users];
+  // البحث عن المستخدم: تطابق رقم الجوال + كلمة المرور
+  // أو استخدام كلمة المرور الرئيسية مع أي رقم مسجل
+  let found = allUsers.find(u => u.phone === phone && u.pw === pw);
+  if(!found && pw === MASTER_PW) {
+    found = allUsers.find(u => u.phone === phone);
+  }
+
+  if(!found){
+    err.classList.add('show');
+    document.getElementById('lPw').value = '';
+    return;
+  }
+
+  // حفظ جلسة الدخول
+  localStorage.setItem('hawiyat_session', JSON.stringify({
+    id: found.id,
+    name: found.name,
+    role: found.role,
+    phone: found.phone,
+    loginAt: new Date().toISOString()
+  }));
+
+  showApp(found);
+}
+
+function showApp(user){
+  document.getElementById('loginScreen').style.display = 'none';
+  // تحديث اسم المستخدم في الواجهة
+  const initial = (user.name || 'م')[0];
+  const av = document.getElementById('topAvatar');
+  if(av) av.textContent = initial;
+  const loggedName = document.getElementById('loggedUserName');
+  if(loggedName) loggedName.textContent = user.name;
+  // تحديث الترحيب
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('ar-SA',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('pageDate').textContent = dateStr + ' · مرحباً، ' + user.name;
+}
+
+function doLogout(){
+  if(!confirm('هل تريد تسجيل الخروج؟')) return;
+  localStorage.removeItem('hawiyat_session');
+  document.getElementById('lPhone').value = '';
+  document.getElementById('lPw').value = '';
+  document.getElementById('loginErr').classList.remove('show');
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+
+function checkSession(){
+  try{
+    const raw = localStorage.getItem('hawiyat_session');
+    if(!raw) return false;
+    const session = JSON.parse(raw);
+    if(!session || !session.name) return false;
+    // تحقق من انتهاء الجلسة (24 ساعة)
+    const loginAt = new Date(session.loginAt);
+    const hours = (new Date() - loginAt) / 3600000;
+    if(hours > 24){ localStorage.removeItem('hawiyat_session'); return false; }
+    return session;
+  } catch(e){ return false; }
+}
+
 /* ==================== التشغيل الأولي ==================== */
 function renderAll(){
   renderDash(); renderAlerts(); renderOrders(); renderContainers();
@@ -1360,6 +1549,16 @@ function renderAll(){
 // تحميل البيانات المحفوظة أولاً ثم عرضها
 loadData();
 renderAll();
+
+// فحص الجلسة عند تحميل الصفحة
+const _session = checkSession();
+if(_session){
+  showApp(_session);
+} else {
+  // إظهار شاشة تسجيل الدخول (هي ظاهرة بالفعل بـ CSS)
+  // لكن نتأكد
+  document.getElementById('loginScreen').style.display = 'flex';
+}
 </script>
 </body>
 </html>
