@@ -308,11 +308,13 @@ router.post('/extract-location', requireRole('OWNER','BRANCH_MGR','TRAFFIC_MGR',
 
 // ===== تعديل مستخدم =====
 router.patch('/users/:id', requireRole('OWNER'), async (req, res) => {
-  const { role, password, active } = req.body;
+  const { role, password, active, name } = req.body;
   const u = await prisma.user.findFirst({ where: { id: +req.params.id, companyId: req.user.companyId } });
   if (!u) return res.status(404).json({ error: 'المستخدم غير موجود' });
   const data = {};
+  if (name) data.name = name;
   if (role) data.role = role;
+  if (newName) data.name = newName;
   if (active !== undefined) data.active = active;
   if (password) {
     const bcrypt = require('bcryptjs');

@@ -1279,10 +1279,12 @@ async function loadUsers(){
         <div><div style="font-weight:600;font-size:.84rem">${u.name}</div><div style="font-size:.68rem;color:var(--steel)">${u.phone}</div></div>
       </div></td>
       <td><span class="badge bd-blue">${roleAr[u.role]||u.role}</span></td>
-      <td style="font-size:.72rem;color:var(--steel)">${new Date(u.createdAt).toLocaleDateString('ar-SA')}</td>
+      <td style="font-size:.72rem;color:var(--steel)">${u.createdAt?new Date(u.createdAt).toLocaleDateString('ar-SA'):'—'}</td>
       <td><span class="badge ${u.active!==false?'bd-green':'bd-red'}">${u.active!==false?'نشط':'معطل'}</span></td>
       <td>
         <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="editUserName(${u.id},'${u.name}')" style="font-size:.7rem">تعديل الاسم</button>
+          <button class="btn btn-ghost btn-sm" onclick="editUserName(${u.id},'${u.name}')" style="font-size:.7rem">تعديل الاسم</button>
           <button class="btn btn-ghost btn-sm" onclick="editUser(${u.id},'${u.name}','${u.role}')" style="font-size:.7rem">تعديل الدور</button>
           <button class="btn btn-sm" style="background:var(--amber-soft);color:var(--amber-d);padding:5px 10px;font-size:.7rem;border-radius:7px;border:0;cursor:pointer;font-family:inherit" onclick="resetUserPass(${u.id},'${u.name}')">كلمة المرور</button>
           ${u.role!=='OWNER'?`
@@ -1738,6 +1740,26 @@ async function addOrder(){
 
 
 /* ===== إدارة المستخدمين ===== */
+async function editUserName(id, name){
+  const newName = prompt(`الاسم الحالي: ${name}\nأدخل الاسم الجديد:`);
+  if(!newName || newName===name) return;
+  try{
+    await coApi('/users/'+id,{method:'PATCH',body:JSON.stringify({name:newName})});
+    loadUsers();
+    showToast('تم تحديث الاسم ✓');
+  }catch(e){showToast('⚠ خطأ في التحديث')}
+}
+
+async function editUserName(id, name){
+  const newName = prompt(`الاسم الحالي: ${name}\nأدخل الاسم الجديد:`);
+  if(!newName || newName===name) return;
+  try{
+    await coApi('/users/'+id,{method:'PATCH',body:JSON.stringify({name:newName})});
+    loadUsers();
+    showToast('تم تحديث الاسم ✓');
+  }catch(e){showToast('⚠ خطأ في التحديث')}
+}
+
 async function editUser(id, name, role){
   const newRole = prompt(`تعديل دور ${name}\nالأدوار المتاحة:\nOWNER = مدير شركة\nBRANCH_MGR = مدير فرع\nTRAFFIC_MGR = مدير حركة\nDISPATCHER = موزع\nACCOUNTANT = محاسب\nDRIVER = سائق\n\nالدور الحالي: ${role}`, role);
   if(!newRole || newRole===role) return;
