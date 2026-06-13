@@ -6,7 +6,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>حاويات برو — نظام إدارة العمليات والموارد</title>
+<title>حاويات برو v2.1 — نظام إدارة العمليات والموارد</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Changa:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -1632,26 +1632,22 @@ function doLogin(){
 
   let found = null;
 
-  // 1. كلمة المرور الرئيسية تعمل مع أي رقم جوال مسجل في النظام
-  if(String(pw) === String(MASTER_PW)){
-    found = allUsers.find(u => u.phone === phone);
-    if(found) found = {...found};
-  }
-
-  // 2. تطابق تام: جوال + كلمة مرور شخصية
-  if(!found){
-    found = allUsers.find(u => u.phone === phone && u.pw && String(u.pw) === String(pw));
-  }
-
-  // 3. مستخدم بدون كلمة مرور محددة → أي كلمة مرور تكفي (للمستخدمين القدامى)
-  if(!found){
-    const byPhone = allUsers.find(u => u.phone === phone);
-    if(byPhone && (!byPhone.pw || byPhone.pw === '')){
-      found = {...byPhone};
-      // احفظ كلمة المرور الجديدة للمستخدم
-      const uIdx = users.findIndex(u => u.phone === phone);
-      if(uIdx >= 0){ users[uIdx].pw = pw; saveData(); }
+  // الأولوية: كلمة المرور الرئيسية تعمل مع أي إدخال
+  if(String(pw).trim() === String(MASTER_PW).trim()){
+    // ابحث في المستخدمين
+    found = allUsers.find(u => String(u.phone).replace(/\s/g,'') === String(phone).replace(/\s/g,''));
+    if(!found){
+      // إنشاء مستخدم مؤقت بالجوال المدخل
+      found = {id:0, name:'المدير العام', phone:phone, role:'OWNER'};
     }
+  }
+
+  // تطابق تام بكلمة مرور شخصية
+  if(!found){
+    found = allUsers.find(u =>
+      String(u.phone).replace(/\s/g,'') === String(phone).replace(/\s/g,'') &&
+      u.pw && String(u.pw).trim() === String(pw).trim()
+    );
   }
 
   if(!found){
