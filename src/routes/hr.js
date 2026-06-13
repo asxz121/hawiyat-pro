@@ -7,7 +7,8 @@ router.use(requireAuth, requireActiveCompany);
 const scope = (req) => ({ companyId: req.user.companyId });
 
 // ===== الموظفون =====
-router.get('/employees', async (req, res) => {
+// مدير الحركة والموزع والمحاسب والسائق لا يرون الموظفين
+router.get('/employees', requireRole('OWNER','BRANCH_MGR','TRAFFIC_MGR'), async (req, res) => {
   res.json(await prisma.employee.findMany({
     where: scope(req),
     orderBy: { id: 'asc' },
@@ -84,7 +85,7 @@ router.get('/attendance', async (req, res) => {
   res.json(result);
 });
 
-router.post('/attendance/checkin', requireRole('OWNER', 'BRANCH_MGR', 'DISPATCHER'), async (req, res) => {
+router.post('/attendance/checkin', requireRole('OWNER', 'BRANCH_MGR', 'TRAFFIC_MGR', 'DISPATCHER'), async (req, res) => {
   const { employeeId } = req.body;
   if (!employeeId) return res.status(400).json({ error: 'معرف الموظف مطلوب' });
 
@@ -118,7 +119,7 @@ router.post('/attendance/checkin', requireRole('OWNER', 'BRANCH_MGR', 'DISPATCHE
   }
 });
 
-router.post('/attendance/checkout', requireRole('OWNER', 'BRANCH_MGR', 'DISPATCHER'), async (req, res) => {
+router.post('/attendance/checkout', requireRole('OWNER', 'BRANCH_MGR', 'TRAFFIC_MGR', 'DISPATCHER'), async (req, res) => {
   const { employeeId } = req.body;
   if (!employeeId) return res.status(400).json({ error: 'معرف الموظف مطلوب' });
 
@@ -140,7 +141,7 @@ router.post('/attendance/checkout', requireRole('OWNER', 'BRANCH_MGR', 'DISPATCH
   }));
 });
 
-router.post('/attendance/absent', requireRole('OWNER', 'BRANCH_MGR'), async (req, res) => {
+router.post('/attendance/absent', requireRole('OWNER', 'BRANCH_MGR', 'TRAFFIC_MGR'), async (req, res) => {
   const { employeeId } = req.body;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -161,7 +162,7 @@ router.post('/attendance/absent', requireRole('OWNER', 'BRANCH_MGR'), async (req
 });
 
 // ===== الرواتب =====
-router.get('/payroll', async (req, res) => {
+router.get('/payroll', requireRole('OWNER', 'ACCOUNTANT'), async (req, res) => {
   const month = req.query.month || new Date().toISOString().slice(0, 7).replace('-', '/');
 
   const employees = await prisma.employee.findMany({

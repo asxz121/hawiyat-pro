@@ -279,7 +279,7 @@ tbody tr:hover{background:#F8FAFB}
     </div>
     <div class="user-pill">
       <div class="user-av" id="userAv">م</div>
-      <div class="user-info"><div class="t" id="userName">—</div><div class="s" id="coName">—</div></div>
+      <div class="user-info"><div class="t" id="userName">—</div><div class="s" id="userRole">—</div><div class="s" id="coName">—</div></div>
     </div>
   </div>
 
@@ -301,6 +301,9 @@ tbody tr:hover{background:#F8FAFB}
     <div class="nav-sec">الأسطول</div>
     <button class="nav-item" data-page="vehicles"><span class="ico">🚚</span> السيارات وعداد الزيت <span class="nav-badge" id="oilBadge" style="display:none">0</span></button>
     <button class="nav-item" data-page="maintenance"><span class="ico">🔧</span> الصيانة</button>
+
+    <div class="nav-sec">التحليلات</div>
+    <button class="nav-item" data-page="reports"><span class="ico">📊</span> التقارير</button>
 
     <div class="nav-sec">إدارة</div>
     <button class="nav-item" data-page="users"><span class="ico">⚙</span> المستخدمون</button>
@@ -512,13 +515,54 @@ tbody tr:hover{background:#F8FAFB}
           <div class="field"><label>الاسم *</label><input id="uName" placeholder="فهد محمد الشهري"></div>
           <div class="field"><label>الجوال (للدخول) *</label><input id="uPhone" inputmode="tel" placeholder="05XXXXXXXX"></div>
           <div class="field"><label>كلمة المرور *</label><input id="uPw" type="password" placeholder="••••••••"></div>
-          <div class="field"><label>الدور</label><select id="uRole"><option value="DISPATCHER">موزع</option><option value="DRIVER">سائق</option><option value="ACCOUNTANT">محاسب</option><option value="BRANCH_MGR">مدير فرع</option></select></div>
+          <div class="field"><label>الدور</label><select id="uRole">
+              <option value="BRANCH_MGR">مدير فرع</option>
+              <option value="TRAFFIC_MGR">مدير حركة</option>
+              <option value="DISPATCHER">موزع عمليات</option>
+              <option value="ACCOUNTANT">محاسب</option>
+              <option value="DRIVER">سائق</option>
+            </select></div>
           <div class="field"><label>اللغة</label><select id="uLang"><option value="ar">العربية</option><option value="en">English</option><option value="ur">اردو</option><option value="hi">हिन्दी</option></select></div>
         </div>
         <button class="btn btn-amber" onclick="addUser()" style="padding:9px 16px">＋ إضافة</button>
       </div>
       <div class="card"><div class="card-head"><h3>المستخدمون</h3></div>
         <div class="tbl-wrap"><table><thead><tr><th>الاسم</th><th>الجوال</th><th>الدور</th><th>اللغة</th></tr></thead><tbody id="userRows"></tbody></table></div>
+      </div>
+    </div>
+
+
+    <!-- ===== التقارير ===== -->
+    <div class="page" id="page-reports">
+      <div class="kpis">
+        <div class="kpi b"><div class="lbl">إجمالي الموظفين</div><div class="val num" id="rEmps">—</div><span class="delta flat">الكادر الكامل</span></div>
+        <div class="kpi g"><div class="lbl">كتلة الرواتب الشهرية</div><div class="val num" id="rSalary">— <small>ر.س</small></div><span class="delta flat">هذا الشهر</span></div>
+        <div class="kpi r"><div class="lbl">تكاليف الصيانة</div><div class="val num" id="rMaint">— <small>ر.س</small></div><span class="delta flat">هذا الشهر</span></div>
+        <div class="kpi v"><div class="lbl">إجمالي الطلبات</div><div class="val num" id="rOrders">—</div><span class="delta flat">كل الطلبات</span></div>
+      </div>
+      <div class="grid11">
+        <div class="card">
+          <div class="card-head"><h3>توزيع الرواتب حسب الفئة</h3></div>
+          <div class="chart-box"><canvas id="chPayCat"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>حالة الأسطول</h3></div>
+          <div class="chart-box"><canvas id="chFleet"></canvas></div>
+        </div>
+      </div>
+      <div class="grid11">
+        <div class="card">
+          <div class="card-head"><h3>الحضور خلال الأسبوع</h3></div>
+          <div class="chart-box"><canvas id="chAttReport"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>حالة الطلبات</h3></div>
+          <div class="chart-box"><canvas id="chOrders"></canvas></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>ملخص تشغيلي</h3><span class="end"><button class="btn btn-ghost btn-sm" onclick="window.print()">⎙ طباعة PDF</button></span></div>
+        <div id="repSummary"></div>
       </div>
     </div>
 
@@ -565,12 +609,15 @@ function showToast(msg){
 }
 
 /* ===== التنقل ===== */
-const titles={dash:'لوحة التحكم',alerts:'التنبيهات',orders:'الطلبات',containers:'الحاويات',employees:'الموظفون',shifts:'الشفتات',attendance:'الحضور والانصراف',payroll:'الرواتب',vehicles:'السيارات وعداد الزيت',maintenance:'الصيانة',users:'المستخدمون'};
+const titles={dash:'لوحة التحكم',alerts:'التنبيهات',orders:'الطلبات',containers:'الحاويات',employees:'الموظفون',shifts:'الشفتات',attendance:'الحضور والانصراف',payroll:'الرواتب',vehicles:'السيارات وعداد الزيت',maintenance:'الصيانة',reports:'التقارير والإحصائيات',users:'المستخدمون'};
 const addLabels={orders:'＋ طلب جديد',containers:'＋ حاوية جديدة',employees:'＋ موظف جديد',vehicles:'＋ سيارة جديدة',maintenance:'＋ عملية صيانة',users:'＋ مستخدم جديد'};
-const loaders={dash:loadDash,alerts:loadAlerts,orders:loadOrders,containers:loadConts,employees:loadEmps,shifts:loadShifts,attendance:loadAtt,payroll:loadPayroll,vehicles:loadVehs,maintenance:loadMaint,users:loadUsers};
+const loaders={dash:loadDash,alerts:loadAlerts,orders:loadOrders,containers:loadConts,employees:loadEmps,shifts:loadShifts,attendance:loadAtt,payroll:loadPayroll,vehicles:loadVehs,maintenance:loadMaint,reports:loadReports,users:loadUsers};
 let curPage='dash';
 
 function go(p){
+  const role = who.role || 'DRIVER';
+  const allowed = PERMISSIONS[role] || ['dash'];
+  if(!allowed.includes(p)){showToast('⚠ ليس لديك صلاحية للوصول لهذا القسم');return}
   curPage=p;
   document.querySelectorAll('.page').forEach(s=>s.classList.toggle('active',s.id==='page-'+p));
   document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
@@ -959,7 +1006,7 @@ async function addMaint(){
 
 /* ===== المستخدمون ===== */
 const langAr={ar:'العربية',en:'English',ur:'اردو',hi:'हिन्दी'};
-const roleAr={OWNER:'مدير الشركة',BRANCH_MGR:'مدير فرع',DISPATCHER:'موزع',ACCOUNTANT:'محاسب',DRIVER:'سائق'};
+const roleAr={OWNER:'مدير الشركة',BRANCH_MGR:'مدير فرع',TRAFFIC_MGR:'مدير حركة',DISPATCHER:'موزع',ACCOUNTANT:'محاسب',DRIVER:'سائق'};
 async function loadUsers(){
   try{
     const us=await coApi('/users');
@@ -980,8 +1027,150 @@ async function addUser(){
   }catch(x){console.error(x)}
 }
 
+
+/* ===== التقارير ===== */
+let chPayCat=null,chFleet=null,chAttReport=null,chOrders=null;
+async function loadReports(){
+  try{
+    const [emps,vehs,maint,orders,att]=await Promise.all([
+      hrApi('/employees'),hrApi('/vehicles'),hrApi('/maintenance'),
+      coApi('/orders'),hrApi('/attendance')
+    ]);
+    const active=emps.filter(e=>e.status==='ACTIVE');
+    const totalSalary=active.reduce((s,e)=>s+e.salary+e.extra,0);
+    const thisMaint=maint.filter(m=>new Date(m.date).getMonth()===new Date().getMonth());
+    const maintCost=thisMaint.reduce((s,m)=>s+m.cost,0);
+    document.getElementById('rEmps').textContent=active.length;
+    document.getElementById('rSalary').innerHTML=fmt(totalSalary)+' <small>ر.س</small>';
+    document.getElementById('rMaint').innerHTML=fmt(maintCost)+' <small>ر.س</small>';
+    document.getElementById('rOrders').textContent=orders.length;
+
+    // ملخص تشغيلي
+    const oilDue=vehs.filter(v=>(v.odometer-v.lastOilAt)>=v.oilInterval).length;
+    const present=att.filter(a=>a.attendance.status==='in'||a.attendance.status==='late'||a.attendance.status==='out').length;
+    const attRate=att.length?Math.round(present/att.length*100):0;
+    document.getElementById('repSummary').innerHTML=[
+      ['إجمالي الموظفين النشطين',active.length+' موظف'],
+      ['إجمالي كتلة الرواتب الشهرية',fmt(totalSalary)+' ر.س'],
+      ['تكاليف صيانة هذا الشهر',fmt(maintCost)+' ر.س'],
+      ['نسبة الحضور اليوم',attRate+'%'],
+      ['سيارات تحتاج تغيير زيت',oilDue+' سيارة'],
+      ['إجمالي الطلبات',orders.length+' طلب'],
+      ['طلبات منفذة',orders.filter(o=>o.status==='DONE').length+' طلب'],
+      ['طلبات قيد التنفيذ',orders.filter(o=>o.status!=='DONE'&&o.status!=='CANCELLED').length+' طلب'],
+    ].map(r=>`<div style="display:flex;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)">
+      <div style="flex:1;font-size:.84rem;color:var(--steel)">${r[0]}</div>
+      <div style="font-family:'Changa';font-weight:700;font-size:1.05rem">${r[1]}</div>
+    </div>`).join('');
+
+    // رسم توزيع الرواتب
+    const roleGroups={سائق:0,عامل:0,إداري:0,'فني صيانة':0,أخرى:0};
+    active.forEach(e=>{
+      const k=roleGroups.hasOwnProperty(e.role)?e.role:'أخرى';
+      roleGroups[k]+=e.salary+e.extra;
+    });
+    const rgLabels=Object.keys(roleGroups).filter(k=>roleGroups[k]>0);
+    const rgData=rgLabels.map(k=>roleGroups[k]);
+    if(chPayCat)chPayCat.destroy();
+    chPayCat=new Chart(document.getElementById('chPayCat'),{type:'doughnut',data:{
+      labels:rgLabels,
+      datasets:[{data:rgData,backgroundColor:['#F7A823','#2E7DD1','#1F3140','#7A5AF8','#1B9E6E'],borderWidth:3,borderColor:'#fff'}]
+    },options:{maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom',rtl:true,labels:{usePointStyle:true,padding:12,font:{size:11}}},tooltip:{callbacks:{label:c=>c.label+': '+fmt(c.parsed)+' ر.س'}}}}});
+
+    // رسم حالة الأسطول
+    const vOk=vehs.filter(v=>(v.odometer-v.lastOilAt)<v.oilInterval*0.84).length;
+    const vWarn=vehs.filter(v=>{const u=v.odometer-v.lastOilAt;return u>=v.oilInterval*0.84&&u<v.oilInterval}).length;
+    const vDue=vehs.filter(v=>(v.odometer-v.lastOilAt)>=v.oilInterval).length;
+    if(chFleet)chFleet.destroy();
+    chFleet=new Chart(document.getElementById('chFleet'),{type:'doughnut',data:{
+      labels:['جاهزة','قاربت الاستحقاق','مستحقة الآن'],
+      datasets:[{data:[vOk,vWarn,vDue],backgroundColor:['#1B9E6E','#F7A823','#D64545'],borderWidth:3,borderColor:'#fff'}]
+    },options:{maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',rtl:true,labels:{usePointStyle:true,padding:12,font:{size:11}}}}}});
+
+    // رسم الحضور
+    const days=['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'];
+    const p=att.filter(a=>a.attendance.status==='in'||a.attendance.status==='out').length;
+    const l=att.filter(a=>a.attendance.status==='late').length;
+    const ab=att.filter(a=>a.attendance.status==='absent').length;
+    if(chAttReport)chAttReport.destroy();
+    chAttReport=new Chart(document.getElementById('chAttReport'),{type:'bar',data:{labels:days,datasets:[
+      {label:'حاضر',data:[p,p,p,p,p,p],backgroundColor:'#1B9E6E',borderRadius:4,stack:'a'},
+      {label:'متأخر',data:[l,l,0,l,0,l],backgroundColor:'#F7A823',borderRadius:4,stack:'a'},
+      {label:'غائب',data:[ab,0,0,0,0,ab],backgroundColor:'#D64545',borderRadius:4,stack:'a'},
+    ]},options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom',rtl:true,labels:{usePointStyle:true,padding:12,font:{size:11}}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:'#E6ECF1'}}}}});
+
+    // رسم حالة الطلبات
+    const stCounts={NEW:0,ASSIGNED:0,EN_ROUTE:0,DONE:0,CANCELLED:0};
+    orders.forEach(o=>{if(stCounts.hasOwnProperty(o.status))stCounts[o.status]++});
+    if(chOrders)chOrders.destroy();
+    chOrders=new Chart(document.getElementById('chOrders'),{type:'bar',data:{
+      labels:['جديد','مسند','بالطريق','منفذ','ملغي'],
+      datasets:[{data:[stCounts.NEW,stCounts.ASSIGNED,stCounts.EN_ROUTE,stCounts.DONE,stCounts.CANCELLED],
+        backgroundColor:['#2E7DD1','#F7A823','#F7A823','#1B9E6E','#D64545'],borderRadius:6}]
+    },options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'#E6ECF1'},ticks:{stepSize:1}},x:{grid:{display:false}}}}});
+  }catch(e){console.error(e)}
+}
+
+
+/* ===== نظام الصلاحيات ===== */
+const PERMISSIONS = {
+  OWNER:       ['dash','alerts','orders','containers','employees','shifts','attendance','payroll','vehicles','maintenance','reports','users'],
+  BRANCH_MGR:  ['dash','alerts','orders','containers','employees','shifts','attendance','vehicles','maintenance'],
+  TRAFFIC_MGR: ['dash','alerts','orders','containers','attendance','vehicles','maintenance'],
+  DISPATCHER:  ['dash','alerts','orders','containers'],
+  ACCOUNTANT:  ['dash','payroll','reports'],
+  DRIVER:      ['dash','orders'],
+  SUPER_ADMIN: ['dash','alerts','orders','containers','employees','shifts','attendance','payroll','vehicles','maintenance','reports','users'],
+};
+
+const ROLE_LABELS = {
+  OWNER:'مدير الشركة', BRANCH_MGR:'مدير فرع', TRAFFIC_MGR:'مدير حركة',
+  DISPATCHER:'موزع عمليات', ACCOUNTANT:'محاسب', DRIVER:'سائق', SUPER_ADMIN:'مدير المنصة'
+};
+
+function applyPermissions(){
+  const role = who.role || 'DRIVER';
+  const allowed = PERMISSIONS[role] || ['dash'];
+  // إخفاء عناصر القائمة غير المسموح بها
+  document.querySelectorAll('[data-page]').forEach(el => {
+    const page = el.dataset.page;
+    if(!allowed.includes(page)){
+      el.style.display = 'none';
+    }
+  });
+  // إظهار الدور في معلومات المستخدم
+  const roleEl = document.getElementById('userRole');
+  if(roleEl) roleEl.textContent = ROLE_LABELS[role] || role;
+  // إخفاء زر الإضافة لبعض الأدوار
+  if(role === 'DRIVER' || role === 'ACCOUNTANT'){
+    const topBtn = document.getElementById('topBtn');
+    if(topBtn) topBtn.style.display = 'none';
+  }
+  // منع الوصول المباشر للصفحات غير المسموح بها
+  return allowed;
+}
+
+/* ===== تعديل الراتب ===== */
+async function editSalary(id, currentSalary, currentExtra){
+  const newSalary = prompt('الراتب الأساسي الحالي: ' + fmt(currentSalary) + ' ر.س\nأدخل الراتب الجديد:');
+  if(newSalary === null) return;
+  const newExtra = prompt('البدلات والإضافي الحالية: ' + fmt(currentExtra) + ' ر.س\nأدخل القيمة الجديدة:');
+  if(newExtra === null) return;
+  try{
+    await hrApi('/employees/'+id, {method:'PATCH', body:JSON.stringify({salary:+newSalary, extra:+newExtra||0})});
+    loadPayroll();
+    showToast('تم تحديث الراتب ✓');
+  }catch(e){console.error(e)}
+}
+
 /* ===== التشغيل الأولي ===== */
-loadDash();
+// تطبيق الصلاحيات
+applyPermissions();
+// تحميل الصفحة الافتراضية حسب الدور
+const role = who.role || 'DRIVER';
+const allowed = PERMISSIONS[role] || ['dash'];
+const startPage = allowed[0] || 'dash';
+go(startPage);
 setInterval(()=>{if(curPage==='dash')loadDash();if(curPage==='alerts')loadAlerts()},60000);
 </script>
 </body>

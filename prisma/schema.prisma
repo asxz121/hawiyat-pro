@@ -48,12 +48,13 @@ model Branch {
 
 // ===== المستخدمون والأدوار =====
 enum Role {
-  SUPER_ADMIN // مدير المنصة (أنت)
-  OWNER       // مدير الشركة
-  BRANCH_MGR  // مدير فرع
-  DISPATCHER  // موزع عمليات
-  ACCOUNTANT  // محاسب
-  DRIVER      // سائق
+  SUPER_ADMIN  // مدير المنصة (أنت)
+  OWNER        // مدير الشركة
+  BRANCH_MGR   // مدير فرع
+  TRAFFIC_MGR  // مدير حركة
+  DISPATCHER   // موزع عمليات
+  ACCOUNTANT   // محاسب
+  DRIVER       // سائق
 }
 
 model User {

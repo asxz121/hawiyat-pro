@@ -10,14 +10,14 @@ const scope = (req) => ({ companyId: req.user.companyId }); // عزل بيانا
 router.get('/containers', async (req, res) => {
   res.json(await prisma.container.findMany({ where: scope(req), orderBy: { code: 'asc' } }));
 });
-router.post('/containers', requireRole('OWNER', 'BRANCH_MGR', 'DISPATCHER'), async (req, res) => {
+router.post('/containers', requireRole('OWNER', 'BRANCH_MGR', 'TRAFFIC_MGR', 'DISPATCHER'), async (req, res) => {
   const { code, size } = req.body;
   if (!code || !size) return res.status(400).json({ error: 'رقم الحاوية والحجم مطلوبان' });
   try {
     res.json(await prisma.container.create({ data: { ...scope(req), code, size, notes: req.body.notes } }));
   } catch { res.status(400).json({ error: 'رقم الحاوية مستخدم مسبقاً' }); }
 });
-router.patch('/containers/:id/status', requireRole('OWNER', 'BRANCH_MGR', 'DISPATCHER', 'DRIVER'), async (req, res) => {
+router.patch('/containers/:id/status', requireRole('OWNER', 'BRANCH_MGR', 'TRAFFIC_MGR', 'DISPATCHER', 'DRIVER'), async (req, res) => {
   const c = await prisma.container.findFirst({ where: { id: +req.params.id, ...scope(req) } });
   if (!c) return res.status(404).json({ error: 'الحاوية غير موجودة' });
   res.json(await prisma.container.update({ where: { id: c.id }, data: { status: req.body.status } }));
@@ -29,7 +29,7 @@ router.get('/orders', async (req, res) => {
     where: scope(req), include: { container: true }, orderBy: { id: 'desc' },
   }));
 });
-router.post('/orders', requireRole('OWNER', 'BRANCH_MGR', 'DISPATCHER'), async (req, res) => {
+router.post('/orders', requireRole('OWNER', 'BRANCH_MGR', 'TRAFFIC_MGR', 'DISPATCHER'), async (req, res) => {
   const { customerName, phone1, type, size, phoneSite, phone3, lat, lng, address, contractNo, dueDate, price, notes, containerId } = req.body;
   if (!customerName || !phone1) return res.status(400).json({ error: 'اسم العميل ورقمه مطلوبان' });
   const order = await prisma.order.create({
@@ -45,7 +45,7 @@ router.post('/orders', requireRole('OWNER', 'BRANCH_MGR', 'DISPATCHER'), async (
   });
   res.json(order);
 });
-router.patch('/orders/:id', requireRole('OWNER', 'BRANCH_MGR', 'DISPATCHER', 'DRIVER'), async (req, res) => {
+router.patch('/orders/:id', requireRole('OWNER', 'BRANCH_MGR', 'TRAFFIC_MGR', 'DISPATCHER', 'DRIVER'), async (req, res) => {
   const o = await prisma.order.findFirst({ where: { id: +req.params.id, ...scope(req) } });
   if (!o) return res.status(404).json({ error: 'الطلب غير موجود' });
   const { status, alertMuted } = req.body;
