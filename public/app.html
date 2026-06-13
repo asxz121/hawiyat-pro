@@ -711,7 +711,7 @@ let employees = [
 ];
 let nextEmpId = 9;
 let att = {1:{in:'7:54 ص',out:null,st:'in'},2:{in:null,out:null,st:'none'},3:{in:'8:12 ص',out:null,st:'late'},4:{in:null,out:null,st:'none'},5:{in:'12:02 ص',out:'8:05 ص',st:'out'},6:{in:'7:58 ص',out:null,st:'in'},7:{in:'8:01 ص',out:null,st:'in'},8:{in:null,out:null,st:'absent'}};
-const absDays = {1:0,2:1,3:0,4:2,5:0,6:0,7:0,8:3};
+let absDays = {1:0,2:1,3:0,4:2,5:0,6:0,7:0,8:3};
 const OIL_INTERVAL = 5000;
 let vehicles = [
   {id:1,type:'شاحنة هوك لودر',      plate:'ر س ب 4821',driver:'فهد محمد الشهري',    odo:182450,lastOil:178200},
@@ -792,6 +792,13 @@ function ctxAction(){
   const m = ctxMap[curPage];
   if(m){ if(m==='mVeh'||m==='mMaint') fillVehSelects(); openM(m); }
   else if(curPage==='dash'||curPage==='alerts') go('orders');
+  else if(curPage==='orders'){ document.getElementById('oCust').focus(); document.getElementById('oCust').scrollIntoView({behavior:'smooth'}); }
+  else if(curPage==='containers'){ document.getElementById('cCode').focus(); document.getElementById('cCode').scrollIntoView({behavior:'smooth'}); }
+  else if(curPage==='accounting'){ document.getElementById('expAmount').focus(); document.getElementById('expAmount').scrollIntoView({behavior:'smooth'}); }
+  else if(curPage==='users'){ document.getElementById('uName').focus(); document.getElementById('uName').scrollIntoView({behavior:'smooth'}); }
+  else if(curPage==='payroll') showToast('اختر موظفاً واضغط «صرف» من جدول الرواتب');
+  else if(curPage==='attendance') showToast('سجّل الحضور من الجدول مباشرة');
+  else if(curPage==='reports'||curPage==='contmap'||curPage==='tracking') showToast('لا توجد إضافة في هذه الصفحة');
 }
 function openM(id){document.getElementById(id).classList.add('open')}
 function closeM(id){document.getElementById(id).classList.remove('open')}
@@ -848,7 +855,7 @@ function renderAlerts(){
     '<div class="empty">✅ لا توجد تنبيهات نشطة</div>';
   document.getElementById('alertPill').textContent = alerts.length;
 }
-function ackAlert(id){alerts=alerts.filter(a=>a.id!==id);renderAlerts();renderDash();showToast('تم إغلاق التنبيه ✓')}
+function ackAlert(id){alerts=alerts.filter(a=>a.id!==id);saveData();renderAlerts();renderDash();showToast('تم إغلاق التنبيه ✓')}
 
 /* ==================== الطلبات ==================== */
 let locGps = {lat:null,lng:null};
@@ -878,13 +885,13 @@ function renderOrders(){
     </tr>`).join('') :
     '<tr><td colspan="8" class="empty">لا توجد طلبات</td></tr>';
 }
-function changeOrderStatus(id,st){const o=orders.find(x=>x.id===id);if(o)o.status=st;renderOrders();renderDash();showToast('تم تحديث حالة الطلب ✓')}
+function changeOrderStatus(id,st){const o=orders.find(x=>x.id===id);if(o)o.status=st;saveData();renderOrders();renderDash();showToast('تم تحديث حالة الطلب ✓')}
 function addOrder(){
   if(!document.getElementById('oCust').value||!document.getElementById('oP1').value) return showToast('⚠ اسم العميل والجوال مطلوبان');
   orders.push({id:nextOrderId++,type:document.getElementById('oType').value,customerName:document.getElementById('oCust').value,phone1:document.getElementById('oP1').value,price:+document.getElementById('oPrice').value||0,address:document.getElementById('oAddr').value,lat:locGps.lat,lng:locGps.lng,status:'NEW'});
   ['oCust','oP1','oSize','oPrice','oAddr'].forEach(i=>document.getElementById(i).value='');
   document.getElementById('locMsg').innerHTML=''; locGps={lat:null,lng:null};
-  renderOrders(); renderDash(); showToast('تم إنشاء الطلب ✓');
+  saveData(); renderOrders(); renderDash(); showToast('تم إنشاء الطلب ✓');
 }
 
 /* ==================== الحاويات ==================== */
@@ -901,7 +908,7 @@ function addCont(){
   if(!document.getElementById('cCode').value||!document.getElementById('cSize').value) return showToast('⚠ الرقم والحجم مطلوبان');
   containers.push({code:document.getElementById('cCode').value,size:document.getElementById('cSize').value,status:'IN_DEPOT'});
   document.getElementById('cCode').value=''; document.getElementById('cSize').value='';
-  renderContainers(); showToast('تمت إضافة الحاوية ✓');
+  saveData(); renderContainers(); showToast('تمت إضافة الحاوية ✓');
 }
 
 /* ==================== خريطة الحاويات ==================== */
@@ -966,7 +973,7 @@ function addEmp(){
   const e={id:nextEmpId++,name:n,role:document.getElementById('eRole').value,phone:document.getElementById('ePhone').value||'—',shift:document.getElementById('eShift').value,salary:s,extra:+document.getElementById('eExtra').value||0,hired:'2026/06'};
   employees.push(e); att[e.id]={in:null,out:null,st:'none'}; absDays[e.id]=0;
   ['eName','ePhone','eSalary','eExtra'].forEach(i=>document.getElementById(i).value='');
-  closeM('mEmp'); renderAll(); go('employees'); showToast(`تمت إضافة الموظف ${n} ✓`);
+  closeM('mEmp'); saveData(); renderAll(); go('employees'); showToast(`تمت إضافة الموظف ${n} ✓`);
 }
 
 /* ==================== الشفتات ==================== */
@@ -983,12 +990,13 @@ function renderShifts(){
       ${Object.keys(shifts).map(s=>`<option ${s===e.shift?'selected':''}>${s}</option>`).join('')}
     </select></td></tr>`).join('');
 }
-function chShift(id,val){const e=employees.find(x=>x.id===id);e.shift=val;renderAll();showToast(`تم نقل ${e.name.split(' ')[0]} إلى شفت ${val} ✓`)}
+function chShift(id,val){const e=employees.find(x=>x.id===id);e.shift=val;saveData();renderAll();showToast(`تم نقل ${e.name.split(' ')[0]} إلى شفت ${val} ✓`)}
 
 /* ==================== الحضور ==================== */
 function renderAtt(){
   let p=0,l=0,a=0,o=0;
   document.getElementById('attBody').innerHTML=employees.map(e=>{
+    if(!att[e.id]) att[e.id]={in:null,out:null,st:'none'};
     const r=att[e.id];
     if(r.st==='in')p++;else if(r.st==='late'){p++;l++}else if(r.st==='absent')a++;else if(r.st==='out')o++;
     const st=r.st==='in'?['حاضر','bd-green']:r.st==='late'?['حاضر — متأخر','bd-amber']:r.st==='out'?['انصرف','bd-blue']:r.st==='absent'?['غائب','bd-red']:['لم يسجل','bd-gray'];
@@ -1010,9 +1018,9 @@ function renderAtt(){
   document.getElementById('aA').textContent=a;
   document.getElementById('aO').textContent=o;
 }
-function checkIn(id){att[id]={in:nowTime(),out:null,st:'in'};renderAll();showToast('تم تسجيل الحضور ✓')}
-function checkOut(id){att[id].out=nowTime();att[id].st='out';renderAll();showToast('تم تسجيل الانصراف ✓')}
-function markAbsent(id){att[id]={in:null,out:null,st:'absent'};absDays[id]=(absDays[id]||0)+1;renderAll();showToast('تم تسجيل الغياب')}
+function checkIn(id){att[id]={in:nowTime(),out:null,st:'in'};saveData();renderAll();showToast('تم تسجيل الحضور ✓')}
+function checkOut(id){att[id].out=nowTime();att[id].st='out';saveData();renderAll();showToast('تم تسجيل الانصراف ✓')}
+function markAbsent(id){att[id]={in:null,out:null,st:'absent'};absDays[id]=(absDays[id]||0)+1;saveData();renderAll();showToast('تم تسجيل الغياب')}
 
 /* ==================== الرواتب ==================== */
 function renderPay(){
@@ -1037,7 +1045,7 @@ function renderPay(){
   document.getElementById('pDed').innerHTML=fmt(ded)+' <small>ر.س</small>';
   document.getElementById('pPaid').innerHTML=fmt(paidSum)+' <small>ر.س</small>';
 }
-function payOne(id){paid[id]=true;renderPay();renderAccounting();showToast('تم صرف الراتب وإشعار الموظف ✓')}
+function payOne(id){paid[id]=true;saveData();renderPay();renderAccounting();showToast('تم صرف الراتب ✓')}
 
 /* ==================== السيارات ==================== */
 function oilState(v){
@@ -1072,8 +1080,8 @@ function renderVehs(){
 }
 let odoTarget=null;
 function openOdo(id){odoTarget=vehicles.find(v=>v.id===id);document.getElementById('odoInfo').textContent=`${odoTarget.type} · ${odoTarget.plate} — القراءة الحالية: ${fmt(odoTarget.odo)} كم`;document.getElementById('odoVal').value=odoTarget.odo;openM('mOdo')}
-function saveOdo(){const v=parseInt(document.getElementById('odoVal').value)||0;if(v<odoTarget.odo){showToast('القراءة الجديدة يجب أن تكون أكبر');return}odoTarget.odo=v;closeM('mOdo');renderAll();showToast(oilState(odoTarget).cls==='oil-due'?'⚠ تم التحديث — تجاوزت موعد تغيير الزيت!':'تم تحديث العداد ✓')}
-function oilChange(id){const v=vehicles.find(x=>x.id===id);v.lastOil=v.odo;maint.unshift({d:'13 يونيو',veh:v.plate,type:'تغيير زيت وفلتر',note:`عند ${fmt(v.odo)} كم`,cost:420,st:'مكتملة'});renderAll();showToast(`تم تسجيل تغيير الزيت للسيارة ${v.plate} ✓`)}
+function saveOdo(){const v=parseInt(document.getElementById('odoVal').value)||0;if(v<odoTarget.odo){showToast('القراءة الجديدة يجب أن تكون أكبر');return}odoTarget.odo=v;closeM('mOdo');saveData();renderAll();showToast(oilState(odoTarget).cls==='oil-due'?'⚠ تم التحديث — تجاوزت موعد تغيير الزيت!':'تم تحديث العداد ✓')}
+function oilChange(id){const v=vehicles.find(x=>x.id===id);v.lastOil=v.odo;maint.unshift({d:'13 يونيو',veh:v.plate,type:'تغيير زيت وفلتر',note:`عند ${fmt(v.odo)} كم`,cost:420,st:'مكتملة'});saveData();renderAll();showToast(`تم تسجيل تغيير الزيت للسيارة ${v.plate} ✓`)}
 function fillVehSelects(){
   document.getElementById('vDriver').innerHTML=employees.filter(e=>e.role==='سائق'||e.role==='إداري').map(e=>`<option>${e.name}</option>`).join('');
   document.getElementById('mnVeh').innerHTML=vehicles.map(v=>`<option value="${v.plate}">${v.type} — ${v.plate}</option>`).join('');
@@ -1083,7 +1091,7 @@ function addVeh(){
   if(!plate||!odo) return showToast('⚠ فضلاً أدخل اللوحة وقراءة العداد');
   vehicles.push({id:nextVehId++,type:document.getElementById('vType').value,plate,driver:document.getElementById('vDriver').value,odo,lastOil:odo});
   document.getElementById('vPlate').value=''; document.getElementById('vOdo').value='';
-  closeM('mVeh'); renderAll(); go('vehicles'); showToast('تمت إضافة السيارة وبدء عداد زيت جديد ✓');
+  closeM('mVeh'); saveData(); renderAll(); go('vehicles'); showToast('تمت إضافة السيارة وبدء عداد زيت جديد ✓');
 }
 
 /* ==================== تتبع السائقين ==================== */
@@ -1190,7 +1198,7 @@ function addMaintModal(){
   maint.unshift({d:'13 يونيو',veh:plate,type,note:document.getElementById('mnNote').value,cost,st:'مكتملة'});
   if(type==='تغيير زيت وفلتر'){const v=vehicles.find(x=>x.plate===plate);if(v)v.lastOil=v.odo}
   document.getElementById('mnCost').value=''; document.getElementById('mnNote').value='';
-  closeM('mMaint'); renderAll(); go('maintenance'); showToast('تم تسجيل عملية الصيانة ✓');
+  closeM('mMaint'); saveData(); renderAll(); go('maintenance'); showToast('تم تسجيل عملية الصيانة ✓');
 }
 
 /* ==================== المحاسبة ==================== */
@@ -1310,7 +1318,7 @@ function loadData(){
     const d = JSON.parse(raw);
     if(d.employees && d.employees.length) employees = d.employees;
     if(d.att) Object.assign(att, d.att);
-    if(d.absDaysData) Object.assign(absDays, d.absDaysData);
+    if(d.absDaysData){ absDays = {}; Object.assign(absDays, d.absDaysData); }
     if(d.vehicles && d.vehicles.length) vehicles = d.vehicles;
     if(d.maint && d.maint.length) maint = d.maint;
     if(d.orders && d.orders.length) orders = d.orders;
@@ -1327,37 +1335,6 @@ function loadData(){
   } catch(e){ console.warn('load error:', e); return false; }
 }
 
-/* ===== ربط حفظ تلقائي بكل دوال الإضافة ===== */
-const _origAddEmp=addEmp, _origChShift=chShift, _origCheckIn=checkIn, _origCheckOut=checkOut, _origMarkAbsent=markAbsent;
-const _origPayOne=payOne, _origOilChange=oilChange, _origSaveOdo=saveOdo, _origAddVeh=addVeh;
-const _origAddMaint=addMaintModal, _origAddOrder=addOrder, _origAddCont=addCont, _origAddExpense=addExpense, _origAckAlert=ackAlert;
-
-// نحفظ البيانات بعد كل عملية تغيير
-function autoSave(fn){ return function(){ fn.apply(this,arguments); saveData(); }; }
-
-// override كل الدوال المؤثرة بالبيانات
-window.addEmp = function(){
-  const n=document.getElementById('eName').value.trim(), s=+document.getElementById('eSalary').value;
-  if(!n||!s) return showToast('⚠ فضلاً أدخل الاسم والراتب');
-  const e={id:nextEmpId++,name:n,role:document.getElementById('eRole').value,phone:document.getElementById('ePhone').value||'—',shift:document.getElementById('eShift').value,salary:s,extra:+document.getElementById('eExtra').value||0,hired:'2026/06'};
-  employees.push(e); att[e.id]={in:null,out:null,st:'none'}; absDays[e.id]=0;
-  ['eName','ePhone','eSalary','eExtra'].forEach(i=>document.getElementById(i).value='');
-  closeM('mEmp'); saveData(); renderAll(); go('employees'); showToast(`تمت إضافة الموظف ${n} ✓`);
-};
-window.checkIn = function(id){ att[id]={in:nowTime(),out:null,st:'in'}; saveData(); renderAll(); showToast('تم تسجيل الحضور ✓'); };
-window.checkOut = function(id){ att[id].out=nowTime(); att[id].st='out'; saveData(); renderAll(); showToast('تم تسجيل الانصراف ✓'); };
-window.markAbsent = function(id){ att[id]={in:null,out:null,st:'absent'}; absDays[id]=(absDays[id]||0)+1; saveData(); renderAll(); showToast('تم تسجيل الغياب'); };
-window.chShift = function(id,val){ const e=employees.find(x=>x.id===id); e.shift=val; saveData(); renderAll(); showToast(`تم نقل ${e.name.split(' ')[0]} إلى شفت ${val} ✓`); };
-window.payOne = function(id){ paid[id]=true; saveData(); renderPay(); renderAccounting(); showToast('تم صرف الراتب ✓'); };
-window.oilChange = function(id){ const v=vehicles.find(x=>x.id===id); v.lastOil=v.odo; maint.unshift({d:'13 يونيو',veh:v.plate,type:'تغيير زيت وفلتر',note:`عند ${fmt(v.odo)} كم`,cost:420,st:'مكتملة'}); saveData(); renderAll(); showToast(`تم تسجيل تغيير الزيت ${v.plate} ✓`); };
-window.saveOdo = function(){ const v=parseInt(document.getElementById('odoVal').value)||0; if(v<odoTarget.odo){showToast('القراءة الجديدة يجب أن تكون أكبر');return} odoTarget.odo=v; closeM('mOdo'); saveData(); renderAll(); showToast(oilState(odoTarget).cls==='oil-due'?'⚠ تجاوزت موعد تغيير الزيت!':'تم تحديث العداد ✓'); };
-window.addVeh = function(){ const plate=document.getElementById('vPlate').value.trim(), odo=parseInt(document.getElementById('vOdo').value)||0; if(!plate||!odo) return showToast('⚠ فضلاً أدخل اللوحة وقراءة العداد'); vehicles.push({id:nextVehId++,type:document.getElementById('vType').value,plate,driver:document.getElementById('vDriver').value,odo,lastOil:odo}); document.getElementById('vPlate').value=''; document.getElementById('vOdo').value=''; closeM('mVeh'); saveData(); renderAll(); go('vehicles'); showToast('تمت إضافة السيارة ✓'); };
-window.addMaintModal = function(){ const cost=parseInt(document.getElementById('mnCost').value)||0; if(!cost) return showToast('⚠ فضلاً أدخل التكلفة'); const type=document.getElementById('mnType').value, plate=document.getElementById('mnVeh').value; maint.unshift({d:'13 يونيو',veh:plate,type,note:document.getElementById('mnNote').value,cost,st:'مكتملة'}); if(type==='تغيير زيت وفلتر'){const v=vehicles.find(x=>x.plate===plate);if(v)v.lastOil=v.odo} document.getElementById('mnCost').value=''; document.getElementById('mnNote').value=''; closeM('mMaint'); saveData(); renderAll(); go('maintenance'); showToast('تم تسجيل عملية الصيانة ✓'); };
-window.addOrder = function(){ if(!document.getElementById('oCust').value||!document.getElementById('oP1').value) return showToast('⚠ اسم العميل والجوال مطلوبان'); orders.push({id:nextOrderId++,type:document.getElementById('oType').value,customerName:document.getElementById('oCust').value,phone1:document.getElementById('oP1').value,price:+document.getElementById('oPrice').value||0,address:document.getElementById('oAddr').value,lat:locGps.lat,lng:locGps.lng,status:'NEW'}); ['oCust','oP1','oSize','oPrice','oAddr'].forEach(i=>document.getElementById(i).value=''); document.getElementById('locMsg').innerHTML=''; locGps={lat:null,lng:null}; saveData(); renderOrders(); renderDash(); showToast('تم إنشاء الطلب ✓'); };
-window.changeOrderStatus = function(id,st){ const o=orders.find(x=>x.id===id); if(o)o.status=st; saveData(); renderOrders(); renderDash(); showToast('تم تحديث حالة الطلب ✓'); };
-window.addCont = function(){ if(!document.getElementById('cCode').value||!document.getElementById('cSize').value) return showToast('⚠ الرقم والحجم مطلوبان'); containers.push({code:document.getElementById('cCode').value,size:document.getElementById('cSize').value,status:'IN_DEPOT'}); document.getElementById('cCode').value=''; document.getElementById('cSize').value=''; saveData(); renderContainers(); showToast('تمت إضافة الحاوية ✓'); };
-window.addExpense = function(){ const amount=document.getElementById('expAmount').value; if(!amount) return showToast('⚠ المبلغ مطلوب'); extraExpenses.push({type:document.getElementById('expType').value,amount:+amount,note:document.getElementById('expNote').value}); document.getElementById('expAmount').value=''; document.getElementById('expNote').value=''; saveData(); renderAccounting(); showToast('تمت إضافة المصروف ✓'); };
-window.ackAlert = function(id){ alerts=alerts.filter(a=>a.id!==id); saveData(); renderAlerts(); renderDash(); showToast('تم إغلاق التنبيه ✓'); };
 
 /* ==================== الرسوم البيانية ==================== */
 Chart.defaults.font.family="'IBM Plex Sans Arabic',sans-serif";
