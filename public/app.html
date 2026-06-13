@@ -411,7 +411,9 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   <div class="side-foot">
   <div id="loggedUserName" style="font-weight:600;color:#B9C8D4;margin-bottom:6px"></div>
   حاويات برو · v2.0
-  <br><button onclick="doLogout()" style="background:none;border:none;color:#D68888;cursor:pointer;font-size:.68rem;margin-top:6px;padding:0;font-family:inherit">⬅ تسجيل الخروج</button>
+  <br>
+  <button onclick="openM('mChangePw')" style="background:none;border:none;color:#9FB3C2;cursor:pointer;font-size:.68rem;margin-top:6px;padding:0;font-family:inherit;display:block">🔑 تغيير كلمة المرور</button>
+  <button onclick="doLogout()" style="background:none;border:none;color:#D68888;cursor:pointer;font-size:.68rem;margin-top:4px;padding:0;font-family:inherit;display:block">⬅ تسجيل الخروج</button>
 </div>
 </aside>
 
@@ -783,6 +785,30 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 </div>
 
 <div class="toast" id="toast"><span class="dot"></span><span id="toastTxt"></span></div>
+
+<!-- ===== نافذة تغيير كلمة المرور ===== -->
+<div class="modal-bg" id="mChangePw" onclick="if(event.target===this)closeM('mChangePw')">
+  <div class="modal">
+    <h3>🔑 تغيير كلمة المرور</h3>
+    <div class="field">
+      <label>كلمة المرور الحالية *</label>
+      <input type="password" id="cpOld" placeholder="أدخل كلمة المرور الحالية">
+    </div>
+    <div class="field">
+      <label>كلمة المرور الجديدة *</label>
+      <input type="password" id="cpNew" placeholder="6 أحرف على الأقل">
+    </div>
+    <div class="field">
+      <label>تأكيد كلمة المرور الجديدة *</label>
+      <input type="password" id="cpConf" placeholder="أعد كتابة كلمة المرور الجديدة" onkeydown="if(event.key==='Enter')doChangePw()">
+    </div>
+    <div id="cpErr" style="background:var(--red-soft);color:var(--red);border-radius:9px;padding:9px 13px;font-size:.78rem;display:none;margin-top:4px"></div>
+    <div class="m-actions">
+      <button class="btn btn-amber" onclick="doChangePw()">💾 حفظ كلمة المرور</button>
+      <button class="btn btn-ghost" onclick="closeM('mChangePw')">إلغاء</button>
+    </div>
+  </div>
+</div>
 <script>
 /* ==================== البيانات ==================== */
 const fmt = n => (+n||0).toLocaleString('en-US');
@@ -1451,7 +1477,10 @@ new Chart(document.getElementById('chPayCat'),{type:'doughnut',data:{labels:['س
 // المستخدم الافتراضي دائماً موجود (صاحب الشركة)
 // المدير الرئيسي — يمكن تغيير رقم الجوال وكلمة المرور من هنا
 // ===== بيانات المدير الرئيسي — عدّلها حسب احتياجك =====
+// ===== بيانات المدير الرئيسي — عدّلها حسب احتياجك =====
 const DEFAULT_ADMIN = {id:0, name:'المدير العام', phone:'0548891818', pw:'admin123', role:'OWNER'};
+// تحميل كلمة مرور المدير إن تم تغييرها
+(function(){ const saved=localStorage.getItem('hawiyat_admin_pw'); if(saved) DEFAULT_ADMIN.pw=saved; })();
 // كلمة المرور الرئيسية تعمل مع أي رقم جوال
 const MASTER_PW = 'admin123'; // كلمة المرور الرئيسية — غيّرها بعد أول دخول
 
@@ -1514,6 +1543,60 @@ function showApp(user){
   const now = new Date();
   const dateStr = now.toLocaleDateString('ar-SA',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   document.getElementById('pageDate').textContent = dateStr + ' · مرحباً، ' + user.name;
+}
+
+function doChangePw(){
+  const oldPw  = document.getElementById('cpOld').value;
+  const newPw  = document.getElementById('cpNew').value;
+  const confPw = document.getElementById('cpConf').value;
+  const errEl  = document.getElementById('cpErr');
+  errEl.style.display = 'none';
+
+  // فحص كلمة المرور الحالية
+  const session = checkSession();
+  if(!session){ errEl.textContent='انتهت جلستك، سجّل الدخول من جديد'; errEl.style.display='block'; return; }
+
+  // البحث عن المستخدم الحالي
+  const allUsers = [DEFAULT_ADMIN, ...users];
+  const me = allUsers.find(u => u.phone === session.phone);
+  if(!me || me.pw !== oldPw){
+    errEl.textContent = '✗ كلمة المرور الحالية غير صحيحة';
+    errEl.style.display = 'block';
+    document.getElementById('cpOld').value = '';
+    return;
+  }
+
+  if(newPw.length < 6){
+    errEl.textContent = '✗ كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  if(newPw !== confPw){
+    errEl.textContent = '✗ كلمة المرور الجديدة وتأكيدها غير متطابقين';
+    errEl.style.display = 'block';
+    document.getElementById('cpConf').value = '';
+    return;
+  }
+
+  // تحديث كلمة المرور
+  if(me.id === 0){
+    // تحديث المدير الافتراضي — نحفظه في localStorage
+    DEFAULT_ADMIN.pw = newPw;
+    localStorage.setItem('hawiyat_admin_pw', newPw);
+  } else {
+    const u = users.find(x => x.id === me.id);
+    if(u) u.pw = newPw;
+    saveData();
+  }
+
+  // تحديث الجلسة
+  const s = JSON.parse(localStorage.getItem('hawiyat_session')||'{}');
+  localStorage.setItem('hawiyat_session', JSON.stringify(s));
+
+  ['cpOld','cpNew','cpConf'].forEach(i => document.getElementById(i).value = '');
+  closeM('mChangePw');
+  showToast('✅ تم تغيير كلمة المرور بنجاح');
 }
 
 function doLogout(){
