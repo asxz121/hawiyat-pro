@@ -24,11 +24,16 @@ model Company {
   phone      String?
   notes      String?
   createdAt  DateTime      @default(now())
-  branches   Branch[]
-  users      User[]
-  containers Container[]
-  orders     Order[]
-  alerts     Alert[]
+  branches    Branch[]
+  users       User[]
+  containers  Container[]
+  orders      Order[]
+  alerts      Alert[]
+  employees   Employee[]
+  attendance  Attendance[]
+  payroll     Payroll[]
+  vehicles    Vehicle[]
+  maintenance Maintenance[]
 }
 
 model Branch {
@@ -145,4 +150,100 @@ model Alert {
   refOrderId   Int? // الطلب المرتبط إن وجد
   acknowledged Boolean  @default(false) // تم الاطلاع → يتوقف التكرار
   createdAt    DateTime @default(now())
+}
+
+// ===== الموارد البشرية =====
+enum ShiftType {
+  MORNING   // صباحي 8ص-4م
+  EVENING   // مسائي 4م-12ص
+  NIGHT     // ليلي 12ص-8ص
+}
+
+enum EmployeeStatus {
+  ACTIVE    // على رأس العمل
+  INACTIVE  // غير نشط
+}
+
+model Employee {
+  id         Int            @id @default(autoincrement())
+  name       String
+  role       String         // سائق، عامل، إداري، فني صيانة
+  phone      String?
+  shift      ShiftType      @default(MORNING)
+  salary     Float          // الراتب الأساسي
+  extra      Float          @default(0) // بدلات وإضافي
+  hiredAt    String?        // تاريخ التعيين مثل 2023/04
+  status     EmployeeStatus @default(ACTIVE)
+  company    Company        @relation(fields: [companyId], references: [id])
+  companyId  Int
+  createdAt  DateTime       @default(now())
+  attendance Attendance[]
+  payroll    Payroll[]
+  vehicles   Vehicle[]
+}
+
+model Attendance {
+  id          Int       @id @default(autoincrement())
+  employee    Employee  @relation(fields: [employeeId], references: [id])
+  employeeId  Int
+  company     Company   @relation(fields: [companyId], references: [id])
+  companyId   Int
+  date        DateTime  @default(now())
+  checkIn     String?   // وقت الحضور
+  checkOut    String?   // وقت الانصراف
+  status      String    @default("none") // none | in | late | out | absent
+  createdAt   DateTime  @default(now())
+}
+
+model Payroll {
+  id          Int       @id @default(autoincrement())
+  employee    Employee  @relation(fields: [employeeId], references: [id])
+  employeeId  Int
+  company     Company   @relation(fields: [companyId], references: [id])
+  companyId   Int
+  month       String    // مثل 2026/06
+  baseSalary  Float
+  extra       Float     @default(0)
+  absentDays  Int       @default(0)
+  deduction   Float     @default(0)
+  netSalary   Float
+  paid        Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+}
+
+// ===== الأسطول والصيانة =====
+enum VehicleStatus {
+  READY       // جاهزة
+  MAINTENANCE // صيانة
+  OUT_OF_SERVICE // خارج الخدمة
+}
+
+model Vehicle {
+  id          Int           @id @default(autoincrement())
+  type        String        // شاحنة هوك لودر، دينا، إلخ
+  plate       String        // رقم اللوحة
+  driver      Employee?     @relation(fields: [driverId], references: [id])
+  driverId    Int?
+  odometer    Float         @default(0)   // قراءة العداد الحالية
+  lastOilAt   Float         @default(0)   // قراءة العداد عند آخر تغيير زيت
+  oilInterval Float         @default(5000) // دورة تغيير الزيت بالكم
+  status      VehicleStatus @default(READY)
+  company     Company       @relation(fields: [companyId], references: [id])
+  companyId   Int
+  createdAt   DateTime      @default(now())
+  maintenance Maintenance[]
+}
+
+model Maintenance {
+  id          Int       @id @default(autoincrement())
+  vehicle     Vehicle   @relation(fields: [vehicleId], references: [id])
+  vehicleId   Int
+  company     Company   @relation(fields: [companyId], references: [id])
+  companyId   Int
+  type        String    // تغيير زيت، فرامل، إطارات، إلخ
+  details     String?
+  cost        Float
+  status      String    @default("مكتملة")
+  date        DateTime  @default(now())
+  createdAt   DateTime  @default(now())
 }

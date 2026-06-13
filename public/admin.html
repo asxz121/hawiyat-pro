@@ -1,90 +1,363 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>لوحة المدير العام — حاويات برو</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>حاويات برو — لوحة المدير العام</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Changa:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,sans-serif}
-body{background:#EDF1F4;color:#141F28;padding:18px;max-width:1100px;margin:auto}
-header{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
-h1{font-size:1.25rem}
-.grow{flex:1}
-.btn{border:0;border-radius:9px;padding:9px 16px;font-weight:600;font-size:.84rem;cursor:pointer}
-.b-amber{background:#F7A823}.b-ghost{background:#fff;border:1px solid #DDE5EB}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
-.kpi{background:#fff;border-radius:13px;padding:15px;border-top:4px solid #F7A823}
-.kpi b{font-size:1.6rem}.kpi span{font-size:.74rem;color:#5B7286;display:block}
-.card{background:#fff;border-radius:13px;padding:16px;margin-bottom:16px;overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:.83rem;min-width:640px}
-th{background:#141F28;color:#fff;padding:10px;text-align:right;font-size:.74rem}
-td{padding:10px;border-bottom:1px solid #EDF1F4;white-space:nowrap}
-.badge{font-size:.68rem;font-weight:700;padding:3px 10px;border-radius:20px}
-.g{background:#E3F5EC;color:#1E9E6A}.r{background:#FBEAEA;color:#D64545}.a{background:#FFF3DC;color:#D88A06}
-form.add{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
-input{border:1px solid #DDE5EB;border-radius:9px;padding:10px;font-size:.85rem;width:100%}
-.sm{padding:5px 10px;font-size:.72rem;border-radius:7px}
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --ink:#0F1923;--ink2:#1A2B3C;
+  --amber:#F7A823;--amber-d:#D88A06;--amber-soft:#FFF8EA;
+  --green:#1B9E6E;--green-soft:#E5F7F1;
+  --red:#D64545;--red-soft:#FBEAEA;
+  --blue:#2E7DD1;--blue-soft:#E8F2FB;
+  --violet:#7A5AF8;--violet-soft:#EFEAFE;
+  --steel:#4A6375;--muted:#8DA1AF;
+  --line:#DDE5EB;--bg:#EDF1F4;--card:#FFFFFF;
+  --radius:16px;
+  --shadow:0 1px 3px rgba(15,25,35,.06),0 6px 20px rgba(15,25,35,.07);
+}
+body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+.num{font-family:'Changa',sans-serif}
+
+.layout{display:flex;min-height:100vh}
+
+/* الشريط الجانبي */
+.sidebar{
+  width:260px;background:var(--ink);
+  position:fixed;inset-block:0;inset-inline-start:0;
+  z-index:50;display:flex;flex-direction:column;
+}
+.sidebar-head{padding:22px 16px 18px;border-bottom:1px solid rgba(255,255,255,.07)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-icon{
+  width:44px;height:36px;border-radius:9px;background:var(--amber);
+  background-image:repeating-linear-gradient(90deg,transparent 0 7px,rgba(0,0,0,.12) 7px 11px);
+  box-shadow:inset 0 -4px 0 rgba(0,0,0,.18);
+  position:relative;flex-shrink:0;
+}
+.brand-icon::before{content:"";position:absolute;top:-5px;right:6px;left:6px;height:4px;background:var(--amber-d);border-radius:3px}
+.brand-text h1{font-family:'Changa';font-size:1.1rem;font-weight:800;color:#fff;line-height:1}
+.brand-text small{font-size:.6rem;color:#7A95A8;display:block;margin-top:2px}
+.admin-pill{
+  margin-top:14px;background:rgba(247,168,35,.1);border:1px solid rgba(247,168,35,.2);
+  border-radius:10px;padding:10px 12px;
+  display:flex;align-items:center;gap:8px;
+}
+.admin-ico{font-size:1.2rem}
+.admin-info .t{font-size:.78rem;font-weight:700;color:var(--amber)}
+.admin-info .s{font-size:.62rem;color:#7A95A8}
+
+.sidebar-nav{flex:1;padding:10px;overflow-y:auto}
+.nav-sec{font-size:.6rem;color:#4A6375;letter-spacing:.8px;font-weight:700;padding:12px 8px 5px}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:10px;
+  color:#8DA1AF;font-size:.86rem;cursor:pointer;
+  transition:all .15s;border:0;background:none;
+  width:100%;text-align:right;margin-bottom:2px;
+}
+.nav-item:hover{background:rgba(255,255,255,.05);color:#fff}
+.nav-item.active{background:var(--amber);color:var(--ink);font-weight:700}
+.nav-item .ico{font-size:1rem;width:22px;text-align:center;flex-shrink:0}
+.sidebar-foot{padding:14px 16px;border-top:1px solid rgba(255,255,255,.07)}
+.logout-btn{width:100%;background:rgba(214,69,69,.12);border:1px solid rgba(214,69,69,.2);color:#D68888;border-radius:10px;padding:9px;font:inherit;font-size:.8rem;cursor:pointer;transition:all .15s}
+.logout-btn:hover{background:rgba(214,69,69,.2);color:#fff}
+
+/* المحتوى */
+.main{flex:1;margin-inline-start:260px;display:flex;flex-direction:column}
+.topbar{
+  background:#fff;border-bottom:1px solid var(--line);
+  padding:16px 28px;display:flex;align-items:center;gap:12px;
+  position:sticky;top:0;z-index:40;
+}
+.topbar h2{font-family:'Changa';font-size:1.25rem;font-weight:700}
+.topbar .sub{font-size:.74rem;color:var(--steel);margin-top:2px}
+.topbar .grow{flex:1}
+.add-btn{background:var(--amber);border:0;border-radius:10px;padding:10px 18px;font:inherit;font-size:.84rem;font-weight:700;color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;box-shadow:0 3px 10px rgba(247,168,35,.3)}
+.add-btn:hover{background:#FFB73B;transform:translateY(-1px)}
+
+.content{padding:24px 28px 48px;flex:1}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.kpi{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);border-top:4px solid var(--amber);position:relative;overflow:hidden}
+.kpi.green{border-top-color:var(--green)}.kpi.red{border-top-color:var(--red)}.kpi.blue{border-top-color:var(--blue)}.kpi.violet{border-top-color:var(--violet)}
+.kpi .lbl{font-size:.72rem;color:var(--steel);margin-bottom:8px;font-weight:600}
+.kpi .val{font-family:'Changa';font-size:2rem;font-weight:700;line-height:1}
+.kpi .delta{margin-top:8px;font-size:.68rem;display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-weight:600}
+.delta.up{background:var(--green-soft);color:var(--green)}
+.delta.flat{background:var(--bg);color:var(--steel)}
+
+/* البطاقات */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:16px}
+.card-head{display:flex;align-items:center;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.card-head h3{font-size:.95rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.card-head h3::before{content:"";width:4px;height:16px;border-radius:3px;background:var(--amber);display:inline-block}
+.card-head .end{margin-inline-start:auto;font-size:.72rem;color:var(--steel)}
+
+/* فورم */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.field label{display:block;font-size:.72rem;font-weight:700;color:var(--ink2);margin-bottom:5px}
+.field input,.field select{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;font-size:.84rem;color:var(--ink);background:#fff;transition:border-color .15s}
+.field input:focus,.field select:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 3px rgba(247,168,35,.12)}
+
+/* الجداول */
+.tbl-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:.82rem;min-width:700px}
+thead{background:var(--ink)}
+th{padding:12px 14px;text-align:right;font-size:.71rem;font-weight:700;color:#fff;white-space:nowrap}
+td{padding:12px 14px;border-bottom:1px solid var(--line);white-space:nowrap;vertical-align:middle}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:#F8FAFB}
+
+/* الشارات */
+.badge{font-size:.67rem;font-weight:700;padding:4px 10px;border-radius:20px;display:inline-block}
+.bd-green{background:var(--green-soft);color:var(--green)}
+.bd-amber{background:var(--amber-soft);color:var(--amber-d)}
+.bd-red{background:var(--red-soft);color:var(--red)}
+.bd-gray{background:var(--bg);color:var(--steel)}
+
+/* الأزرار */
+.btn{border:0;cursor:pointer;font:inherit;font-weight:600;border-radius:8px;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.btn-sm{padding:6px 12px;font-size:.72rem}
+.btn-amber{background:var(--amber);color:var(--ink)}
+.btn-amber:hover{background:#FFB73B}
+.btn-ghost{background:#fff;border:1px solid var(--line);color:var(--ink2)}
+.btn-ghost:hover{background:var(--bg)}
+.btn-red{background:var(--red-soft);color:var(--red);border:1px solid rgba(214,69,69,.2)}
+.btn-red:hover{background:var(--red);color:#fff}
+.btn-green{background:var(--green-soft);color:var(--green);border:1px solid rgba(27,158,110,.2)}
+.btn-green:hover{background:var(--green);color:#fff}
+
+/* بطاقة الشركة */
+.co-name{font-weight:700;font-size:.9rem}
+.co-meta{font-size:.7rem;color:var(--steel);margin-top:2px}
+
+/* التوست */
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--ink2);color:#fff;padding:12px 20px;border-radius:30px;font-size:.82rem;z-index:200;opacity:0;pointer-events:none;transition:all .25s;display:flex;align-items:center;gap:8px;max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.toast.show{opacity:1;transform:translateX(-50%)}
+.toast .dot{width:7px;height:7px;border-radius:50%;background:var(--amber);flex-shrink:0}
+
+/* النافذة المنبثقة */
+.modal-bg{position:fixed;inset:0;background:rgba(15,25,35,.6);z-index:100;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:20px;padding:28px;width:100%;max-width:500px;animation:popIn .25s ease}
+@keyframes popIn{from{transform:scale(.95);opacity:0}to{transform:none;opacity:1}}
+.modal h3{font-family:'Changa';font-size:1.15rem;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.modal-actions{display:flex;gap:10px;margin-top:18px}
+.modal-actions .btn{flex:1;justify-content:center;padding:12px}
+
+@media(max-width:1024px){.kpis{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main{margin-inline-start:0}
+  .topbar{padding:12px 16px}
+  .content{padding:14px 14px 40px}
+  .kpis{grid-template-columns:repeat(2,1fr);gap:10px}
+}
 </style>
 </head>
 <body>
-<header>
-  <h1>لوحة المدير العام</h1><div class="grow"></div>
-  <button class="btn b-ghost" onclick="localStorage.clear();location.href='/'">خروج</button>
-</header>
+<div class="layout">
 
-<div class="kpis" id="kpis"></div>
+<aside class="sidebar">
+  <div class="sidebar-head">
+    <div class="brand">
+      <div class="brand-icon"></div>
+      <div class="brand-text">
+        <h1>حاويات برو</h1>
+        <small>لوحة المدير العام</small>
+      </div>
+    </div>
+    <div class="admin-pill">
+      <span class="admin-ico">👑</span>
+      <div class="admin-info">
+        <div class="t">مدير المنصة</div>
+        <div class="s">صلاحيات كاملة</div>
+      </div>
+    </div>
+  </div>
 
-<div class="card">
-  <h3 style="margin-bottom:12px">إنشاء شركة جديدة (اشتراك 12 شهراً)</h3>
-  <form class="add" onsubmit="addCo(event)">
-    <input id="cName" placeholder="اسم الشركة" required>
-    <input id="cPhone" placeholder="جوال الشركة">
-    <input id="oName" placeholder="اسم مدير الشركة">
-    <input id="oPhone" placeholder="جوال المدير (للدخول)" required>
-    <input id="oPw" placeholder="كلمة مرور المدير" required>
-    <button class="btn b-amber">＋ إنشاء</button>
-  </form>
+  <div class="sidebar-nav">
+    <div class="nav-sec">الإدارة</div>
+    <button class="nav-item active" data-page="companies"><span class="ico">🏢</span> الشركات</button>
+    <button class="nav-item" data-page="add"><span class="ico">➕</span> شركة جديدة</button>
+  </div>
+
+  <div class="sidebar-foot">
+    <button class="logout-btn" onclick="logout()">⬅ تسجيل الخروج</button>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div>
+      <h2 id="pageTitle">الشركات المشتركة</h2>
+      <div class="sub" id="pageDate"></div>
+    </div>
+    <div class="grow"></div>
+    <button class="add-btn" onclick="go('add')">＋ شركة جديدة</button>
+  </div>
+
+  <div class="content">
+
+    <!-- لوحة الشركات -->
+    <div class="page active" id="page-companies">
+      <div class="kpis">
+        <div class="kpi"><div class="lbl">إجمالي الشركات</div><div class="val num" id="kTotal">—</div><span class="delta flat">على المنصة</span></div>
+        <div class="kpi green"><div class="lbl">شركات نشطة</div><div class="val num" id="kActive">—</div><span class="delta up">اشتراك سارٍ</span></div>
+        <div class="kpi blue"><div class="lbl">إجمالي المستخدمين</div><div class="val num" id="kUsers">—</div><span class="delta flat">عبر كل الشركات</span></div>
+        <div class="kpi violet"><div class="lbl">إجمالي الطلبات</div><div class="val num" id="kOrders">—</div><span class="delta flat">كل الطلبات</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>الشركات المشتركة</h3>
+          <span class="end">اضغط «تمديد» لتمديد الاشتراك سنة</span>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>الشركة</th>
+                <th>الحالة</th>
+                <th>ينتهي في</th>
+                <th>المستخدمون</th>
+                <th>الحاويات</th>
+                <th>الطلبات</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="coRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- إضافة شركة -->
+    <div class="page" id="page-add">
+      <div class="card" style="max-width:680px">
+        <div class="card-head"><h3>إنشاء شركة جديدة</h3></div>
+        <div class="form-grid">
+          <div class="field"><label>اسم الشركة *</label><input id="cName" placeholder="مؤسسة البنيان للمقاولات"></div>
+          <div class="field"><label>جوال الشركة</label><input id="cPhone" inputmode="tel" placeholder="05XXXXXXXX"></div>
+          <div class="field"><label>اسم مدير الشركة</label><input id="oName" placeholder="فهد محمد الشهري"></div>
+          <div class="field"><label>جوال المدير (للدخول) *</label><input id="oPhone" inputmode="tel" placeholder="05XXXXXXXX"></div>
+          <div class="field"><label>كلمة مرور المدير *</label><input id="oPw" type="password" placeholder="••••••••"></div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-amber" style="padding:12px 24px" onclick="addCo()">＋ إنشاء الشركة</button>
+          <button class="btn btn-ghost" style="padding:12px 20px" onclick="go('companies')">إلغاء</button>
+        </div>
+        <p style="font-size:.72rem;color:var(--steel);margin-top:12px">⚠ سيتم إنشاء اشتراك لمدة 12 شهراً تلقائياً</p>
+      </div>
+    </div>
+
+  </div>
+</div>
 </div>
 
-<div class="card">
-  <h3 style="margin-bottom:12px">الشركات المشتركة</h3>
-  <table><thead><tr><th>الشركة</th><th>الحالة</th><th>ينتهي في</th><th>مستخدمون</th><th>حاويات</th><th>طلبات</th><th>إجراءات</th></tr></thead>
-  <tbody id="rows"></tbody></table>
-</div>
+<div class="toast" id="toast"><span class="dot"></span><span id="toastTxt"></span></div>
 
 <script>
 const T=localStorage.getItem('token');
 if(!T)location.href='/';
-const api=(u,o={})=>fetch('/api/admin'+u,{...o,headers:{'Content-Type':'application/json','Authorization':'Bearer '+T}}).then(async r=>{const d=await r.json();if(!r.ok)throw d;return d});
+
+document.getElementById('pageDate').textContent=new Date().toLocaleDateString('ar-SA',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+const api=(u,o={})=>fetch('/api/admin'+u,{...o,headers:{'Content-Type':'application/json','Authorization':'Bearer '+T}})
+  .then(async r=>{const d=await r.json();if(!r.ok)throw d;return d});
+
 const fd=s=>new Date(s).toLocaleDateString('ar-SA');
 
+function showToast(msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toastTxt').textContent=msg;
+  t.classList.add('show');clearTimeout(t._h);
+  t._h=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+const titles={companies:'الشركات المشتركة',add:'إنشاء شركة جديدة'};
+function go(p){
+  document.querySelectorAll('.page').forEach(s=>s.classList.toggle('active',s.id==='page-'+p));
+  document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
+  document.getElementById('pageTitle').textContent=titles[p];
+  if(p==='companies')load();
+}
+document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));
+
 async function load(){
-  const [s,cos]=await Promise.all([api('/stats'),api('/companies')]);
-  kpis.innerHTML=`<div class="kpi"><b>${s.companies}</b><span>إجمالي الشركات</span></div>
-  <div class="kpi"><b>${s.active}</b><span>نشطة</span></div>
-  <div class="kpi"><b>${s.users}</b><span>مستخدمون</span></div>
-  <div class="kpi"><b>${s.orders}</b><span>طلبات على المنصة</span></div>`;
-  rows.innerHTML=cos.map(c=>{
-    const expired=new Date(c.expiresAt)<new Date();
-    const st=c.status==='SUSPENDED'?['موقوفة','r']:expired?['منتهية','r']:c.status==='TRIAL'?['تجريبية','a']:['نشطة','g'];
-    return `<tr><td><b>${c.name}</b></td>
-    <td><span class="badge ${st[1]}">${st[0]}</span></td>
-    <td>${fd(c.expiresAt)}</td>
-    <td>${c._count.users}</td><td>${c._count.containers}</td><td>${c._count.orders}</td>
-    <td>
-      <button class="btn b-ghost sm" onclick="ext(${c.id})">تمديد سنة</button>
-      <button class="btn sm" style="background:${c.status==='SUSPENDED'?'#E3F5EC':'#FBEAEA'}" onclick="tog(${c.id})">${c.status==='SUSPENDED'?'إعادة تفعيل':'إيقاف'}</button>
-    </td></tr>`}).join('');
-}
-async function addCo(e){
-  e.preventDefault();
   try{
-    await api('/companies',{method:'POST',body:JSON.stringify({name:cName.value,phone:cPhone.value,ownerName:oName.value,ownerPhone:oPhone.value,ownerPassword:oPw.value})});
-    e.target.reset();load();
-  }catch(x){alert(x.error)}
+    const[s,cos]=await Promise.all([api('/stats'),api('/companies')]);
+    document.getElementById('kTotal').textContent=s.companies;
+    document.getElementById('kActive').textContent=s.active;
+    document.getElementById('kUsers').textContent=s.users;
+    document.getElementById('kOrders').textContent=s.orders;
+    document.getElementById('coRows').innerHTML=cos.length?cos.map(c=>{
+      const expired=new Date(c.expiresAt)<new Date();
+      const[label,cls]=c.status==='SUSPENDED'?['موقوفة','bd-red']:expired?['منتهية','bd-red']:c.status==='TRIAL'?['تجريبية','bd-amber']:['نشطة','bd-green'];
+      const expColor=expired||c.status==='SUSPENDED'?'color:var(--red);font-weight:700':'';
+      return `<tr>
+        <td>
+          <div class="co-name">${c.name}</div>
+          ${c.phone?`<div class="co-meta">${c.phone}</div>`:''}
+        </td>
+        <td><span class="badge ${cls}">${label}</span></td>
+        <td style="font-size:.8rem;${expColor}">${fd(c.expiresAt)}</td>
+        <td class="num" style="font-weight:600">${c._count.users}</td>
+        <td class="num" style="font-weight:600">${c._count.containers}</td>
+        <td class="num" style="font-weight:600">${c._count.orders}</td>
+        <td>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-ghost btn-sm" onclick="ext(${c.id})">📅 تمديد سنة</button>
+            <button class="btn btn-sm ${c.status==='SUSPENDED'?'btn-green':'btn-red'}" onclick="tog(${c.id})">
+              ${c.status==='SUSPENDED'?'✓ تفعيل':'⏸ إيقاف'}
+            </button>
+          </div>
+        </td>
+      </tr>`;
+    }).join(''):'<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--muted)">لا توجد شركات مسجلة بعد</td></tr>';
+  }catch(e){console.error(e)}
 }
-async function ext(id){await api('/companies/'+id+'/extend',{method:'POST',body:JSON.stringify({months:12})});load()}
-async function tog(id){await api('/companies/'+id+'/toggle',{method:'POST'});load()}
+
+async function addCo(){
+  if(!document.getElementById('cName').value||!document.getElementById('oPhone').value||!document.getElementById('oPw').value){
+    showToast('⚠ اسم الشركة وجوال المدير وكلمة المرور مطلوبة');return;
+  }
+  try{
+    await api('/companies',{method:'POST',body:JSON.stringify({
+      name:document.getElementById('cName').value,
+      phone:document.getElementById('cPhone').value,
+      ownerName:document.getElementById('oName').value,
+      ownerPhone:document.getElementById('oPhone').value,
+      ownerPassword:document.getElementById('oPw').value
+    })});
+    ['cName','cPhone','oName','oPhone','oPw'].forEach(i=>document.getElementById(i).value='');
+    showToast('تمت إضافة الشركة بنجاح ✓');
+    go('companies');
+  }catch(x){showToast('⚠ '+(x.error||'حدث خطأ'))}
+}
+
+async function ext(id){
+  await api('/companies/'+id+'/extend',{method:'POST',body:JSON.stringify({months:12})});
+  showToast('تم تمديد الاشتراك سنة كاملة ✓');load();
+}
+async function tog(id){
+  await api('/companies/'+id+'/toggle',{method:'POST'});
+  showToast('تم تغيير حالة الشركة ✓');load();
+}
+function logout(){localStorage.clear();location.href='/'}
+
 load();
 </script>
+
+<style>
+.page{display:none}.page.active{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+</style>
 </body>
 </html>

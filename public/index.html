@@ -1,44 +1,191 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>حاويات برو — تسجيل الدخول</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Changa:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,sans-serif}
-body{min-height:100vh;display:grid;place-items:center;background:#141F28;padding:16px}
-.card{background:#fff;border-radius:18px;padding:34px 28px;width:100%;max-width:380px}
-.mark{width:52px;height:42px;border-radius:8px;background:#F7A823;margin:0 auto 14px;background-image:repeating-linear-gradient(90deg,transparent 0 7px,rgba(0,0,0,.13) 7px 12px);box-shadow:inset 0 -5px 0 rgba(0,0,0,.18)}
-h1{text-align:center;font-size:1.3rem;color:#141F28;margin-bottom:4px}
-p.s{text-align:center;color:#5B7286;font-size:.8rem;margin-bottom:22px}
-label{display:block;font-size:.78rem;font-weight:600;color:#1F3140;margin:12px 0 5px}
-input{width:100%;border:1px solid #DDE5EB;border-radius:10px;padding:12px;font-size:.95rem}
-input:focus{outline:2px solid #F7A823;border-color:transparent}
-button{width:100%;margin-top:20px;background:#F7A823;border:0;border-radius:10px;padding:13px;font-size:1rem;font-weight:700;color:#141F28;cursor:pointer}
-button:hover{background:#FFB73B}
-.err{background:#FBEAEA;color:#D64545;border-radius:10px;padding:10px;font-size:.8rem;margin-top:14px;display:none;text-align:center}
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --ink:#0F1923;--ink2:#1A2B3C;
+  --amber:#F7A823;--amber-d:#D88A06;
+  --steel:#4A6375;--muted:#8DA1AF;
+  --line:#DDE5EB;--bg:#EDF1F4;
+}
+body{
+  min-height:100vh;display:grid;place-items:center;
+  background:var(--ink);font-family:'IBM Plex Sans Arabic',sans-serif;
+  padding:16px;position:relative;overflow:hidden;
+}
+
+/* خلفية متحركة */
+.bg-grid{
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(247,168,35,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(247,168,35,.04) 1px,transparent 1px);
+  background-size:48px 48px;
+  animation:drift 20s linear infinite;
+}
+@keyframes drift{from{background-position:0 0}to{background-position:48px 48px}}
+.bg-glow{
+  position:fixed;width:600px;height:600px;border-radius:50%;
+  background:radial-gradient(circle,rgba(247,168,35,.08) 0%,transparent 70%);
+  top:-200px;left:-200px;pointer-events:none;
+}
+.bg-glow2{
+  position:fixed;width:400px;height:400px;border-radius:50%;
+  background:radial-gradient(circle,rgba(46,125,209,.06) 0%,transparent 70%);
+  bottom:-100px;right:-100px;pointer-events:none;
+}
+
+/* البطاقة */
+.wrap{position:relative;z-index:2;width:100%;max-width:420px}
+.card{
+  background:rgba(255,255,255,.97);
+  border-radius:24px;
+  padding:44px 36px 36px;
+  box-shadow:0 24px 80px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.1);
+}
+
+/* الشعار */
+.logo-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:32px}
+.logo-icon{
+  width:62px;height:50px;border-radius:12px;
+  background:var(--amber);
+  background-image:repeating-linear-gradient(90deg,transparent 0 8px,rgba(0,0,0,.12) 8px 13px);
+  box-shadow:inset 0 -5px 0 rgba(0,0,0,.2),0 8px 24px rgba(247,168,35,.4);
+  position:relative;margin-bottom:16px;
+}
+.logo-icon::before{
+  content:"";position:absolute;top:-6px;right:8px;left:8px;
+  height:5px;background:var(--amber-d);border-radius:4px;
+}
+.logo-icon::after{
+  content:"";position:absolute;bottom:8px;right:10px;left:10px;
+  height:3px;background:rgba(0,0,0,.15);border-radius:2px;
+}
+.logo-title{font-family:'Changa';font-size:1.6rem;font-weight:800;color:var(--ink);letter-spacing:-.5px}
+.logo-sub{font-size:.78rem;color:var(--steel);margin-top:3px;font-weight:400}
+
+/* الحقول */
+.field{margin-bottom:16px}
+.field label{
+  display:block;font-size:.74rem;font-weight:700;
+  color:var(--ink2);margin-bottom:7px;letter-spacing:.3px;
+}
+.input-wrap{position:relative}
+.input-wrap .ico{
+  position:absolute;top:50%;transform:translateY(-50%);
+  right:14px;font-size:1rem;color:var(--muted);pointer-events:none;
+}
+.field input{
+  width:100%;border:1.5px solid var(--line);border-radius:12px;
+  padding:13px 42px 13px 14px;font:inherit;font-size:.92rem;
+  color:var(--ink);background:#fff;
+  transition:border-color .2s,box-shadow .2s;
+}
+.field input:focus{
+  outline:none;border-color:var(--amber);
+  box-shadow:0 0 0 3px rgba(247,168,35,.15);
+}
+.field input::placeholder{color:var(--muted)}
+
+/* زر الدخول */
+.btn-login{
+  width:100%;margin-top:8px;
+  background:var(--amber);border:0;border-radius:12px;
+  padding:14px;font:inherit;font-size:1rem;font-weight:700;
+  color:var(--ink);cursor:pointer;
+  box-shadow:0 4px 16px rgba(247,168,35,.4);
+  transition:all .2s;position:relative;overflow:hidden;
+}
+.btn-login:hover{background:#FFB73B;transform:translateY(-1px);box-shadow:0 6px 20px rgba(247,168,35,.5)}
+.btn-login:active{transform:translateY(0);box-shadow:0 2px 8px rgba(247,168,35,.3)}
+.btn-login.loading::after{
+  content:"";position:absolute;inset:0;
+  background:rgba(255,255,255,.3);
+  animation:shimmer 1s infinite;
+}
+@keyframes shimmer{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+
+/* الخطأ */
+.err{
+  background:#FBEAEA;color:#C0392B;border-radius:10px;
+  padding:11px 14px;font-size:.8rem;margin-top:14px;
+  display:none;text-align:center;border:1px solid #F5C6C6;
+  font-weight:500;
+}
+.err.show{display:block;animation:shake .3s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+/* الفوتر */
+.card-foot{margin-top:24px;text-align:center;font-size:.72rem;color:var(--muted)}
+.tagline{
+  text-align:center;margin-top:18px;font-size:.72rem;
+  color:rgba(255,255,255,.3);font-weight:300;letter-spacing:.5px;
+}
 </style>
 </head>
 <body>
-<form class="card" onsubmit="go(event)">
-  <div class="mark"></div>
-  <h1>حاويات برو</h1>
-  <p class="s">نظام إدارة الحاويات — نسخة التجارب الحية</p>
-  <label>رقم الجوال</label>
-  <input id="phone" inputmode="tel" placeholder="05XXXXXXXX" required>
-  <label>كلمة المرور</label>
-  <input id="pw" type="password" required>
-  <button>دخول</button>
-  <div class="err" id="err"></div>
-</form>
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+<div class="bg-glow2"></div>
+
+<div class="wrap">
+  <form class="card" onsubmit="go(event)" autocomplete="off">
+    <div class="logo-wrap">
+      <div class="logo-icon"></div>
+      <div class="logo-title">حاويات برو</div>
+      <div class="logo-sub">نظام إدارة الحاويات المتكامل</div>
+    </div>
+
+    <div class="field">
+      <label>رقم الجوال</label>
+      <div class="input-wrap">
+        <span class="ico">📱</span>
+        <input id="phone" inputmode="tel" placeholder="05XXXXXXXX" required>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>كلمة المرور</label>
+      <div class="input-wrap">
+        <span class="ico">🔒</span>
+        <input id="pw" type="password" placeholder="••••••••" required>
+      </div>
+    </div>
+
+    <button class="btn-login" id="loginBtn">دخول إلى النظام</button>
+    <div class="err" id="err"></div>
+
+    <div class="card-foot">نظام محمي ومشفر · جميع البيانات سرية</div>
+  </form>
+  <div class="tagline">حاويات برو · نسخة 1.0</div>
+</div>
+
 <script>
 async function go(e){
   e.preventDefault();
-  const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({phone:phone.value.trim(),password:pw.value})});
-  const d=await r.json();
-  if(!r.ok){err.style.display='block';err.textContent=d.error;return}
-  localStorage.setItem('token',d.token);localStorage.setItem('who',JSON.stringify(d));
-  location.href=d.role==='SUPER_ADMIN'?'/admin.html':'/app.html';
+  const btn=document.getElementById('loginBtn');
+  const err=document.getElementById('err');
+  btn.textContent='جارٍ التحقق…';btn.classList.add('loading');
+  err.classList.remove('show');
+  try{
+    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({phone:phone.value.trim(),password:pw.value})});
+    const d=await r.json();
+    if(!r.ok){err.textContent=d.error;err.classList.add('show');return}
+    localStorage.setItem('token',d.token);
+    localStorage.setItem('who',JSON.stringify(d));
+    location.href=d.role==='SUPER_ADMIN'?'/admin.html':'/app.html';
+  }catch{
+    err.textContent='خطأ في الاتصال بالخادم';err.classList.add('show');
+  }finally{
+    btn.textContent='دخول إلى النظام';btn.classList.remove('loading');
+  }
 }
 </script>
 </body>
