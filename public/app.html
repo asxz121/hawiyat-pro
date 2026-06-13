@@ -693,7 +693,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   </div>
   <div class="card flush">
     <div style="padding:18px 18px 0"><h3>المستخدمون</h3></div>
-    <div class="tbl-wrap"><table><thead><tr><th>الاسم</th><th>الجوال</th><th>الدور</th><th>إجراء</th></tr></thead><tbody id="usersBody"></tbody></table></div>
+    <div class="tbl-wrap"><table><thead><tr><th>المستخدم</th><th>الدور</th><th>إجراءات</th></tr></thead><tbody id="usersBody"></tbody></table></div>
   </div>
 </section>
 
@@ -783,6 +783,36 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     <div class="m-actions">
       <button class="btn btn-amber" onclick="addMaintModal()">حفظ العملية</button>
       <button class="btn btn-ghost" onclick="closeM('mMaint')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== نافذة تعديل المستخدم ===== -->
+<div class="modal-bg" id="mEditUser" onclick="if(event.target===this)closeM('mEditUser')">
+  <div class="modal">
+    <h3>✏️ تعديل بيانات المستخدم</h3>
+    <input type="hidden" id="euId">
+    <div class="field"><label>الاسم</label><input id="euName" placeholder="اسم المستخدم"></div>
+    <div class="field"><label>رقم الجوال</label><input id="euPhone" inputmode="tel" placeholder="05XXXXXXXX"></div>
+    <div class="field"><label>الدور</label>
+      <select id="euRole">
+        <option value="OWNER">مدير الشركة</option>
+        <option value="BRANCH_MGR">مدير فرع</option>
+        <option value="TRAFFIC_MGR">مدير حركة</option>
+        <option value="DISPATCHER">موزع</option>
+        <option value="ACCOUNTANT">محاسب</option>
+        <option value="DRIVER">سائق</option>
+      </select>
+    </div>
+    <div style="border-top:1px solid var(--line);margin:14px 0;padding-top:14px">
+      <div style="font-size:.76rem;font-weight:700;color:var(--steel);margin-bottom:10px">🔑 تغيير كلمة المرور (اتركها فارغة إذا لا تريد التغيير)</div>
+      <div class="field"><label>كلمة المرور الجديدة</label><input type="password" id="euPw" placeholder="6 أحرف على الأقل"></div>
+      <div class="field"><label>تأكيد كلمة المرور</label><input type="password" id="euPwConf" placeholder="أعد كتابة كلمة المرور"></div>
+    </div>
+    <div id="euErr" style="background:var(--red-soft);color:var(--red);border-radius:9px;padding:9px 13px;font-size:.78rem;display:none;margin-bottom:10px"></div>
+    <div class="m-actions">
+      <button class="btn btn-amber" onclick="saveEditUser()">💾 حفظ التعديلات</button>
+      <button class="btn btn-ghost" onclick="closeM('mEditUser')">إلغاء</button>
     </div>
   </div>
 </div>
@@ -1398,11 +1428,13 @@ function renderReports(){
 /* ==================== المستخدمون ==================== */
 function renderUsers(){
   document.getElementById('usersBody').innerHTML=users.map(u=>`<tr>
-    <td><div class="cell-emp"><span class="emp-avatar">${initials(u.name)}</span><div><b>${u.name}</b></div></div></td>
-    <td class="num" style="color:var(--steel)">${u.phone}</td>
+    <td><div class="cell-emp"><span class="emp-avatar">${initials(u.name)}</span><div><b>${u.name}</b><div class="s">${u.phone}</div></div></div></td>
     <td><span class="badge bd-blue">${roleAr[u.role]||u.role}</span></td>
-    <td><button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="deleteUser(${u.id})">حذف</button></td>
-  </tr>`).join('')||'<tr><td colspan="4" class="empty">لا يوجد مستخدمون</td></tr>';
+    <td><div class="t-actions">
+      <button class="btn btn-ghost btn-sm" onclick="openEditUser(${u.id})">✏️ تعديل</button>
+      <button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="deleteUser(${u.id})">حذف</button>
+    </div></td>
+  </tr>`).join('')||'<tr><td colspan="3" class="empty">لا يوجد مستخدمون</td></tr>';
 }
 function addUser(){
   const name=document.getElementById('uName').value.trim();
@@ -1416,6 +1448,54 @@ function addUser(){
   ['uName','uPhone','uPw'].forEach(i=>document.getElementById(i).value='');
   saveData(); renderUsers(); showToast(`تمت إضافة المستخدم ${name} ✓`);
 }
+function openEditUser(id){
+  const u = users.find(x=>x.id===id);
+  if(!u) return;
+  document.getElementById('euId').value = id;
+  document.getElementById('euName').value = u.name || '';
+  document.getElementById('euPhone').value = u.phone || '';
+  document.getElementById('euRole').value = u.role || 'DRIVER';
+  document.getElementById('euPw').value = '';
+  document.getElementById('euPwConf').value = '';
+  document.getElementById('euErr').style.display = 'none';
+  openM('mEditUser');
+}
+
+function saveEditUser(){
+  const id    = +document.getElementById('euId').value;
+  const name  = document.getElementById('euName').value.trim();
+  const phone = document.getElementById('euPhone').value.trim();
+  const role  = document.getElementById('euRole').value;
+  const pw    = document.getElementById('euPw').value;
+  const conf  = document.getElementById('euPwConf').value;
+  const err   = document.getElementById('euErr');
+  err.style.display = 'none';
+
+  if(!name || !phone){ err.textContent='⚠ الاسم والجوال مطلوبان'; err.style.display='block'; return; }
+
+  // التحقق من كلمة المرور إذا أُدخلت
+  if(pw){
+    if(pw.length < 6){ err.textContent='⚠ كلمة المرور يجب أن تكون 6 أحرف على الأقل'; err.style.display='block'; return; }
+    if(pw !== conf){ err.textContent='⚠ كلمة المرور وتأكيدها غير متطابقين'; err.style.display='block'; document.getElementById('euPwConf').value=''; return; }
+  }
+
+  // التحقق من عدم تكرار رقم الجوال
+  const dup = users.find(u=>u.phone===phone && u.id!==id);
+  if(dup){ err.textContent='⚠ رقم الجوال مستخدم من قِبل مستخدم آخر'; err.style.display='block'; return; }
+
+  const u = users.find(x=>x.id===id);
+  if(!u) return;
+  u.name  = name;
+  u.phone = phone;
+  u.role  = role;
+  if(pw) u.pw = pw;
+
+  saveData();
+  closeM('mEditUser');
+  renderUsers();
+  showToast(`✅ تم تحديث بيانات ${name}`);
+}
+
 function deleteUser(id){
   if(!confirm('هل تريد حذف هذا المستخدم؟')) return;
   users=users.filter(u=>u.id!==id);
