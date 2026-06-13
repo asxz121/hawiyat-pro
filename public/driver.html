@@ -396,12 +396,10 @@ function renderOrders() {
       <!-- أزرار الإجراءات -->
       <div class="order-actions">
         ${isNew ? `
-          <button class="btn btn-blue" onclick="markEnRoute(${o.id})">🚚 في الطريق</button>
-          <button class="btn btn-ghost btn-sm" onclick="sendMyLocation(${o.id})">📍 موقعي</button>
+          <button class="btn btn-blue" onclick="markEnRoute(${o.id})">🚚 بدأت التوجه</button>
         ` : ''}
         ${isEnroute ? `
           <button class="btn btn-green" onclick="openDoneModal(${o.id})">✅ تم التنفيذ</button>
-          <button class="btn btn-ghost btn-sm" onclick="sendMyLocation(${o.id})">📍 موقعي</button>
         ` : ''}
         ${o.lat && o.lng ? `
           <a href="https://maps.google.com/?q=${o.lat},${o.lng}" target="_blank" class="btn btn-map btn-sm">🗺 الخريطة</a>
@@ -553,7 +551,45 @@ function logout() { localStorage.clear(); location.href = '/'; }
 /* ===== التشغيل ===== */
 loadOrders();
 initSocket();
-setInterval(loadOrders, 30000); // تحديث كل 30 ثانية
+setInterval(loadOrders, 15000);
+
+// بدء إرسال الموقع تلقائياً فور فتح الصفحة
+function autoStartTracking() {
+  if (!navigator.geolocation) return;
+  // إرسال أول موقع فوراً
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      if (socket && socket.connected) {
+        socket.emit('driver:location', {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          orderId: null,
+        });
+      }
+    },
+    () => {},
+    { enableHighAccuracy: true, timeout: 8000 }
+  );
+  // ثم كل 8 ثوانٍ
+  setInterval(() => {
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        if (socket && socket.connected) {
+          socket.emit('driver:location', {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            orderId: currentOrderId,
+          });
+        }
+      },
+      () => {},
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  }, 8000);
+}
+
+// انتظر حتى يتصل Socket ثم ابدأ التتبع
+setTimeout(autoStartTracking, 2000); // تحديث كل 30 ثانية
 </script>
 </body>
 </html>
