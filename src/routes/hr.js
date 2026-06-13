@@ -24,6 +24,7 @@ router.post('/employees', requireRole('OWNER', 'BRANCH_MGR'), async (req, res) =
       phone: phone || null, shift: shift || 'MORNING',
       salary: +salary, extra: extra ? +extra : 0,
       hiredAt: hiredAt || null,
+      createdBy: req.user.id,
     },
   });
   res.json(emp);
@@ -114,7 +115,7 @@ router.post('/attendance/checkin', requireRole('OWNER', 'BRANCH_MGR', 'TRAFFIC_M
     }));
   } else {
     res.json(await prisma.attendance.create({
-      data: { ...scope(req), employeeId: +employeeId, checkIn: now, status },
+      data: { ...scope(req), employeeId: +employeeId, checkIn: now, status, createdBy: req.user.id },
     }));
   }
 });
@@ -259,6 +260,7 @@ router.post('/vehicles', requireRole('OWNER', 'BRANCH_MGR'), async (req, res) =>
       ...scope(req), type: type || 'شاحنة',
       plate, driverId: driverId ? +driverId : null,
       odometer: odo, lastOilAt: odo,
+      createdBy: req.user.id,
     },
   }));
 });
@@ -305,7 +307,7 @@ router.post('/maintenance', requireRole('OWNER', 'BRANCH_MGR', 'DISPATCHER'), as
     await prisma.vehicle.update({ where: { id: v.id }, data: { lastOilAt: v.odometer } });
   }
   res.json(await prisma.maintenance.create({
-    data: { ...scope(req), vehicleId: +vehicleId, type, details, cost: +cost },
+    data: { ...scope(req), vehicleId: +vehicleId, type, details, cost: +cost, createdBy: req.user.id },
   }));
 });
 

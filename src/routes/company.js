@@ -41,6 +41,7 @@ router.post('/orders', requireRole('OWNER', 'BRANCH_MGR', 'TRAFFIC_MGR', 'DISPAT
       dueDate: dueDate ? new Date(dueDate) : null,
       price: price ? +price : null, notes,
       containerId: containerId ? +containerId : null,
+      createdBy: req.user.id,
     },
   });
   res.json(order);
@@ -51,7 +52,11 @@ router.patch('/orders/:id', requireRole('OWNER', 'BRANCH_MGR', 'TRAFFIC_MGR', 'D
   const { status, alertMuted } = req.body;
   res.json(await prisma.order.update({
     where: { id: o.id },
-    data: { ...(status && { status }), ...(alertMuted !== undefined && { alertMuted }) },
+    data: { 
+      ...(status && { status }), 
+      ...(alertMuted !== undefined && { alertMuted }),
+      updatedBy: req.user.id,
+    },
   }));
 });
 
