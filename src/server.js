@@ -56,7 +56,7 @@ io.on('connection', (socket) => {
   // السائق يرسل موقعه
   socket.on('driver:location', (data) => {
     if (user.role !== 'DRIVER') return;
-    const { lat, lng, orderId } = data;
+    const { lat, lng, orderId, containerCode, heading, speed } = data;
     if (!lat || !lng) return;
 
     if (!driverLocations[user.companyId]) driverLocations[user.companyId] = {};
@@ -64,6 +64,9 @@ io.on('connection', (socket) => {
       driverId: user.id,
       name: user.name,
       lat, lng, orderId,
+      containerCode: containerCode || null,
+      heading: heading || null,
+      speed: speed || null,
       time: new Date(),
     };
 
@@ -72,6 +75,9 @@ io.on('connection', (socket) => {
       driverId: user.id,
       name: user.name,
       lat, lng, orderId,
+      containerCode: containerCode || null,
+      heading: heading || null,
+      speed: speed || null,
       time: new Date(),
     });
   });

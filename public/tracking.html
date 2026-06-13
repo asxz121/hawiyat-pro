@@ -241,20 +241,33 @@ const drivers = {};   // driverId → data
 let selectedDriver = null;
 
 /* ===== أيقونة السائق ===== */
-function makeIcon(name, isOnline, isMoving) {
+function makeIcon(d, isOnline, isMoving) {
+  const name = d.name || '?';
   const color = isOnline ? (isMoving ? '#F7A823' : '#1B9E6E') : '#4A6375';
   const pulse = isOnline ? `<div class="dmarker-pulse" style="border-color:${color}"></div>` : '';
+  const orderBadge = d.orderId ? `<div style="background:#F7A823;color:#0F1923;font-size:.55rem;font-weight:700;padding:1px 6px;border-radius:6px;margin-top:2px;text-align:center">#${d.orderId}</div>` : '';
+  const contBadge = d.containerCode ? `<div style="background:#2E7DD1;color:#fff;font-size:.52rem;font-weight:700;padding:1px 5px;border-radius:5px;margin-top:1px;text-align:center">📦 ${d.containerCode}</div>` : '';
+  const arrow = isMoving && d.heading !== undefined ? `<div style="font-size:.7rem;margin-top:1px;text-align:center">${getArrow(d.heading)}</div>` : '';
   return L.divIcon({
     className: '',
-    html: `<div style="position:relative;display:inline-block">
+    html: `<div style="position:relative;display:inline-block;text-align:center">
       ${pulse}
       <div class="dmarker ${isMoving ? 'moving' : ''}" style="background:${color}">🚚</div>
       <div class="dmarker-name">${name.split(' ')[0]}</div>
+      ${orderBadge}
+      ${contBadge}
+      ${arrow}
     </div>`,
-    iconSize: [60, 58],
-    iconAnchor: [30, 42],
-    popupAnchor: [0, -42],
+    iconSize: [70, 80],
+    iconAnchor: [35, 48],
+    popupAnchor: [0, -48],
   });
+}
+
+function getArrow(heading) {
+  if (heading === undefined) return '';
+  const arrows = ['↑','↗','→','↘','↓','↙','←','↖'];
+  return arrows[Math.round(heading / 45) % 8];
 }
 
 function makePopup(d) {
@@ -262,9 +275,12 @@ function makePopup(d) {
     <div class="popup-name">🚚 ${d.name}</div>
     <div class="popup-row"><span>الحالة</span><b>${d.orderId ? '🟡 في الطريق' : '🟢 متاح'}</b></div>
     ${d.orderId ? `<div class="popup-row"><span>الطلب</span><b>#${d.orderId}</b></div>` : ''}
+    ${d.containerCode ? `<div class="popup-row"><span>الحاوية</span><b>📦 ${d.containerCode}</b></div>` : ''}
+    ${d.heading !== undefined ? `<div class="popup-row"><span>الاتجاه</span><b>${getArrow(d.heading)} ${Math.round(d.heading)}°</b></div>` : ''}
+    <div class="popup-row"><span>السرعة</span><b>${d.speed !== undefined ? Math.round(d.speed * 3.6) + ' كم/س' : '—'}</b></div>
     <div class="popup-row"><span>آخر تحديث</span><b>${new Date(d.time).toLocaleTimeString('ar-SA',{hour:'numeric',minute:'2-digit',second:'2-digit'})}</b></div>
-    <div class="popup-row"><span>الإحداثيات</span><b>${d.lat.toFixed(4)}, ${d.lng.toFixed(4)}</b></div>
-    <a href="https://maps.google.com/?q=${d.lat},${d.lng}" target="_blank" class="popup-map-btn">📍 فتح في خرائط قوقل</a>
+    <div class="popup-row"><span>الإحداثيات</span><b>${d.lat.toFixed(5)}, ${d.lng.toFixed(5)}</b></div>
+    <a href="https://maps.google.com/?q=${d.lat},${d.lng}" target="_blank" class="popup-map-btn">📍 فتح في خرائط قوقل للتوجيه</a>
   </div>`;
 }
 
@@ -293,11 +309,11 @@ function updateDriver(d) {
   if (markers[d.driverId]) {
     markers[d.driverId]
       .setLatLng([d.lat, d.lng])
-      .setIcon(makeIcon(d.name, true, isMoving))
+      .setIcon(makeIcon(d, true, isMoving))
       .setPopupContent(makePopup(d));
   } else {
     markers[d.driverId] = L.marker([d.lat, d.lng], {
-      icon: makeIcon(d.name, true, isMoving)
+      icon: makeIcon(d, true, isMoving)
     }).addTo(map).bindPopup(makePopup(d));
   }
 
@@ -312,7 +328,7 @@ function updateDriver(d) {
 function markDriverOffline(driverId, name) {
   if (drivers[driverId]) drivers[driverId].online = false;
   if (markers[driverId]) {
-    markers[driverId].setIcon(makeIcon(name || drivers[driverId]?.name || '?', false, false));
+    markers[driverId].setIcon(makeIcon(drivers[driverId] || {name: name}, false, false));
   }
   if (paths[driverId]) {
     paths[driverId].setStyle({ color: '#4A6375', opacity: 0.3 });
@@ -414,8 +430,9 @@ socket.on('tracking:snapshot', (locations) => {
 
 socket.on('driver:moved', (d) => {
   updateDriver(d);
-  addEvent('📍', `${d.name} — تحديث موقع`);
-  showToast(`📍 ${d.name.split(' ')[0]} — موقع محدث`);
+  const contInfo = d.containerCode ? ` — حاوية ${d.containerCode}` : '';
+  addEvent('📍', `${d.name}${contInfo} — تحديث موقع`);
+  showToast(`📍 ${d.name.split(' ')[0]}${contInfo}`);
 });
 
 socket.on('driver:offline', (d) => {

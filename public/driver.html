@@ -227,10 +227,15 @@ function startLocationTracking(orderId) {
     navigator.geolocation.getCurrentPosition(
       pos => {
         if (socket && socket.connected) {
+          const currentOrder = orders.find(o => o.id === orderId);
+          const containerCode = currentOrder?.container?.code || null;
           socket.emit('driver:location', {
             lat: pos.coords.latitude,
             lng: pos.coords.longitude,
             orderId,
+            containerCode,
+            heading: pos.coords.heading,
+            speed: pos.coords.speed,
           });
         }
       },
@@ -556,32 +561,35 @@ setInterval(loadOrders, 15000);
 // بدء إرسال الموقع تلقائياً فور فتح الصفحة
 function autoStartTracking() {
   if (!navigator.geolocation) return;
-  // إرسال أول موقع فوراً
-  navigator.geolocation.getCurrentPosition(
-    pos => {
-      if (socket && socket.connected) {
-        socket.emit('driver:location', {
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-          orderId: null,
-        });
-      }
-    },
-    () => {},
-    { enableHighAccuracy: true, timeout: 8000 }
-  );
-  // ثم كل 8 ثوانٍ
+
+  function sendLocation(pos) {
+    if (!socket || !socket.connected) return;
+    // الحصول على رقم الحاوية من الطلب الحالي
+    const currentOrder = orders.find(o => o.id === currentOrderId);
+    const containerCode = currentOrder?.container?.code || null;
+    socket.emit('driver:location', {
+      lat: pos.coords.latitude,
+      lng: pos.coords.longitude,
+      orderId: currentOrderId,
+      containerCode,
+      heading: pos.coords.heading,   // الاتجاه (0-360)
+      speed: pos.coords.speed,        // السرعة م/ث
+    });
+  }
+
+  // مراقبة مستمرة للموقع (watchPosition أفضل من setInterval)
+  if (navigator.geolocation.watchPosition) {
+    navigator.geolocation.watchPosition(
+      sendLocation,
+      () => {},
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 }
+    );
+  }
+
+  // احتياطي كل 8 ثوانٍ
   setInterval(() => {
     navigator.geolocation.getCurrentPosition(
-      pos => {
-        if (socket && socket.connected) {
-          socket.emit('driver:location', {
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude,
-            orderId: currentOrderId,
-          });
-        }
-      },
+      sendLocation,
       () => {},
       { enableHighAccuracy: true, timeout: 8000 }
     );
