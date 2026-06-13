@@ -230,4 +230,79 @@ router.get('/financial-summary', requireRole('OWNER','ACCOUNTANT'), async (req, 
   });
 });
 
+
+// ===== المستودعات =====
+router.get('/warehouses', async (req, res) => {
+  const warehouses = await prisma.warehouse.findMany({
+    where: scope(req),
+    include: {
+      containers: { select: { id: true, status: true } }
+    },
+    orderBy: { id: 'asc' }
+  });
+  res.json(warehouses.map(w => ({
+    ...w,
+    totalContainers: w.containers.length,
+    available: w.containers.filter(c => c.status === 'IN_DEPOT').length,
+    rented: w.containers.filter(c => c.status === 'ON_SITE').length,
+    maintenance: w.containers.filter(c => c.status === 'MAINTENANCE').length,
+  })));
+});
+
+router.post('/warehouses', requireRole('OWNER','BRANCH_MGR'), async (req, res) => {
+  const { name, address, lat, lng, capacity } = req.body;
+  if (!name) return res.status(400).json({ error: 'اسم المستودع مطلوب' });
+  res.json(await prisma.warehouse.create({
+    data: { ...scope(req), name, address, lat: lat?+lat:null, lng: lng?+lng:null, capacity: capacity?+capacity:0 }
+  }));
+});
+
+router.patch('/warehouses/:id', requireRole('OWNER','BRANCH_MGR'), async (req, res) => {
+  const w = await prisma.warehouse.findFirst({ where: { id: +req.params.id, ...scope(req) } });
+  if (!w) return res.status(404).json({ error: 'المستودع غير موجود' });
+  const { name, address, lat, lng, capacity } = req.body;
+  res.json(await prisma.warehouse.update({
+    where: { id: w.id },
+    data: { ...(name&&{name}), ...(address&&{address}), ...(lat&&{lat:+lat}), ...(lng&&{lng:+lng}), ...(capacity&&{capacity:+capacity}) }
+  }));
+});
+
+// نقل حاوية لمستودع
+router.patch('/containers/:id/warehouse', requireRole('OWNER','BRANCH_MGR','TRAFFIC_MGR','DISPATCHER'), async (req, res) => {
+  const c = await prisma.container.findFirst({ where: { id: +req.params.id, ...scope(req) } });
+  if (!c) return res.status(404).json({ error: 'الحاوية غير موجودة' });
+  res.json(await prisma.container.update({
+    where: { id: c.id },
+    data: { warehouseId: req.body.warehouseId ? +req.body.warehouseId : null }
+  }));
+});
+
+// استخراج الإحداثيات من رابط قوقل
+router.post('/extract-location', requireRole('OWNER','BRANCH_MGR','TRAFFIC_MGR','DISPATCHER'), async (req, res) => {
+  const { url } = req.body;
+  if (!url) return res.status(400).json({ error: 'الرابط مطلوب' });
+  
+  let lat = null, lng = null;
+  
+  // أنماط الروابط المختلفة
+  const patterns = [
+    /[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/,           // ?q=lat,lng
+    /@(-?\d+\.?\d*),(-?\d+\.?\d*)/,                  // @lat,lng
+    /ll=(-?\d+\.?\d*),(-?\d+\.?\d*)/,                // ll=lat,lng
+    /!3d(-?\d+\.?\d*)!4d(-?\d+\.?\d*)/,              // !3d lat !4d lng
+    /place\/.*\/@(-?\d+\.?\d*),(-?\d+\.?\d*)/,       // place/@lat,lng
+  ];
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) { lat = +match[1]; lng = +match[2]; break; }
+  }
+  
+  if (lat && lng) {
+    res.json({ lat, lng, found: true });
+  } else {
+    res.json({ found: false, message: 'لم يتم استخراج الموقع — أدخل الإحداثيات يدوياً' });
+  }
+});
+
 module.exports = router;

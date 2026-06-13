@@ -53,6 +53,16 @@ io.on('connection', (socket) => {
 
   console.log(`✓ اتصال: ${user.name} (${user.role}) — شركة ${user.companyId}`);
 
+  // إشعار طلب جديد
+  socket.on('notify:new-order', (data) => {
+    // إرسال للمديرين في نفس الشركة
+    socket.to(companyRoom).emit('alert:new-order', {
+      ...data,
+      createdBy: user.name,
+      time: new Date(),
+    });
+  });
+
   // السائق يرسل موقعه
   socket.on('driver:location', (data) => {
     if (user.role !== 'DRIVER') return;

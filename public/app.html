@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Changa:wght@600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -411,9 +412,11 @@ tbody tr:hover{background:#F8FAFB}
           <div class="field"><label style="font-size:.68rem">الاستحقاق</label><input id="oDue" type="date" style="padding:8px 10px;font-size:.8rem"></div>
           <div class="field"><label style="font-size:.68rem">السعر (ر.س)</label><input id="oPrice" inputmode="numeric" placeholder="0" style="padding:8px 10px;font-size:.8rem"></div>
           <div class="field"><label style="font-size:.68rem">وصف الموقع</label><input id="oAddr" placeholder="حي النرجس" style="padding:8px 10px;font-size:.8rem"></div>
+          <div class="field" style="grid-column:1/-1"><label style="font-size:.68rem">رابط الموقع من واتساب/قوقل</label><input id="oLocUrl" placeholder="الصق الرابط هنا لاستخراج الإحداثيات تلقائياً" style="padding:8px 10px;font-size:.8rem"></div>
         </div>
         <div style="display:flex;gap:8px">
           <button class="btn btn-ghost" onclick="getLoc()" style="padding:8px 12px;font-size:.78rem;flex:1">📍 موقعي</button>
+          <button class="btn btn-ghost" onclick="extractOrderLocation()" style="padding:8px 12px;font-size:.78rem;flex:1">🔗 رابط العميل</button>
           <button class="btn btn-amber" onclick="addOrder()" style="padding:8px 14px;font-size:.78rem;flex:2">＋ إنشاء الطلب</button>
         </div>
         <div id="locMsg"></div>
@@ -694,6 +697,25 @@ tbody tr:hover{background:#F8FAFB}
         </div>
       </div>
     </div>
+
+    <!-- ===== المستودعات ===== -->
+    <div class="page" id="page-warehouses">
+      <div class="card" id="whForm">
+        <div class="card-head"><h3>إضافة مستودع جديد</h3></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:12px">
+          <div class="field"><label>اسم المستودع *</label><input id="whName" placeholder="مستودع الرياض الرئيسي"></div>
+          <div class="field"><label>العنوان</label><input id="whAddr" placeholder="حي العارض"></div>
+          <div class="field"><label>الطاقة الاستيعابية</label><input id="whCap" inputmode="numeric" placeholder="50"></div>
+          <div class="field"><label>رابط الموقع (خرائط)</label><input id="whUrl" placeholder="الصق رابط قوقل ماب"></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost" onclick="extractWhLocation()" style="padding:9px 14px">📍 استخراج الموقع</button>
+          <button class="btn btn-amber" onclick="addWarehouse()" style="padding:9px 16px">＋ إضافة المستودع</button>
+        </div>
+        <div id="whLocMsg" style="margin-top:6px;font-size:.74rem"></div>
+      </div>
+      <div id="warehouseCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px"></div>
+    </div>
   </div><!-- content -->
 </div><!-- main -->
 </div><!-- layout -->
@@ -753,9 +775,9 @@ function showToast(msg){
 }
 
 /* ===== التنقل ===== */
-const titles={dash:'لوحة التحكم',alerts:'التنبيهات',orders:'الطلبات',containers:'الحاويات',employees:'الموظفون',shifts:'الشفتات',attendance:'الحضور والانصراف',payroll:'الرواتب',vehicles:'السيارات وعداد الزيت',maintenance:'الصيانة',reports:'التقارير والإحصائيات',accounting:'المحاسبة',daily:'التقارير اليومية',users:'المستخدمون'};
+const titles={dash:'لوحة التحكم',alerts:'التنبيهات',orders:'الطلبات',containers:'الحاويات',employees:'الموظفون',shifts:'الشفتات',attendance:'الحضور والانصراف',payroll:'الرواتب',vehicles:'السيارات وعداد الزيت',maintenance:'الصيانة',reports:'التقارير والإحصائيات',accounting:'المحاسبة',daily:'التقارير اليومية',warehouses:'المستودعات',users:'المستخدمون'};
 const addLabels={orders:'＋ طلب جديد',containers:'＋ حاوية جديدة',employees:'＋ موظف جديد',vehicles:'＋ سيارة جديدة',maintenance:'＋ عملية صيانة',users:'＋ مستخدم جديد'};
-const loaders={dash:loadDash,alerts:loadAlerts,orders:loadOrders,containers:loadConts,employees:loadEmps,shifts:loadShifts,attendance:loadAtt,payroll:loadPayroll,vehicles:loadVehs,maintenance:loadMaint,reports:loadReports,accounting:loadAccounting,daily:loadDailyReport,users:loadUsers};
+const loaders={dash:loadDash,alerts:loadAlerts,orders:loadOrders,containers:loadConts,employees:loadEmps,shifts:loadShifts,attendance:loadAtt,payroll:loadPayroll,vehicles:loadVehs,maintenance:loadMaint,reports:loadReports,accounting:loadAccounting,daily:loadDailyReport,warehouses:loadWarehouses,users:loadUsers};
 let curPage='dash';
 
 function go(p){
@@ -1274,9 +1296,9 @@ async function loadReports(){
 
 /* ===== نظام الصلاحيات ===== */
 const PERMISSIONS = {
-  OWNER:       ['dash','alerts','orders','containers','employees','shifts','attendance','payroll','vehicles','maintenance','reports','accounting','daily','users'],
+  OWNER:       ['dash','alerts','orders','containers','employees','shifts','attendance','payroll','vehicles','maintenance','reports','accounting','daily','warehouses','users'],
   BRANCH_MGR:  ['dash','alerts','orders','containers','employees','shifts','attendance','vehicles','maintenance'],
-  TRAFFIC_MGR: ['dash','alerts','orders','containers','attendance','vehicles','maintenance','reports'],
+  TRAFFIC_MGR: ['dash','alerts','orders','containers','attendance','vehicles','maintenance','reports','warehouses'],
   DISPATCHER:  ['dash','alerts','orders','containers'],
   ACCOUNTANT:  ['dash','payroll','accounting','daily'],
   DRIVER:      ['dash','orders'],
@@ -1510,7 +1532,130 @@ function closeMobileMenu(){
   document.getElementById('moreMenuBg').style.display = 'none';
 }
 
+
+/* ===== المستودعات ===== */
+let whLat = null, whLng = null;
+
+async function loadWarehouses(){
+  try{
+    const ws = await coApi('/warehouses');
+    document.getElementById('warehouseCards').innerHTML = ws.length ?
+      ws.map(w => `
+        <div style="background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;border-top:4px solid var(--amber)">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+            <div style="width:42px;height:42px;border-radius:10px;background:var(--amber-soft);display:grid;place-items:center;font-size:1.3rem;flex-shrink:0">🏭</div>
+            <div>
+              <div style="font-weight:700;font-size:.95rem">${w.name}</div>
+              <div style="font-size:.72rem;color:var(--steel)">${w.address||'—'}</div>
+            </div>
+            ${w.lat?`<a href="https://maps.google.com/?q=${w.lat},${w.lng}" target="_blank" style="margin-inline-start:auto;color:var(--blue);font-size:.72rem">📍 خريطة</a>`:''}
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center">
+            <div style="background:var(--green-soft);border-radius:10px;padding:10px">
+              <div class="num" style="font-size:1.4rem;font-weight:700;color:var(--green)">${w.available}</div>
+              <div style="font-size:.65rem;color:var(--green);font-weight:600">متاحة</div>
+            </div>
+            <div style="background:var(--amber-soft);border-radius:10px;padding:10px">
+              <div class="num" style="font-size:1.4rem;font-weight:700;color:var(--amber-d)">${w.rented}</div>
+              <div style="font-size:.65rem;color:var(--amber-d);font-weight:600">مؤجرة</div>
+            </div>
+            <div style="background:var(--red-soft);border-radius:10px;padding:10px">
+              <div class="num" style="font-size:1.4rem;font-weight:700;color:var(--red)">${w.maintenance}</div>
+              <div style="font-size:.65rem;color:var(--red);font-weight:600">صيانة</div>
+            </div>
+          </div>
+          <div style="margin-top:10px;padding:8px;background:var(--bg);border-radius:8px;text-align:center;font-size:.76rem;color:var(--steel)">
+            الطاقة الاستيعابية: <b class="num">${w.capacity||'—'}</b> حاوية
+            &nbsp;|&nbsp; الإجمالي: <b class="num">${w.totalContainers}</b>
+          </div>
+        </div>`).join('') :
+      '<div style="text-align:center;padding:40px;color:var(--muted);grid-column:1/-1">لا توجد مستودعات — أضف مستودعاً جديداً</div>';
+  }catch(e){console.error(e)}
+}
+
+async function extractWhLocation(){
+  const url = document.getElementById('whUrl').value.trim();
+  if(!url){showToast('⚠ الصق رابط الموقع أولاً');return}
+  try{
+    const res = await coApi('/extract-location',{method:'POST',body:JSON.stringify({url})});
+    const msg = document.getElementById('whLocMsg');
+    if(res.found){
+      whLat = res.lat; whLng = res.lng;
+      msg.innerHTML = `<span style="color:var(--green)">✓ تم استخراج الموقع: ${res.lat.toFixed(5)}, ${res.lng.toFixed(5)}</span>`;
+    } else {
+      msg.innerHTML = `<span style="color:var(--red)">✗ ${res.message}</span>`;
+    }
+  }catch(e){showToast('خطأ في استخراج الموقع')}
+}
+
+async function addWarehouse(){
+  const name = document.getElementById('whName').value.trim();
+  if(!name){showToast('⚠ اسم المستودع مطلوب');return}
+  try{
+    await coApi('/warehouses',{method:'POST',body:JSON.stringify({
+      name,
+      address: document.getElementById('whAddr').value,
+      capacity: document.getElementById('whCap').value||0,
+      lat: whLat, lng: whLng,
+    })});
+    ['whName','whAddr','whCap','whUrl'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('whLocMsg').innerHTML='';
+    whLat=null;whLng=null;
+    loadWarehouses();
+    showToast('تمت إضافة المستودع ✓');
+  }catch(x){console.error(x)}
+}
+
+/* ===== استخراج موقع العميل في الطلب ===== */
+async function extractOrderLocation(){
+  const url = document.getElementById('oLocUrl').value.trim();
+  if(!url){
+    const input = prompt('الصق رابط الموقع من واتساب أو خرائط قوقل:');
+    if(!input)return;
+    document.getElementById('oLocUrl').value = input;
+  }
+  const urlVal = document.getElementById('oLocUrl').value.trim();
+  try{
+    const res = await coApi('/extract-location',{method:'POST',body:JSON.stringify({url:urlVal})});
+    if(res.found){
+      loc = {lat:res.lat, lng:res.lng};
+      document.getElementById('locMsg').innerHTML = `<div class="loc-msg loc-ok">✓ تم استخراج موقع العميل (${res.lat.toFixed(5)}, ${res.lng.toFixed(5)})</div>`;
+      showToast('✓ تم استخراج الموقع من الرابط');
+    } else {
+      document.getElementById('locMsg').innerHTML = `<div class="loc-msg loc-err">✗ ${res.message}</div>`;
+    }
+  }catch(e){showToast('خطأ في استخراج الموقع')}
+}
+
+/* ===== إشعار طلب جديد عند الإنشاء ===== */
+const _origAddOrder = addOrder;
+async function addOrder(){
+  await _origAddOrder();
+  // إرسال إشعار للمديرين
+  if(appSocket && appSocket.connected){
+    const cust = document.getElementById('oCust')?.value || '';
+    const type = document.getElementById('oType')?.value || '';
+    appSocket.emit('notify:new-order', { customerName: cust, type });
+  }
+}
+
 /* ===== التشغيل الأولي ===== */
+// Socket.IO للإشعارات
+let appSocket = null;
+function initAppSocket(){
+  if(typeof io === 'undefined') return;
+  appSocket = io({ auth: { token: T } });
+  appSocket.on('alert:new-order', (data) => {
+    showToast('🔔 طلب جديد! ' + data.customerName + ' — ' + (data.type||''));
+    // تحديث شارة التنبيهات
+    loadAlerts();
+    // إذا في صفحة الطلبات حدّثها
+    if(curPage === 'orders') loadOrders();
+    if(curPage === 'dash') loadDash();
+  });
+}
+setTimeout(initAppSocket, 2000);
+
 // تطبيق الصلاحيات
 applyPermissions();
 // تحميل الصفحة الافتراضية حسب الدور
