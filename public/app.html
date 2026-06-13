@@ -303,6 +303,93 @@ tbody tr:hover{background:#F8FAFB}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 @media print{.sidebar,.bottom-nav,.topbar button,#userAv{display:none!important}.main{margin:0!important;padding:0!important}.topbar{position:static!important}.page{display:block!important}.card,.kpi{box-shadow:none!important;border:1px solid var(--line)}}
+
+
+/* =========================================================
+   SAFE PROFESSIONAL DESIGN PATCH — 2026-06-13
+   ملاحظة: هذا الباتش يغير الشكل فقط ولا يغير أي API أو دوال JavaScript.
+   ========================================================= */
+:root{
+  --bg:#EEF3F6;
+  --card:#FFFFFF;
+  --line:#D9E4EA;
+  --shadow:0 1px 2px rgba(20,31,40,.05),0 10px 28px rgba(20,31,40,.075);
+  --shadow-soft:0 8px 22px rgba(20,31,40,.055);
+}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{background:
+  radial-gradient(circle at top left,rgba(247,168,35,.06),transparent 32%),
+  linear-gradient(180deg,#F5F8FA 0%,var(--bg) 220px,var(--bg) 100%);
+}
+.sidebar{
+  width:260px;
+  background:linear-gradient(180deg,#101D26 0%,#13232D 52%,#0F1B23 100%);
+  box-shadow:-1px 0 0 rgba(255,255,255,.04) inset,0 18px 45px rgba(8,18,26,.18);
+}
+.brand-icon{box-shadow:inset 0 -5px 0 rgba(0,0,0,.18),0 10px 22px rgba(247,168,35,.18)}
+.nav-item{min-height:42px;border:1px solid transparent}
+.nav-item.active{box-shadow:0 10px 22px rgba(247,168,35,.22);border-color:rgba(255,255,255,.12)}
+.nav-item:not(.active):hover{border-color:rgba(255,255,255,.05)}
+.main{margin-inline-start:260px;padding-top:24px;max-width:1360px}
+.topbar{
+  background:rgba(238,243,246,.82);
+  backdrop-filter:blur(8px);
+  border-radius:18px;
+  padding:8px 2px 12px;
+}
+.topbar h2{font-size:1.55rem;letter-spacing:-.3px}.topbar .sub{font-size:.78rem;color:#6F8493}
+.top-btn,.btn-amber{box-shadow:0 10px 20px rgba(247,168,35,.26)}
+.icon-btn{background:#fff;box-shadow:var(--shadow-soft)}
+.kpis{gap:16px}.kpi{
+  min-height:96px;
+  border:1px solid rgba(221,229,235,.78);
+  border-top-width:4px;
+  transition:transform .15s ease,box-shadow .15s ease;
+}
+.kpi:hover{transform:translateY(-1px);box-shadow:0 12px 32px rgba(20,31,40,.085)}
+.kpi .lbl{font-weight:600}.kpi .val{letter-spacing:-.4px}.kpi .delta{font-weight:700}
+.card{
+  border:1px solid rgba(221,229,235,.78);
+  box-shadow:var(--shadow);
+}
+.card h3,.card-head h3{letter-spacing:-.1px}.card h3::before,.card-head h3::before{box-shadow:0 0 0 3px rgba(247,168,35,.11)}
+.tbl-wrap{background:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+thead{background:#101D26}th{height:42px;letter-spacing:.1px}td{height:44px}tbody tr{transition:background .12s ease}tbody tr:hover{background:#F5F9FB}
+.badge{font-weight:800}.btn{min-height:31px}.btn-sm{border-radius:9px}
+.field input,.field select{
+  min-height:42px;
+  background:linear-gradient(180deg,#fff,#FBFDFE);
+}
+.field input:hover,.field select:hover{border-color:#C9D7E0}
+.emp-av,.emp-avatar{box-shadow:0 7px 15px rgba(20,31,40,.12)}
+.shift-card{min-height:138px}.chart-box{height:236px}
+.toast{box-shadow:0 14px 38px rgba(11,20,28,.34)}
+.modal{box-shadow:0 24px 70px rgba(5,14,21,.28)}
+/* تحسين صفحات الطلبات والمحاسبة التي تحتوي أزرار أو قوائم كثيرة */
+.card .form-grid + .btn,.card .form-grid + button{margin-top:2px}
+input::placeholder{color:#90A3B1}
+/* خريطة أو مناطق طويلة */
+#map,.map,.leaflet-container{border-radius:14px!important;overflow:hidden;border:1px solid var(--line)}
+/* تصغير محسوب للشاشات المتوسطة حتى لا تضيع المساحة */
+@media(min-width:769px) and (max-width:1280px){
+  .main{padding-inline:18px;max-width:1180px}.sidebar{width:236px}.main{margin-inline-start:236px}
+  .nav-item{font-size:.82rem;padding-inline:10px}.topbar h2{font-size:1.35rem}.kpi .val{font-size:1.55rem}
+  table{font-size:.76rem}th,td{padding-inline:10px}.card{padding:16px}
+}
+@media(max-width:768px){
+  body{background:var(--bg)}
+  .sidebar{width:min(292px,86vw);inset-inline-start:0;transform:translateX(105%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-inline-start:0;padding:10px 10px 92px;max-width:none}
+  .topbar{margin:-10px -10px 12px;padding:12px 10px;background:rgba(255,255,255,.92);border-bottom:1px solid var(--line)}
+  .topbar h2{font-size:1.12rem}.topbar .sub{font-size:.68rem}.icon-btn{width:36px;height:36px}.top-btn{min-height:36px}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.kpi{min-height:86px;border-radius:13px}.kpi .lbl{font-size:.66rem}.kpi .val{font-size:1.22rem}
+  .card{border-radius:13px;margin-bottom:10px;padding:12px}.chart-box{height:210px}
+  .form-grid{grid-template-columns:1fr}.field input,.field select{min-height:40px}
+  .tbl-wrap{border-radius:12px}table{min-width:680px;font-size:.72rem}th,td{height:40px}
+  .bottom-nav{backdrop-filter:blur(8px)}
+}
+
 </style>
 </head>
 <body>
