@@ -460,7 +460,7 @@ tbody tr:hover{background:#F8FAFB}
         <button class="btn btn-amber" onclick="addEmp()" style="padding:9px 16px">＋ إضافة الموظف</button>
       </div>
       <div class="card"><div class="card-head"><h3>فريق العمل</h3></div>
-        <div class="tbl-wrap"><table><thead><tr><th>الموظف</th><th>الوظيفة</th><th>الجوال</th><th>الشفت</th><th>الراتب</th><th>التعيين</th><th>وقت الإضافة</th><th>الحالة</th></tr></thead><tbody id="empRows"></tbody></table></div>
+        <div class="tbl-wrap"><table><thead><tr><th>الموظف</th><th>الوظيفة</th><th>الجوال</th><th>الشفت</th><th>الراتب</th><th>التعيين</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="empRows"></tbody></table></div>
       </div>
     </div>
 
@@ -981,12 +981,30 @@ async function loadEmps(){
     const emps=await hrApi('/employees');
     document.getElementById('empRows').innerHTML=emps.length?emps.map(e=>`<tr>
       <td><div class="cell-emp"><span class="emp-av">${e.name[0]}</span><div><div style="font-weight:600">${e.name}</div><div class="s">رقم ${String(e.id).padStart(3,'0')}</div></div></div></td>
-      <td>${e.role}</td><td class="num" style="color:var(--steel)">${e.phone||'—'}</td>
+      <td>${e.role}</td>
+      <td class="num" style="color:var(--steel)">${e.phone||'—'}</td>
       <td><span class="badge ${shiftBd[e.shift]||'bd-gray'}">${shiftLbl[e.shift]||e.shift}</span></td>
       <td class="num" style="font-weight:700">${fmt(e.salary)} ر.س</td>
       <td class="num">${e.hiredAt||'—'}</td>
-      <td class="num" style="font-size:.68rem;color:var(--steel)">${new Date(e.createdAt).toLocaleString('ar-SA',{dateStyle:'short',timeStyle:'short'})}</td>
-      <td><span class="badge ${e.status==='ACTIVE'?'bd-green':'bd-red'}">${e.status==='ACTIVE'?'نشط':'غير نشط'}</span></td>
+      <td><span class="badge ${e.status==='ACTIVE'?'bd-green':e.status==='INACTIVE'?'bd-red':e.status==='LEAVE'?'bd-blue':e.status==='SICK'?'bd-amber':'bd-gray'}">
+        ${{ACTIVE:'نشط',INACTIVE:'منتهي العمل',LEAVE:'إجازة',SICK:'إجازة مرضية',SUSPENDED:'موقوف'}[e.status]||e.status}
+      </span></td>
+      <td>
+        <div style="position:relative;display:inline-block">
+          <button class="btn btn-ghost btn-sm" onclick="toggleEmpMenu(${e.id},event)" style="font-size:.72rem">إجراءات ▾</button>
+          <div id="empMenu-${e.id}" style="display:none;position:absolute;left:0;top:100%;z-index:100;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:160px;padding:6px">
+            <button onclick="empAction(${e.id},'ACTIVE')" style="display:block;width:100%;text-align:right;padding:8px 12px;font:inherit;font-size:.78rem;background:none;border:0;cursor:pointer;border-radius:7px;color:var(--green)" onmouseover="this.style.background='var(--green-soft)'" onmouseout="this.style.background='none'">✓ نشط</button>
+            <button onclick="empAction(${e.id},'LEAVE')" style="display:block;width:100%;text-align:right;padding:8px 12px;font:inherit;font-size:.78rem;background:none;border:0;cursor:pointer;border-radius:7px;color:var(--blue)" onmouseover="this.style.background='var(--blue-soft)'" onmouseout="this.style.background='none'">🏖 إجازة</button>
+            <button onclick="empAction(${e.id},'SICK')" style="display:block;width:100%;text-align:right;padding:8px 12px;font:inherit;font-size:.78rem;background:none;border:0;cursor:pointer;border-radius:7px;color:var(--amber-d)" onmouseover="this.style.background='var(--amber-soft)'" onmouseout="this.style.background='none'">🏥 إجازة مرضية</button>
+            <button onclick="empAction(${e.id},'SUSPENDED')" style="display:block;width:100%;text-align:right;padding:8px 12px;font:inherit;font-size:.78rem;background:none;border:0;cursor:pointer;border-radius:7px;color:var(--red)" onmouseover="this.style.background='var(--red-soft)'" onmouseout="this.style.background='none'">⏸ موقوف</button>
+            <div style="border-top:1px solid var(--line);margin:4px 0"></div>
+            <button onclick="editEmpSalary(${e.id},${e.salary},${e.extra})" style="display:block;width:100%;text-align:right;padding:8px 12px;font:inherit;font-size:.78rem;background:none;border:0;cursor:pointer;border-radius:7px" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='none'">﷼ تعديل الراتب</button>
+            <button onclick="editEmpShift(${e.id})" style="display:block;width:100%;text-align:right;padding:8px 12px;font:inherit;font-size:.78rem;background:none;border:0;cursor:pointer;border-radius:7px" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='none'">🕐 تغيير الشفت</button>
+            <div style="border-top:1px solid var(--line);margin:4px 0"></div>
+            <button onclick="empAction(${e.id},'INACTIVE')" style="display:block;width:100%;text-align:right;padding:8px 12px;font:inherit;font-size:.78rem;background:none;border:0;cursor:pointer;border-radius:7px;color:var(--red)" onmouseover="this.style.background='var(--red-soft)'" onmouseout="this.style.background='none'">✕ إنهاء العمل</button>
+          </div>
+        </div>
+      </td>
     </tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:22px;color:var(--muted)">لا يوجد موظفون</td></tr>';
   }catch(e){console.error(e)}
 }
@@ -1642,6 +1660,54 @@ async function addOrder(){
     const type = document.getElementById('oType')?.value || '';
     appSocket.emit('notify:new-order', { customerName: cust, type });
   }
+}
+
+
+/* ===== إجراءات الموظف ===== */
+function toggleEmpMenu(id, e){
+  e.stopPropagation();
+  // إغلاق كل القوائم المفتوحة
+  document.querySelectorAll('[id^="empMenu-"]').forEach(m=>m.style.display='none');
+  const menu = document.getElementById('empMenu-'+id);
+  if(menu) menu.style.display = menu.style.display==='none'?'block':'none';
+}
+// إغلاق القوائم عند النقر خارجها
+document.addEventListener('click', ()=>{
+  document.querySelectorAll('[id^="empMenu-"]').forEach(m=>m.style.display='none');
+});
+
+async function empAction(id, status){
+  document.querySelectorAll('[id^="empMenu-"]').forEach(m=>m.style.display='none');
+  const labels = {ACTIVE:'تفعيل',INACTIVE:'إنهاء العمل',LEAVE:'إجازة',SICK:'إجازة مرضية',SUSPENDED:'إيقاف'};
+  if(status==='INACTIVE' && !confirm(`هل تريد إنهاء عمل هذا الموظف؟`)) return;
+  try{
+    await hrApi('/employees/'+id,{method:'PATCH',body:JSON.stringify({status})});
+    loadEmps();
+    showToast(`تم تحديث حالة الموظف: ${labels[status]||status} ✓`);
+  }catch(e){console.error(e)}
+}
+
+async function editEmpSalary(id, salary, extra){
+  document.querySelectorAll('[id^="empMenu-"]').forEach(m=>m.style.display='none');
+  const newSalary = prompt(`الراتب الحالي: ${fmt(salary)} ر.س\nأدخل الراتب الجديد:`);
+  if(!newSalary) return;
+  const newExtra = prompt(`البدلات الحالية: ${fmt(extra)} ر.س\nأدخل البدلات الجديدة:`);
+  if(newExtra===null) return;
+  await hrApi('/employees/'+id,{method:'PATCH',body:JSON.stringify({salary:+newSalary,extra:+newExtra||0})});
+  loadEmps();
+  showToast('تم تحديث الراتب ✓');
+}
+
+async function editEmpShift(id){
+  document.querySelectorAll('[id^="empMenu-"]').forEach(m=>m.style.display='none');
+  const shift = prompt('أدخل الشفت الجديد:\nMORNING = صباحي\nEVENING = مسائي\nNIGHT = ليلي');
+  if(!shift) return;
+  const shiftMap = {'صباحي':'MORNING','مسائي':'EVENING','ليلي':'NIGHT','MORNING':'MORNING','EVENING':'EVENING','NIGHT':'NIGHT'};
+  const s = shiftMap[shift];
+  if(!s){showToast('⚠ شفت غير صحيح');return}
+  await hrApi('/employees/'+id,{method:'PATCH',body:JSON.stringify({shift:s})});
+  loadEmps();loadShifts();
+  showToast('تم تغيير الشفت ✓');
 }
 
 /* ===== التشغيل الأولي ===== */

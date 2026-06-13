@@ -174,8 +174,11 @@ enum ShiftType {
 }
 
 enum EmployeeStatus {
-  ACTIVE    // على رأس العمل
-  INACTIVE  // غير نشط
+  ACTIVE     // على رأس العمل
+  INACTIVE   // منتهي العمل
+  LEAVE      // إجازة
+  SICK       // إجازة مرضية
+  SUSPENDED  // موقوف
 }
 
 model Employee {
