@@ -563,7 +563,7 @@ tbody tr:hover{background:#F8FAFB}
         <button class="btn btn-amber" onclick="addUser()" style="padding:9px 16px">＋ إضافة</button>
       </div>
       <div class="card"><div class="card-head"><h3>المستخدمون</h3></div>
-        <div class="tbl-wrap"><table><thead><tr><th>الاسم</th><th>الجوال</th><th>الدور</th><th>اللغة</th></tr></thead><tbody id="userRows"></tbody></table></div>
+        <div class="tbl-wrap"><table><thead><tr><th>المستخدم</th><th>الدور</th><th>التاريخ</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="userRows"></tbody></table></div>
       </div>
     </div>
 
@@ -1274,11 +1274,21 @@ async function loadUsers(){
   try{
     const us=await coApi('/users');
     document.getElementById('userRows').innerHTML=us.length?us.map(u=>`<tr>
-      <td style="font-weight:600">${u.name}</td>
-      <td class="num" style="color:var(--steel)">${u.phone}</td>
+      <td><div style="display:flex;align-items:center;gap:8px">
+        <div style="width:32px;height:32px;border-radius:8px;background:var(--ink2);color:var(--amber);display:grid;place-items:center;font-family:'Changa';font-weight:700;font-size:.85rem;flex-shrink:0">${(u.name||'?')[0]}</div>
+        <div><div style="font-weight:600;font-size:.84rem">${u.name}</div><div style="font-size:.68rem;color:var(--steel)">${u.phone}</div></div>
+      </div></td>
       <td><span class="badge bd-blue">${roleAr[u.role]||u.role}</span></td>
-      <td>${langAr[u.language]||u.language}</td>
-    </tr>`).join(''):'<tr><td colspan="4" style="text-align:center;padding:22px;color:var(--muted)">لا يوجد مستخدمون</td></tr>';
+      <td style="font-size:.72rem;color:var(--steel)">${new Date(u.createdAt).toLocaleDateString('ar-SA')}</td>
+      <td><span class="badge ${u.active!==false?'bd-green':'bd-red'}">${u.active!==false?'نشط':'معطل'}</span></td>
+      <td>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="editUser(${u.id},'${u.name}','${u.role}')" style="font-size:.7rem">تعديل الدور</button>
+          <button class="btn btn-sm" style="background:var(--amber-soft);color:var(--amber-d);padding:5px 10px;font-size:.7rem;border-radius:7px;border:0;cursor:pointer;font-family:inherit" onclick="resetUserPass(${u.id},'${u.name}')">كلمة المرور</button>
+          ${u.role!=='OWNER'?`<button class="btn btn-sm" style="background:var(--red-soft);color:var(--red);padding:5px 10px;font-size:.7rem;border-radius:7px;border:0;cursor:pointer;font-family:inherit" onclick="deleteUser(${u.id},'${u.name}')">حذف</button>`:''}
+        </div>
+      </td>
+    </tr>`).join(''):'<tr><td colspan="5" style="text-align:center;padding:22px;color:var(--muted)">لا يوجد مستخدمون</td></tr>';
   }catch(e){console.error(e)}
 }
 async function addUser(){
