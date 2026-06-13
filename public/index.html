@@ -180,7 +180,7 @@ async function go(e){
     if(!r.ok){err.textContent=d.error;err.classList.add('show');return}
     localStorage.setItem('token',d.token);
     localStorage.setItem('who',JSON.stringify(d));
-    location.href=d.role==='SUPER_ADMIN'?'/admin.html':'/app.html';
+    location.href=d.role==='SUPER_ADMIN'?'/admin.html':d.role==='DRIVER'?'/driver.html':'/app.html';
   }catch{
     err.textContent='خطأ في الاتصال بالخادم';err.classList.add('show');
   }finally{

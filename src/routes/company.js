@@ -91,4 +91,63 @@ router.post('/users', requireRole('OWNER'), async (req, res) => {
   } catch { res.status(400).json({ error: 'رقم الجوال مسجل مسبقاً' }); }
 });
 
+
+// ===== السائق: طلباته المسندة فقط =====
+router.get('/driver/orders', requireRole('DRIVER'), async (req, res) => {
+  // السائق يرى فقط الطلبات المسندة لشركته وغير المنتهية
+  const orders = await prisma.order.findMany({
+    where: {
+      companyId: req.user.companyId,
+      status: { in: ['ASSIGNED', 'EN_ROUTE', 'NEW'] },
+    },
+    include: { container: true },
+    orderBy: { createdAt: 'desc' },
+  });
+  res.json(orders);
+});
+
+// السائق يحدث حالة طلبه: EN_ROUTE أو DONE
+router.post('/driver/orders/:id/action', requireRole('DRIVER'), async (req, res) => {
+  const { action, lat, lng, note } = req.body;
+  const o = await prisma.order.findFirst({
+    where: { id: +req.params.id, companyId: req.user.companyId },
+  });
+  if (!o) return res.status(404).json({ error: 'الطلب غير موجود' });
+
+  let newStatus = o.status;
+  if (action === 'enroute') newStatus = 'EN_ROUTE';
+  else if (action === 'done') newStatus = 'DONE';
+  else return res.status(400).json({ error: 'إجراء غير صحيح' });
+
+  const updated = await prisma.order.update({
+    where: { id: o.id },
+    data: {
+      status: newStatus,
+      updatedBy: req.user.id,
+      // إذا أرسل السائق موقعه نحفظه
+      ...(lat && lng && { lat: +lat, lng: +lng }),
+      ...(note && { notes: note }),
+    },
+  });
+  res.json(updated);
+});
+
+// السائق يرسل موقعه الحالي
+router.post('/driver/location', requireRole('DRIVER'), async (req, res) => {
+  const { lat, lng, orderId } = req.body;
+  if (!lat || !lng) return res.status(400).json({ error: 'الموقع مطلوب' });
+  if (orderId) {
+    const o = await prisma.order.findFirst({
+      where: { id: +orderId, companyId: req.user.companyId },
+    });
+    if (o) {
+      await prisma.order.update({
+        where: { id: o.id },
+        data: { lat: +lat, lng: +lng, updatedBy: req.user.id },
+      });
+    }
+  }
+  res.json({ ok: true, lat, lng, time: new Date() });
+});
+
 module.exports = router;
