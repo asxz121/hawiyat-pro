@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>حاويات برو — تتبع السائقين</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Changa:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --ink:#0F1923;--ink2:#1A2B3C;
+  --amber:#F7A823;--amber-d:#D88A06;--amber-soft:#FFF8EA;
+  --green:#1B9E6E;--green-soft:#E5F7F1;
+  --red:#D64545;--red-soft:#FBEAEA;
+  --blue:#2E7DD1;--blue-soft:#E8F2FB;
+  --steel:#4A6375;--muted:#8DA1AF;
+  --line:#DDE5EB;--bg:#EDF1F4;
+}
+body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--bg);color:var(--ink);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* ===== الهيدر ===== */
+.header{
+  background:var(--ink);padding:12px 20px;
+  display:flex;align-items:center;gap:12px;flex-shrink:0;
+}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-icon{width:36px;height:30px;border-radius:7px;background:var(--amber);background-image:repeating-linear-gradient(90deg,transparent 0 6px,rgba(0,0,0,.12) 6px 9px);box-shadow:inset 0 -3px 0 rgba(0,0,0,.18);position:relative;flex-shrink:0}
+.brand-icon::before{content:"";position:absolute;top:-4px;right:5px;left:5px;height:3px;background:var(--amber-d);border-radius:2px}
+.brand h1{font-family:'Changa';font-size:1rem;font-weight:700;color:#fff}
+.brand small{font-size:.6rem;color:#7A95A8;display:block}
+.header .grow{flex:1}
+.conn-badge{display:flex;align-items:center;gap:6px;font-size:.72rem;padding:5px 11px;border-radius:20px;font-weight:600}
+.conn-badge.online{background:rgba(27,158,110,.15);color:#4ADE80;border:1px solid rgba(27,158,110,.2)}
+.conn-badge.offline{background:rgba(214,69,69,.15);color:#F87171;border:1px solid rgba(214,69,69,.2)}
+.conn-dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.btn-back{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:8px;padding:7px 13px;font:inherit;font-size:.76rem;cursor:pointer;transition:all .15s}
+.btn-back:hover{background:rgba(255,255,255,.15)}
+
+/* ===== التخطيط ===== */
+.body{display:flex;flex:1;overflow:hidden}
+.sidebar{
+  width:300px;background:#fff;border-inline-start:1px solid var(--line);
+  display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;
+}
+.sidebar-head{padding:14px 16px;border-bottom:1px solid var(--line);flex-shrink:0}
+.sidebar-head h2{font-family:'Changa';font-size:1rem;font-weight:700;display:flex;align-items:center;gap:6px}
+.sidebar-head h2::before{content:"";width:4px;height:14px;border-radius:2px;background:var(--amber);display:inline-block}
+.driver-count{font-size:.7rem;color:var(--steel);margin-top:3px}
+
+.drivers-list{flex:1;overflow-y:auto;padding:10px}
+.driver-card{
+  background:var(--bg);border-radius:12px;padding:12px;
+  margin-bottom:8px;cursor:pointer;border:2px solid transparent;
+  transition:all .15s;
+}
+.driver-card:hover{background:#F0F4F7;border-color:var(--line)}
+.driver-card.active{border-color:var(--amber);background:var(--amber-soft)}
+.driver-card.offline-card{opacity:.5}
+.driver-top{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.driver-av{width:36px;height:36px;border-radius:9px;background:var(--ink);color:var(--amber);display:grid;place-items:center;font-family:'Changa';font-weight:700;font-size:.9rem;flex-shrink:0}
+.driver-av.online-av{background:var(--green)}
+.driver-info .name{font-size:.84rem;font-weight:700}
+.driver-info .status{font-size:.68rem;color:var(--steel);margin-top:1px}
+.driver-badge{margin-inline-start:auto;font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:20px}
+.bd-green{background:var(--green-soft);color:var(--green)}
+.bd-amber{background:var(--amber-soft);color:var(--amber-d)}
+.bd-gray{background:var(--bg);color:var(--steel);border:1px solid var(--line)}
+
+.driver-loc{font-size:.7rem;color:var(--steel);display:flex;align-items:center;gap:5px}
+.driver-loc .ico{color:var(--blue)}
+.driver-order{margin-top:6px;font-size:.72rem;background:#fff;border-radius:8px;padding:6px 9px;border:1px solid var(--line)}
+
+/* ===== الخريطة ===== */
+#trackMap{flex:1}
+
+/* ===== أيقونة السائق ===== */
+.driver-marker{
+  width:38px;height:38px;border-radius:50%;
+  border:3px solid #fff;
+  box-shadow:0 3px 10px rgba(0,0,0,.3);
+  display:grid;place-items:center;
+  font-size:1.1rem;
+  background:var(--green);
+  animation:markerPulse 2s ease infinite;
+}
+@keyframes markerPulse{0%,100%{box-shadow:0 3px 10px rgba(0,0,0,.3)}50%{box-shadow:0 3px 10px rgba(0,0,0,.3),0 0 0 8px rgba(27,158,110,.2)}}
+
+/* ===== التوست ===== */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--ink2);color:#fff;padding:11px 18px;border-radius:28px;font-size:.8rem;z-index:1000;opacity:0;pointer-events:none;transition:all .22s;display:flex;align-items:center;gap:7px;max-width:90vw;box-shadow:0 8px 28px rgba(0,0,0,.28)}
+.toast.show{opacity:1;transform:translateX(-50%)}
+.toast .dot{width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0}
+
+/* ===== الإحصائيات ===== */
+.stats-bar{background:var(--ink2);padding:8px 20px;display:flex;gap:20px;flex-shrink:0}
+.stat{display:flex;align-items:center;gap:6px;font-size:.72rem;color:#8DA1AF}
+.stat .val{font-family:'Changa';font-weight:700;color:#fff;font-size:.9rem}
+.stat .dot{width:8px;height:8px;border-radius:50%}
+.stat .dot.green{background:var(--green)}
+.stat .dot.amber{background:var(--amber)}
+.stat .dot.red{background:var(--red)}
+
+@media(max-width:768px){
+  .sidebar{width:100%;height:220px;border-inline-start:none;border-top:1px solid var(--line)}
+  .body{flex-direction:column-reverse}
+  #trackMap{flex:1;min-height:0}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand">
+    <div class="brand-icon"></div>
+    <div>
+      <h1>تتبع السائقين</h1>
+      <small>لحظي — يتحدث تلقائياً</small>
+    </div>
+  </div>
+  <div class="grow"></div>
+  <div class="conn-badge offline" id="connBadge">
+    <span class="conn-dot"></span>
+    <span id="connText">غير متصل</span>
+  </div>
+  <button class="btn-back" onclick="location.href='/app.html'">← العودة</button>
+</div>
+
+<div class="stats-bar">
+  <div class="stat"><span class="dot green"></span><span class="val" id="stOnline">0</span> متصل</div>
+  <div class="stat"><span class="dot amber"></span><span class="val" id="stEnroute">0</span> في الطريق</div>
+  <div class="stat"><span class="dot red"></span><span class="val" id="stOffline">0</span> غير متصل</div>
+</div>
+
+<div class="body">
+  <div id="trackMap"></div>
+  <div class="sidebar">
+    <div class="sidebar-head">
+      <h2>السائقون</h2>
+      <div class="driver-count" id="driverCount">جارٍ التحميل…</div>
+    </div>
+    <div class="drivers-list" id="driversList">
+      <div style="text-align:center;padding:24px;color:var(--muted);font-size:.82rem">⏳ جارٍ الاتصال…</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span class="dot"></span><span id="toastTxt"></span></div>
+
+<script>
+/* ===== التهيئة ===== */
+const T = localStorage.getItem('token');
+if (!T) location.href = '/';
+const who = JSON.parse(localStorage.getItem('who') || '{}');
+
+const api = (u, o={}) => fetch('/api/co' + u, {
+  ...o, headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + T }
+}).then(r => r.json());
+
+/* ===== الخريطة ===== */
+const map = L.map('trackMap').setView([24.7136, 46.6753], 11);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19, attribution: '© OpenStreetMap'
+}).addTo(map);
+
+// علامات السائقين
+const markers = {}; // driverId → marker
+const drivers = {}; // driverId → data
+
+function driverIcon(name, isOnline) {
+  return L.divIcon({
+    className: '',
+    html: `<div class="driver-marker" style="background:${isOnline ? 'var(--green)' : '#8DA1AF'}">🚚</div>
+           <div style="background:var(--ink);color:#fff;font-family:'IBM Plex Sans Arabic';font-size:.6rem;font-weight:700;padding:2px 6px;border-radius:10px;margin-top:2px;text-align:center;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.2)">${name.split(' ')[0]}</div>`,
+    iconSize: [60, 55],
+    iconAnchor: [30, 55],
+    popupAnchor: [0, -55],
+  });
+}
+
+function updateMarker(d) {
+  const popupContent = `
+    <div style="font-family:'IBM Plex Sans Arabic';direction:rtl;min-width:160px">
+      <div style="font-weight:700;font-size:.9rem;margin-bottom:6px">🚚 ${d.name}</div>
+      ${d.orderId ? `<div style="font-size:.76rem;color:#5B7286">طلب رقم: #${d.orderId}</div>` : ''}
+      <div style="font-size:.68rem;color:#8DA1AF;margin-top:4px">آخر تحديث: ${new Date(d.time).toLocaleTimeString('ar-SA')}</div>
+      <a href="https://maps.google.com/?q=${d.lat},${d.lng}" target="_blank"
+         style="display:block;margin-top:8px;background:#F7A823;color:#0F1923;font-weight:700;border-radius:8px;padding:5px;text-decoration:none;font-size:.72rem;text-align:center">
+        فتح في خرائط قوقل
+      </a>
+    </div>`;
+
+  if (markers[d.driverId]) {
+    markers[d.driverId].setLatLng([d.lat, d.lng]);
+    markers[d.driverId].setIcon(driverIcon(d.name, true));
+    markers[d.driverId].setPopupContent(popupContent);
+  } else {
+    markers[d.driverId] = L.marker([d.lat, d.lng], { icon: driverIcon(d.name, true) })
+      .addTo(map)
+      .bindPopup(popupContent);
+  }
+  drivers[d.driverId] = { ...d, online: true };
+  renderSidebar();
+}
+
+function markOffline(driverId, name) {
+  if (markers[driverId]) {
+    markers[driverId].setIcon(driverIcon(name || '—', false));
+  }
+  if (drivers[driverId]) drivers[driverId].online = false;
+  renderSidebar();
+}
+
+/* ===== الشريط الجانبي ===== */
+let activeDriver = null;
+
+function renderSidebar() {
+  const list = Object.values(drivers);
+  const online = list.filter(d => d.online).length;
+  const enroute = list.filter(d => d.orderId && d.online).length;
+  const offline = list.filter(d => !d.online).length;
+
+  document.getElementById('stOnline').textContent = online;
+  document.getElementById('stEnroute').textContent = enroute;
+  document.getElementById('stOffline').textContent = offline;
+  document.getElementById('driverCount').textContent =
+    `${list.length} سائق — ${online} متصل الآن`;
+
+  document.getElementById('driversList').innerHTML = list.length ?
+    list.sort((a, b) => b.online - a.online).map(d => `
+    <div class="driver-card ${d.online ? '' : 'offline-card'} ${activeDriver === d.driverId ? 'active' : ''}"
+         onclick="focusDriver(${d.driverId})">
+      <div class="driver-top">
+        <div class="driver-av ${d.online ? 'online-av' : ''}">${(d.name||'?')[0]}</div>
+        <div class="driver-info">
+          <div class="name">${d.name}</div>
+          <div class="status">${d.online ? 'متصل' : 'غير متصل'}</div>
+        </div>
+        <span class="driver-badge ${d.online ? (d.orderId ? 'bd-amber' : 'bd-green') : 'bd-gray'}">
+          ${d.online ? (d.orderId ? 'في الطريق' : 'متاح') : 'غير متصل'}
+        </span>
+      </div>
+      ${d.online && d.lat ? `
+        <div class="driver-loc">
+          <span class="ico">📍</span>
+          ${d.lat.toFixed(4)}, ${d.lng.toFixed(4)}
+          <span style="margin-inline-start:auto">${new Date(d.time).toLocaleTimeString('ar-SA',{hour:'numeric',minute:'2-digit'})}</span>
+        </div>` : ''}
+      ${d.orderId ? `<div class="driver-order">📋 طلب رقم #${d.orderId}</div>` : ''}
+    </div>`).join('') :
+    '<div style="text-align:center;padding:24px;color:var(--muted);font-size:.8rem">لا يوجد سائقون متصلون</div>';
+}
+
+function focusDriver(driverId) {
+  activeDriver = driverId;
+  const d = drivers[driverId];
+  if (d && d.lat) {
+    map.flyTo([d.lat, d.lng], 15, { duration: 1 });
+    if (markers[driverId]) markers[driverId].openPopup();
+  }
+  renderSidebar();
+}
+
+/* ===== Socket.IO ===== */
+const socket = io({ auth: { token: T } });
+
+socket.on('connect', () => {
+  const badge = document.getElementById('connBadge');
+  badge.className = 'conn-badge online';
+  document.getElementById('connText').textContent = 'متصل';
+  // طلب المواقع الحالية
+  socket.emit('tracking:request');
+});
+
+socket.on('disconnect', () => {
+  const badge = document.getElementById('connBadge');
+  badge.className = 'conn-badge offline';
+  document.getElementById('connText').textContent = 'انقطع الاتصال…';
+});
+
+// استقبال snapshot الأولي
+socket.on('tracking:snapshot', (locations) => {
+  locations.forEach(d => updateMarker(d));
+  if (locations.length === 0) {
+    document.getElementById('driversList').innerHTML =
+      '<div style="text-align:center;padding:24px;color:var(--muted);font-size:.8rem">لا يوجد سائقون متصلون حالياً</div>';
+  }
+});
+
+// تحديث موقع سائق
+socket.on('driver:moved', (data) => {
+  updateMarker(data);
+  showToast(`📍 ${data.name} — تحديث موقع`);
+});
+
+// سائق خرج
+socket.on('driver:offline', (data) => {
+  markOffline(data.driverId, data.name);
+  showToast(`🔴 ${data.name} — قطع الاتصال`);
+});
+
+// تحديث حالة طلب
+socket.on('order:updated', (data) => {
+  showToast(`📋 ${data.name} — ${data.status === 'DONE' ? '✅ أنجز الطلب' : '🚚 في الطريق'}`);
+  if (data.status === 'DONE' && drivers[data.driverId]) {
+    drivers[data.driverId].orderId = null;
+    renderSidebar();
+  }
+});
+
+/* ===== التوست ===== */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastTxt').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._h);
+  t._h = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ===== تحديث دوري ===== */
+setInterval(() => {
+  socket.emit('tracking:request');
+}, 15000);
+</script>
+</body>
+</html>

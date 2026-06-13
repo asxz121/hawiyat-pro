@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Changa:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
@@ -186,6 +187,70 @@ body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--bg);color:va
 <div class="toast" id="toast"><span class="dot"></span><span id="toastTxt"></span></div>
 
 <script>
+/* ===== Socket.IO ===== */
+let socket = null;
+let locationInterval = null;
+let currentOrderId = null;
+
+function initSocket() {
+  socket = io({ auth: { token: T } });
+
+  socket.on('connect', () => {
+    console.log('متصل بالسيرفر');
+    updateConnectionStatus(true);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('انقطع الاتصال');
+    updateConnectionStatus(false);
+    stopLocationTracking();
+  });
+
+  socket.on('order:updated', (data) => {
+    showToast(`تحديث: ${data.name} — ${data.status || ''}`);
+    loadOrders();
+  });
+}
+
+function updateConnectionStatus(connected) {
+  const dot = document.querySelector('.status-dot');
+  const text = document.getElementById('statusText');
+  if (dot) dot.style.background = connected ? 'var(--green)' : 'var(--red)';
+  if (text && !connected) text.textContent = 'انقطع الاتصال — جارٍ إعادة الاتصال…';
+}
+
+function startLocationTracking(orderId) {
+  currentOrderId = orderId;
+  if (locationInterval) clearInterval(locationInterval);
+
+  const sendLocation = () => {
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        if (socket && socket.connected) {
+          socket.emit('driver:location', {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            orderId,
+          });
+        }
+      },
+      () => {},
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  };
+
+  sendLocation();
+  locationInterval = setInterval(sendLocation, 10000); // كل 10 ثوانٍ
+  showToast('✓ بدأ إرسال موقعك تلقائياً كل 10 ثوانٍ');
+}
+
+function stopLocationTracking() {
+  if (locationInterval) {
+    clearInterval(locationInterval);
+    locationInterval = null;
+  }
+}
+
 /* ===== التهيئة ===== */
 const T = localStorage.getItem('token');
 if (!T) location.href = '/';
@@ -368,14 +433,17 @@ function renderOrders() {
 async function markEnRoute(id) {
   if (!confirm('تأكيد: أنت في الطريق لتنفيذ الطلب #' + id + '؟')) return;
   try {
-    // إرسال الموقع الحالي مع التحديث
     navigator.geolocation.getCurrentPosition(
       async pos => {
         await api('/driver/orders/' + id + '/action', {
           method: 'POST',
           body: JSON.stringify({ action: 'enroute', lat: pos.coords.latitude, lng: pos.coords.longitude })
         });
-        showToast('✓ تم تحديث الحالة — أنت في الطريق');
+        // إشعار مدير الحركة
+        if (socket) socket.emit('driver:status', { orderId: id, status: 'EN_ROUTE' });
+        // بدء إرسال الموقع تلقائياً
+        startLocationTracking(id);
+        showToast('🚚 أنت في الطريق — جارٍ إرسال موقعك تلقائياً');
         loadOrders();
       },
       async () => {
@@ -412,6 +480,8 @@ async function confirmDone() {
         });
         closeModal();
         showToast('🎉 تم تسجيل إنجاز الطلب بنجاح');
+        stopLocationTracking();
+        if (socket) socket.emit('driver:status', { orderId: activeOrderId, status: 'DONE' });
         loadOrders();
       },
       async () => {
@@ -421,6 +491,8 @@ async function confirmDone() {
         });
         closeModal();
         showToast('🎉 تم تسجيل إنجاز الطلب بنجاح');
+        stopLocationTracking();
+        if (socket) socket.emit('driver:status', { orderId: activeOrderId, status: 'DONE' });
         loadOrders();
       }
     );
@@ -480,6 +552,7 @@ function logout() { localStorage.clear(); location.href = '/'; }
 
 /* ===== التشغيل ===== */
 loadOrders();
+initSocket();
 setInterval(loadOrders, 30000); // تحديث كل 30 ثانية
 </script>
 </body>
