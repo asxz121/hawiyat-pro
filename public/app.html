@@ -358,11 +358,14 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     <div class="login-foot">نظام محمي ومشفر · جميع البيانات سرية</div>
     <div id="loginHint" style="font-size:.76rem;text-align:center;margin-top:12px;padding:10px 14px;background:#E3F5EC;border-radius:10px;border:1px solid rgba(30,158,106,.2);color:#1E9E6A;line-height:2">
       📋 بيانات الدخول الافتراضية<br>
-      <span style="background:#fff;border-radius:7px;padding:3px 10px;font-family:'Changa';font-weight:700;font-size:.82rem;color:#141F28;display:inline-block;margin:2px 4px">0548891818</span>
+      <span id="hintPhoneVal" style="background:#fff;border-radius:7px;padding:3px 10px;font-family:'Changa';font-weight:700;font-size:.82rem;color:#141F28;display:inline-block;margin:2px 4px">0548891818</span>
       <span style="background:#fff;border-radius:7px;padding:3px 10px;font-family:'Changa';font-weight:700;font-size:.82rem;color:#141F28;display:inline-block;margin:2px 4px">admin123</span>
     </div>
     <div style="font-size:.66rem;color:#D64545;text-align:center;margin-top:8px">
-      ⚠ إذا كانت بيانات مختلفة — امسح كاش المتصفح (Ctrl+Shift+R)
+      ⚠ إذا لم يعمل الدخول —
+      <button onclick="clearOldData()" style="background:none;border:none;color:#D64545;cursor:pointer;font:inherit;font-size:.66rem;text-decoration:underline;padding:0">
+        اضغط هنا لإعادة الضبط
+      </button>
     </div>
   </div>
   <div class="ver">حاويات برو · نسخة 2.0</div>
@@ -1477,16 +1480,50 @@ new Chart(document.getElementById('chPayCat'),{type:'doughnut',data:{labels:['س
 // المستخدم الافتراضي دائماً موجود (صاحب الشركة)
 // المدير الرئيسي — يمكن تغيير رقم الجوال وكلمة المرور من هنا
 // ===== بيانات المدير الرئيسي — عدّلها حسب احتياجك =====
-// ===== بيانات المدير الرئيسي — عدّلها حسب احتياجك =====
+// ===== بيانات المدير الرئيسي =====
 const DEFAULT_ADMIN = {id:0, name:'المدير العام', phone:'0548891818', pw:'admin123', role:'OWNER'};
-// تحميل كلمة مرور المدير إن تم تغييرها
-(function(){ const saved=localStorage.getItem('hawiyat_admin_pw'); if(saved) DEFAULT_ADMIN.pw=saved; })();
+// تحميل كلمة مرور المدير المحفوظة فوراً
+(function(){
+  try{
+    const saved = localStorage.getItem('hawiyat_admin_pw');
+    if(saved && saved.length >= 1) DEFAULT_ADMIN.pw = saved;
+  }catch(e){}
+})();
+// كلمة المرور الرئيسية - تعمل مع أي مستخدم مسجل
 // كلمة المرور الرئيسية تعمل مع أي رقم جوال
-const MASTER_PW = 'admin123'; // كلمة المرور الرئيسية — غيّرها بعد أول دخول
+const MASTER_PW = 'admin123';
+
+function clearOldData(){
+  if(!confirm('سيتم مسح جميع البيانات المحفوظة وإعادة الضبط للبيانات الافتراضية. هل تريد المتابعة؟')) return;
+  localStorage.removeItem('hawiyat_pro_data');
+  localStorage.removeItem('hawiyat_session');
+  localStorage.removeItem('hawiyat_admin_pw');
+  DEFAULT_ADMIN.pw = 'admin123';
+  // إعادة تعيين المتغيرات
+  employees = [{id:1,name:'فهد محمد الشهري',role:'سائق',phone:'0551 234 567',shift:'صباحي',salary:5200,extra:600,hired:'2023/04'},
+    {id:2,name:'عبدالله سعد القحطاني',role:'سائق',phone:'0556 882 014',shift:'مسائي',salary:5200,extra:450,hired:'2022/11'},
+    {id:3,name:'محمد إبراهيم خان',role:'عامل',phone:'0509 117 332',shift:'صباحي',salary:3200,extra:200,hired:'2024/01'},
+    {id:4,name:'راشد علي حسن',role:'عامل',phone:'0540 665 901',shift:'مسائي',salary:3200,extra:200,hired:'2023/08'},
+    {id:5,name:'سلطان فيصل العنزي',role:'سائق',phone:'0553 408 226',shift:'ليلي',salary:5600,extra:800,hired:'2021/06'},
+    {id:6,name:'يوسف أحمد عمران',role:'فني صيانة',phone:'0508 771 540',shift:'صباحي',salary:4500,extra:350,hired:'2022/03'},
+    {id:7,name:'نواف خالد الحربي',role:'إداري',phone:'0555 092 318',shift:'صباحي',salary:6500,extra:500,hired:'2020/09'},
+    {id:8,name:'إقبال حسين أحمد',role:'عامل',phone:'0541 336 877',shift:'ليلي',salary:3200,extra:200,hired:'2024/05'}];
+  users = [{id:1,name:'المدير العام',phone:'0548891818',pw:'admin123',role:'OWNER'}];
+  nextEmpId=9; nextVehId=6; nextOrderId=6; nextUserId=2;
+  document.getElementById('lPhone').value = '0548891818';
+  document.getElementById('lPw').value = 'admin123';
+  document.getElementById('loginErr').classList.remove('show');
+  alert('✅ تم إعادة الضبط. بيانات الدخول:\nالجوال: 0548891818\nكلمة المرور: admin123');
+}
 
 function autoFill(){
+  // تحديث كلمة مرور المدير قبل التعبئة
+  const savedPw = localStorage.getItem('hawiyat_admin_pw');
+  if(savedPw) DEFAULT_ADMIN.pw = savedPw;
   document.getElementById('lPhone').value = DEFAULT_ADMIN.phone;
   document.getElementById('lPw').value = DEFAULT_ADMIN.pw;
+  const hint = document.getElementById('hintPhoneVal');
+  if(hint) hint.textContent = DEFAULT_ADMIN.phone;
   document.getElementById('loginErr').classList.remove('show');
   // flash hint
   document.getElementById('lPhone').style.borderColor = 'var(--green)';
@@ -1503,14 +1540,33 @@ function doLogin(){
   err.classList.remove('show');
   if(!phone || !pw){ err.classList.add('show'); return; }
 
-  // ابحث في المستخدمين المحفوظين + المستخدم الافتراضي
-  loadData(); // تحميل أحدث بيانات
+  // تحميل أحدث بيانات من التخزين
+  loadData();
+
+  // تحديث كلمة مرور المدير المحفوظة
+  const savedAdminPw = localStorage.getItem('hawiyat_admin_pw');
+  if(savedAdminPw) DEFAULT_ADMIN.pw = savedAdminPw;
+
+  // قائمة كل المستخدمين المسموح لهم بالدخول
   const allUsers = [DEFAULT_ADMIN, ...users];
-  // البحث عن المستخدم: تطابق رقم الجوال + كلمة المرور
-  // أو استخدام كلمة المرور الرئيسية مع أي رقم مسجل
-  let found = allUsers.find(u => u.phone === phone && u.pw === pw);
-  if(!found && pw === MASTER_PW) {
+
+  let found = null;
+
+  // 1. تطابق تام: جوال + كلمة مرور
+  found = allUsers.find(u => u.phone === phone && String(u.pw) === String(pw));
+
+  // 2. كلمة المرور الرئيسية تعمل مع أي رقم جوال مسجل
+  if(!found && String(pw) === String(MASTER_PW)){
     found = allUsers.find(u => u.phone === phone);
+    if(found) found = {...found, name: found.name || 'مستخدم'};
+  }
+
+  // 3. إذا كان المستخدم بدون كلمة مرور محددة → كلمة المرور الرئيسية تكفي
+  if(!found){
+    const userByPhone = allUsers.find(u => u.phone === phone);
+    if(userByPhone && (!userByPhone.pw || userByPhone.pw === '') && String(pw) === String(MASTER_PW)){
+      found = userByPhone;
+    }
   }
 
   if(!found){
