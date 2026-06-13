@@ -1285,7 +1285,12 @@ async function loadUsers(){
         <div style="display:flex;gap:5px;flex-wrap:wrap">
           <button class="btn btn-ghost btn-sm" onclick="editUser(${u.id},'${u.name}','${u.role}')" style="font-size:.7rem">تعديل الدور</button>
           <button class="btn btn-sm" style="background:var(--amber-soft);color:var(--amber-d);padding:5px 10px;font-size:.7rem;border-radius:7px;border:0;cursor:pointer;font-family:inherit" onclick="resetUserPass(${u.id},'${u.name}')">كلمة المرور</button>
-          ${u.role!=='OWNER'?`<button class="btn btn-sm" style="background:var(--red-soft);color:var(--red);padding:5px 10px;font-size:.7rem;border-radius:7px;border:0;cursor:pointer;font-family:inherit" onclick="deleteUser(${u.id},'${u.name}')">حذف</button>`:''}
+          ${u.role!=='OWNER'?`
+            <button class="btn btn-sm" style="background:${u.active!==false?'var(--amber-soft)':'var(--green-soft)'};color:${u.active!==false?'var(--amber-d)':'var(--green)'};padding:5px 10px;font-size:.7rem;border-radius:7px;border:0;cursor:pointer;font-family:inherit" onclick="toggleUser(${u.id},'${u.name}',${u.active!==false})">
+              ${u.active!==false?'تعطيل':'تفعيل'}
+            </button>
+            <button class="btn btn-sm" style="background:var(--red-soft);color:var(--red);padding:5px 10px;font-size:.7rem;border-radius:7px;border:0;cursor:pointer;font-family:inherit" onclick="deleteUser(${u.id},'${u.name}')">حذف</button>
+          `:''}
         </div>
       </td>
     </tr>`).join(''):'<tr><td colspan="5" style="text-align:center;padding:22px;color:var(--muted)">لا يوجد مستخدمون</td></tr>';
@@ -1762,6 +1767,16 @@ async function deleteUser(id, name){
     loadUsers();
     showToast('تم حذف المستخدم ✓');
   }catch(e){showToast('⚠ لا يمكن حذف هذا المستخدم')}
+}
+
+async function toggleUser(id, name, isActive){
+  const action = isActive ? 'تعطيل' : 'تفعيل';
+  if(!confirm(`هل تريد ${action} مستخدم "${name}"؟`)) return;
+  try{
+    await coApi('/users/'+id,{method:'PATCH',body:JSON.stringify({active:!isActive})});
+    loadUsers();
+    showToast(`تم ${action} المستخدم ✓`);
+  }catch(e){showToast('⚠ خطأ في التحديث')}
 }
 
 /* ===== إجراءات الموظف ===== */
