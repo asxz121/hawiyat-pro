@@ -29,11 +29,12 @@ model Company {
   containers  Container[]
   orders      Order[]
   alerts      Alert[]
-  employees   Employee[]
-  attendance  Attendance[]
-  payroll     Payroll[]
-  vehicles    Vehicle[]
-  maintenance Maintenance[]
+  employees    Employee[]
+  attendance   Attendance[]
+  payroll      Payroll[]
+  vehicles     Vehicle[]
+  maintenance  Maintenance[]
+  dailyReports DailyReport[]
 }
 
 model Branch {
@@ -136,8 +137,16 @@ model Order {
   startDate    DateTime    @default(now())
   dueDate      DateTime? // تاريخ الاستحقاق — تعمل عليه الإشعارات
   alertMuted   Boolean     @default(false) // تعطيل إشعار الاستحقاق لهذا الطلب
-  price        Float?
-  notes        String?
+  price           Float?
+  notes           String?
+  assignedTo      Int?           // معرف السائق المسند له
+  collectedAmount Float?         // المبلغ المحصل من العميل (السائق)
+  collectedAt     DateTime?      // وقت التحصيل
+  collectedBy     Int?           // السائق الذي حصّل
+  paymentMethod   String?        // cash | transfer
+  accountingNote  String?        // ملاحظة المحاسب
+  accountingAt    DateTime?      // وقت تسجيل المحاسب
+  accountingBy    Int?           // المحاسب الذي سجّل
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   createdBy    Int?        // معرف المستخدم الذي أنشأ الطلب
@@ -258,4 +267,23 @@ model Maintenance {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   createdBy   Int?
+}
+
+// ===== التقارير المالية اليومية =====
+model DailyReport {
+  id          Int      @id @default(autoincrement())
+  company     Company  @relation(fields: [companyId], references: [id])
+  companyId   Int
+  date        DateTime @default(now())
+  totalOrders Int      @default(0)
+  cashIn      Float    @default(0)   // نقدي محصّل
+  transferIn  Float    @default(0)   // تحويل محصّل
+  totalIn     Float    @default(0)   // إجمالي الدخل
+  salaryOut   Float    @default(0)   // رواتب مصروفة
+  maintOut    Float    @default(0)   // صيانة
+  otherOut    Float    @default(0)   // مصروفات أخرى
+  netProfit   Float    @default(0)   // الصافي
+  notes       String?
+  createdBy   Int?
+  createdAt   DateTime @default(now())
 }

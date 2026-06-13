@@ -150,4 +150,84 @@ router.post('/driver/location', requireRole('DRIVER'), async (req, res) => {
   res.json({ ok: true, lat, lng, time: new Date() });
 });
 
+
+// ===== إسناد طلب لسائق =====
+router.post('/orders/:id/assign', requireRole('OWNER','BRANCH_MGR','TRAFFIC_MGR','DISPATCHER'), async (req, res) => {
+  const { driverId } = req.body;
+  const o = await prisma.order.findFirst({ where: { id: +req.params.id, ...scope(req) } });
+  if (!o) return res.status(404).json({ error: 'الطلب غير موجود' });
+  res.json(await prisma.order.update({
+    where: { id: o.id },
+    data: { assignedTo: driverId ? +driverId : null, status: driverId ? 'ASSIGNED' : 'NEW', updatedBy: req.user.id },
+  }));
+});
+
+// ===== السائق يسجل المبلغ المحصّل =====
+router.post('/orders/:id/collect', requireRole('DRIVER'), async (req, res) => {
+  const { amount, method } = req.body;
+  if (!amount) return res.status(400).json({ error: 'المبلغ مطلوب' });
+  const o = await prisma.order.findFirst({ where: { id: +req.params.id, companyId: req.user.companyId } });
+  if (!o) return res.status(404).json({ error: 'الطلب غير موجود' });
+  res.json(await prisma.order.update({
+    where: { id: o.id },
+    data: { collectedAmount: +amount, collectedAt: new Date(), collectedBy: req.user.id, paymentMethod: method || 'cash' },
+  }));
+});
+
+// ===== المحاسب يؤكد استلام المبلغ =====
+router.post('/orders/:id/confirm-payment', requireRole('OWNER','ACCOUNTANT'), async (req, res) => {
+  const { note, method } = req.body;
+  const o = await prisma.order.findFirst({ where: { id: +req.params.id, ...scope(req) } });
+  if (!o) return res.status(404).json({ error: 'الطلب غير موجود' });
+  res.json(await prisma.order.update({
+    where: { id: o.id },
+    data: { accountingNote: note||null, accountingAt: new Date(), accountingBy: req.user.id, paymentMethod: method || o.paymentMethod || 'cash' },
+  }));
+});
+
+// ===== التقارير اليومية =====
+router.get('/daily-reports', requireRole('OWNER','ACCOUNTANT'), async (req, res) => {
+  const { days = 30 } = req.query;
+  const from = new Date();
+  from.setDate(from.getDate() - +days);
+  // حساب التقارير من الطلبات مباشرة
+  const orders = await prisma.order.findMany({
+    where: { ...scope(req), createdAt: { gte: from } },
+    orderBy: { createdAt: 'desc' },
+  });
+  // تجميع حسب اليوم
+  const byDay = {};
+  orders.forEach(o => {
+    const day = new Date(o.createdAt).toLocaleDateString('ar-SA', { year:'numeric', month:'2-digit', day:'2-digit' });
+    if (!byDay[day]) byDay[day] = { date: o.createdAt, orders: 0, cash: 0, transfer: 0, total: 0, confirmed: 0 };
+    byDay[day].orders++;
+    if (o.collectedAmount) {
+      if (o.paymentMethod === 'transfer') byDay[day].transfer += o.collectedAmount;
+      else byDay[day].cash += o.collectedAmount;
+      byDay[day].total += o.collectedAmount;
+    }
+    if (o.accountingAt) byDay[day].confirmed += o.collectedAmount || 0;
+  });
+  res.json(Object.entries(byDay).map(([date, d]) => ({ date, ...d })));
+});
+
+// ===== ملخص مالي يومي =====
+router.get('/financial-summary', requireRole('OWNER','ACCOUNTANT'), async (req, res) => {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const [todayOrders, allOrders] = await Promise.all([
+    prisma.order.findMany({ where: { ...scope(req), createdAt: { gte: today } } }),
+    prisma.order.findMany({ where: { ...scope(req) } }),
+  ]);
+  const todayCash = todayOrders.filter(o=>o.paymentMethod==='cash').reduce((s,o)=>s+(o.collectedAmount||0),0);
+  const todayTransfer = todayOrders.filter(o=>o.paymentMethod==='transfer').reduce((s,o)=>s+(o.collectedAmount||0),0);
+  const pending = allOrders.filter(o=>o.collectedAmount&&!o.accountingAt).reduce((s,o)=>s+(o.collectedAmount||0),0);
+  res.json({
+    todayCash, todayTransfer, todayTotal: todayCash + todayTransfer,
+    todayOrders: todayOrders.length,
+    pendingCollection: pending,
+    totalCollected: allOrders.reduce((s,o)=>s+(o.collectedAmount||0),0),
+  });
+});
+
 module.exports = router;

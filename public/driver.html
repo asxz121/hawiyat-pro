@@ -116,7 +116,8 @@ body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--bg);color:va
 .modal{background:#fff;border-radius:18px;padding:18px;width:100%;animation:slideUp .22s ease}
 @keyframes slideUp{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
 .modal h3{font-family:'Changa';font-size:1rem;margin-bottom:12px;color:var(--ink)}
-.modal textarea{width:100%;border:1.5px solid var(--line);border-radius:9px;padding:9px;font:inherit;font-size:.8rem;resize:none;height:70px}
+.modal textarea{width:100%;border:1.5px solid var(--line);border-radius:9px;padding:9px;font:inherit;font-size:.8rem;resize:none;height:60px}
+.modal input:focus,.modal select:focus{outline:none;border-color:var(--amber)!important}
 .modal textarea:focus{outline:none;border-color:var(--amber)}
 .modal-actions{display:flex;gap:8px;margin-top:10px}
 .modal-actions .btn{flex:1;justify-content:center;padding:11px}
@@ -159,9 +160,28 @@ body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--bg);color:va
 <div class="modal-bg" id="doneModal">
   <div class="modal">
     <h3>✅ تأكيد إنجاز الطلب</h3>
+    
+    <!-- خانة المبلغ المحصّل -->
+    <div style="background:var(--green-soft);border-radius:10px;padding:12px;margin-bottom:10px;border:1px solid rgba(27,158,110,.2)">
+      <div style="font-size:.76rem;font-weight:700;color:var(--green);margin-bottom:8px">💰 تحصيل المبلغ من العميل</div>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <div style="flex:2">
+          <div style="font-size:.68rem;color:var(--steel);margin-bottom:4px">المبلغ المستلم (ر.س)</div>
+          <input id="collectedAmount" inputmode="numeric" placeholder="0" style="width:100%;border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;font-size:.86rem">
+        </div>
+        <div style="flex:1">
+          <div style="font-size:.68rem;color:var(--steel);margin-bottom:4px">طريقة الدفع</div>
+          <select id="paymentMethod" style="width:100%;border:1.5px solid var(--line);border-radius:8px;padding:8px;font:inherit;font-size:.8rem">
+            <option value="cash">نقدي</option>
+            <option value="transfer">تحويل</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    
     <textarea id="doneNote" placeholder="ملاحظات اختيارية…"></textarea>
     <div style="margin-top:8px">
-      <button class="btn btn-ghost" onclick="takePhoto()" style="width:100%;margin-bottom:6px;justify-content:center">📸 تصوير الموقع</button>
+      <button class="btn btn-ghost" onclick="takePhoto()" style="width:100%;margin-bottom:6px;justify-content:center;font-size:.76rem">📸 تصوير الموقع</button>
       <div class="photo-preview" id="photoPreview"></div>
     </div>
     <div class="modal-actions">
@@ -362,21 +382,30 @@ function closeModal() { document.getElementById('doneModal').classList.remove('o
 async function confirmDone() {
   if (!activeOrderId) return;
   const note = document.getElementById('doneNote').value;
-  navigator.geolocation.getCurrentPosition(
-    async pos => {
-      await api('/driver/orders/' + activeOrderId + '/action', { method:'POST', body:JSON.stringify({ action:'done', lat:pos.coords.latitude, lng:pos.coords.longitude, note }) });
-      if(socket) socket.emit('driver:status', { orderId:activeOrderId, status:'DONE' });
-      currentOrderId = null;
-      closeModal();
-      showToast('🎉 تم تسجيل الإنجاز بنجاح');
-      loadOrders();
-    },
-    async () => {
-      await api('/driver/orders/' + activeOrderId + '/action', { method:'POST', body:JSON.stringify({ action:'done', note }) });
-      closeModal();
-      showToast('🎉 تم تسجيل الإنجاز');
-      loadOrders();
+  const amount = document.getElementById('collectedAmount').value;
+  const method = document.getElementById('paymentMethod').value;
+  
+  async function finalize(lat, lng) {
+    // تسجيل الإنجاز
+    await api('/driver/orders/' + activeOrderId + '/action', {
+      method:'POST', body:JSON.stringify({ action:'done', lat, lng, note })
+    });
+    // تسجيل المبلغ المحصّل إذا وُجد
+    if (amount && +amount > 0) {
+      await api('/orders/' + activeOrderId + '/collect', {
+        method:'POST', body:JSON.stringify({ amount:+amount, method })
+      });
     }
+    if(socket) socket.emit('driver:status', { orderId:activeOrderId, status:'DONE' });
+    currentOrderId = null;
+    closeModal();
+    showToast(amount ? `🎉 تم الإنجاز وتسجيل ${amount} ر.س` : '🎉 تم تسجيل الإنجاز');
+    loadOrders();
+  }
+  
+  navigator.geolocation.getCurrentPosition(
+    pos => finalize(pos.coords.latitude, pos.coords.longitude),
+    () => finalize(null, null)
   );
 }
 
