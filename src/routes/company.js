@@ -305,4 +305,28 @@ router.post('/extract-location', requireRole('OWNER','BRANCH_MGR','TRAFFIC_MGR',
   }
 });
 
+
+// ===== تعديل مستخدم =====
+router.patch('/users/:id', requireRole('OWNER'), async (req, res) => {
+  const { role, password } = req.body;
+  const u = await prisma.user.findFirst({ where: { id: +req.params.id, companyId: req.user.companyId } });
+  if (!u) return res.status(404).json({ error: 'المستخدم غير موجود' });
+  const data = {};
+  if (role) data.role = role;
+  if (password) {
+    const bcrypt = require('bcryptjs');
+    data.password = await bcrypt.hash(password, 10);
+  }
+  res.json(await prisma.user.update({ where: { id: u.id }, data, select: { id: true, name: true, role: true } }));
+});
+
+// ===== حذف مستخدم =====
+router.delete('/users/:id', requireRole('OWNER'), async (req, res) => {
+  const u = await prisma.user.findFirst({ where: { id: +req.params.id, companyId: req.user.companyId } });
+  if (!u) return res.status(404).json({ error: 'المستخدم غير موجود' });
+  if (u.role === 'OWNER') return res.status(403).json({ error: 'لا يمكن حذف مدير الشركة' });
+  await prisma.user.delete({ where: { id: u.id } });
+  res.json({ ok: true });
+});
+
 module.exports = router;

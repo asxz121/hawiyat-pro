@@ -1721,6 +1721,39 @@ async function addOrder(){
 }
 
 
+
+/* ===== إدارة المستخدمين ===== */
+async function editUser(id, name, role){
+  const newRole = prompt(`تعديل دور ${name}\nالأدوار المتاحة:\nOWNER = مدير شركة\nBRANCH_MGR = مدير فرع\nTRAFFIC_MGR = مدير حركة\nDISPATCHER = موزع\nACCOUNTANT = محاسب\nDRIVER = سائق\n\nالدور الحالي: ${role}`, role);
+  if(!newRole || newRole===role) return;
+  const validRoles = ['OWNER','BRANCH_MGR','TRAFFIC_MGR','DISPATCHER','ACCOUNTANT','DRIVER'];
+  if(!validRoles.includes(newRole)){showToast('⚠ دور غير صحيح');return}
+  try{
+    await coApi('/users/'+id,{method:'PATCH',body:JSON.stringify({role:newRole})});
+    loadUsers();
+    showToast('تم تحديث الدور ✓');
+  }catch(e){showToast('⚠ خطأ في التحديث')}
+}
+
+async function resetUserPass(id, name){
+  const newPass = prompt(`إعادة تعيين كلمة مرور ${name}\nأدخل كلمة المرور الجديدة (8 أحرف على الأقل):`);
+  if(!newPass) return;
+  if(newPass.length < 6){showToast('⚠ كلمة المرور قصيرة جداً');return}
+  try{
+    await coApi('/users/'+id,{method:'PATCH',body:JSON.stringify({password:newPass})});
+    showToast('تم تغيير كلمة المرور ✓');
+  }catch(e){showToast('⚠ خطأ في تغيير كلمة المرور')}
+}
+
+async function deleteUser(id, name){
+  if(!confirm(`هل تريد حذف مستخدم "${name}"؟\nلا يمكن التراجع عن هذا الإجراء.`)) return;
+  try{
+    await coApi('/users/'+id,{method:'DELETE'});
+    loadUsers();
+    showToast('تم حذف المستخدم ✓');
+  }catch(e){showToast('⚠ لا يمكن حذف هذا المستخدم')}
+}
+
 /* ===== إجراءات الموظف ===== */
 function toggleEmpMenu(id, e){
   e.stopPropagation();
