@@ -1284,7 +1284,6 @@ async function loadUsers(){
       <td>
         <div style="display:flex;gap:5px;flex-wrap:wrap">
           <button class="btn btn-ghost btn-sm" onclick="editUserName(${u.id},'${u.name}')" style="font-size:.7rem">تعديل الاسم</button>
-          <button class="btn btn-ghost btn-sm" onclick="editUserName(${u.id},'${u.name}')" style="font-size:.7rem">تعديل الاسم</button>
           <button class="btn btn-ghost btn-sm" onclick="editUser(${u.id},'${u.name}','${u.role}')" style="font-size:.7rem">تعديل الدور</button>
           <button class="btn btn-sm" style="background:var(--amber-soft);color:var(--amber-d);padding:5px 10px;font-size:.7rem;border-radius:7px;border:0;cursor:pointer;font-family:inherit" onclick="resetUserPass(${u.id},'${u.name}')">كلمة المرور</button>
           ${u.role!=='OWNER'?`
@@ -1740,16 +1739,6 @@ async function addOrder(){
 
 
 /* ===== إدارة المستخدمين ===== */
-async function editUserName(id, name){
-  const newName = prompt(`الاسم الحالي: ${name}\nأدخل الاسم الجديد:`);
-  if(!newName || newName===name) return;
-  try{
-    await coApi('/users/'+id,{method:'PATCH',body:JSON.stringify({name:newName})});
-    loadUsers();
-    showToast('تم تحديث الاسم ✓');
-  }catch(e){showToast('⚠ خطأ في التحديث')}
-}
-
 async function editUserName(id, name){
   const newName = prompt(`الاسم الحالي: ${name}\nأدخل الاسم الجديد:`);
   if(!newName || newName===name) return;
