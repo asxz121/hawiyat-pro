@@ -12,15 +12,15 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
-  --ink:#0F1923;--amber:#F7A823;--amber-d:#D88A06;
+  --ink:#0F1923;--amber:#F7A823;--amber-d:#D88A06;--amber-soft:#FFF8EA;
   --green:#1B9E6E;--green-soft:#E5F7F1;
   --red:#D64545;--red-soft:#FBEAEA;
   --blue:#2E7DD1;--blue-soft:#E8F2FB;
+  --violet:#7A5AF8;--violet-soft:#EFEAFE;
   --steel:#4A6375;--muted:#8DA1AF;--line:#DDE5EB;--bg:#EDF1F4;
 }
-body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding-bottom:20px}
+body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding-bottom:30px}
 
-/* الهيدر */
 .hdr{background:var(--ink);padding:10px 14px;display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:50}
 .hdr-brand{display:flex;align-items:center;gap:8px;flex:1}
 .hdr-ico{width:32px;height:26px;border-radius:6px;background:var(--amber);background-image:repeating-linear-gradient(90deg,transparent 0 6px,rgba(0,0,0,.12) 6px 9px);box-shadow:inset 0 -3px 0 rgba(0,0,0,.18);position:relative;flex-shrink:0}
@@ -30,48 +30,34 @@ body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--bg);color:va
 .hdr-badge{background:rgba(247,168,35,.15);border:1px solid rgba(247,168,35,.2);border-radius:14px;padding:3px 9px;font-size:.64rem;font-weight:700;color:var(--amber)}
 .hdr-logout{background:rgba(214,69,69,.12);border:1px solid rgba(214,69,69,.2);color:#D68888;border-radius:8px;padding:5px 10px;font:inherit;font-size:.68rem;cursor:pointer}
 
-/* شريط الحالة */
 .status-bar{background:#fff;border-bottom:1px solid var(--line);padding:7px 14px;display:flex;align-items:center;gap:7px;font-size:.72rem;color:var(--steel)}
 .s-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;animation:blink 2s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* المحتوى */
 .content{padding:10px 12px}
 
-/* ===== بطاقة الطلب المضغوطة ===== */
-.order-card{
-  background:#fff;border-radius:14px;
-  box-shadow:0 2px 8px rgba(15,25,35,.08);
-  margin-bottom:10px;overflow:hidden;
-  border:2px solid transparent;transition:border-color .2s;
-}
+/* بطاقة الطلب */
+.order-card{background:#fff;border-radius:14px;box-shadow:0 2px 8px rgba(15,25,35,.08);margin-bottom:12px;overflow:hidden;border:2px solid transparent;transition:border-color .2s}
 .order-card.st-new{border-color:rgba(247,168,35,.4)}
 .order-card.st-enroute{border-color:var(--blue)}
-.order-card.st-done{border-color:var(--green);opacity:.7}
+.order-card.st-done{border-color:var(--green);opacity:.75}
 
-/* رأس البطاقة - مضغوط */
-.card-head{
-  padding:10px 12px;
-  display:flex;align-items:center;gap:8px;
-  cursor:pointer;user-select:none;
-}
+.card-head{padding:11px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
 .card-head-left{flex:1;min-width:0}
 .card-num{font-family:'Changa';font-size:1rem;font-weight:700;color:var(--ink)}
 .card-cust{font-size:.74rem;color:var(--steel);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .card-badges{display:flex;align-items:center;gap:5px;flex-shrink:0}
 .badge{font-size:.6rem;font-weight:700;padding:3px 8px;border-radius:14px;display:inline-block;white-space:nowrap}
 .bd-blue{background:var(--blue-soft);color:var(--blue)}
-.bd-amber{background:#FFF8EA;color:var(--amber-d)}
+.bd-amber{background:var(--amber-soft);color:var(--amber-d)}
 .bd-green{background:var(--green-soft);color:var(--green)}
+.bd-red{background:var(--red-soft);color:var(--red)}
 .bd-gray{background:var(--bg);color:var(--steel)}
 .expand-ico{font-size:.8rem;color:var(--muted);transition:transform .2s;flex-shrink:0}
 .order-card.expanded .expand-ico{transform:rotate(180deg)}
 
-/* شريط التقدم المضغوط */
-.progress-mini{
-  padding:0 12px 8px;
-  display:flex;align-items:center;gap:0;
-}
+/* شريط التقدم */
+.progress-mini{padding:0 12px 9px;display:flex;align-items:center}
 .pm-step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative}
 .pm-step::before{content:"";position:absolute;top:9px;right:50%;width:100%;height:2px;background:var(--line);z-index:0}
 .pm-step:first-child::before{display:none}
@@ -83,57 +69,67 @@ body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--bg);color:va
 .pm-step.done .pm-lbl{color:var(--green)}
 .pm-step.active .pm-lbl{color:var(--amber-d)}
 
-/* تفاصيل الطلب - تظهر عند التوسيع */
+/* تفاصيل */
 .card-body{display:none;padding:0 12px 10px;border-top:1px solid var(--line)}
 .order-card.expanded .card-body{display:block}
-
-.info-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #F5F7F9}
+.info-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #F5F7F9}
 .info-row:last-child{border-bottom:none}
-.info-ico{width:28px;height:28px;border-radius:7px;display:grid;place-items:center;font-size:.8rem;flex-shrink:0}
+.info-ico{width:28px;height:28px;border-radius:7px;display:grid;place-items:center;font-size:.82rem;flex-shrink:0}
 .info-ico.blue{background:var(--blue-soft)}
 .info-ico.green{background:var(--green-soft)}
-.info-ico.amber{background:#FFF8EA}
+.info-ico.amber{background:var(--amber-soft)}
 .info-ico.red{background:var(--red-soft)}
 .info-t{font-size:.78rem;font-weight:600;color:var(--ink)}
 .info-s{font-size:.66rem;color:var(--steel);margin-top:1px}
 
-/* خريطة مصغرة */
+/* بانر المبلغ المحصّل */
+.collected-banner{background:var(--green-soft);border:1px solid rgba(27,158,110,.25);border-radius:10px;padding:10px 12px;margin:8px 0;display:flex;align-items:center;gap:10px}
+.collected-banner .ico{font-size:1.1rem}
+.collected-banner .t{font-size:.8rem;font-weight:700;color:var(--green)}
+.collected-banner .s{font-size:.66rem;color:var(--green);opacity:.8}
+
 .mini-map{border-radius:10px;overflow:hidden;margin:8px 0;border:1px solid var(--line)}
 .mini-map-el{height:140px}
 
-/* أزرار الإجراءات */
 .card-actions{display:flex;gap:6px;padding:8px 12px;background:#FAFBFC;flex-wrap:wrap}
 .btn{border:0;cursor:pointer;font:inherit;font-weight:700;border-radius:9px;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;gap:5px;font-size:.76rem;padding:9px 12px}
 .btn:active{transform:scale(.97)}
 .btn-blue{background:var(--blue);color:#fff;flex:2}
 .btn-green{background:var(--green);color:#fff;flex:2}
+.btn-amber{background:var(--amber);color:var(--ink);flex:2}
 .btn-ghost{background:#fff;border:1px solid var(--line);color:var(--ink);flex:1}
 .btn-call{background:var(--green-soft);border:1px solid rgba(27,158,110,.2);color:var(--green);flex:1}
+.btn-red{background:var(--red-soft);border:1px solid rgba(214,69,69,.2);color:var(--red)}
 
-/* نافذة الإنجاز */
+/* النوافذ */
 .modal-bg{position:fixed;inset:0;background:rgba(15,25,35,.6);z-index:100;display:none;align-items:flex-end;padding:14px;backdrop-filter:blur(4px)}
 .modal-bg.open{display:flex}
-.modal{background:#fff;border-radius:18px;padding:18px;width:100%;animation:slideUp .22s ease}
+.modal{background:#fff;border-radius:18px;padding:18px;width:100%;max-height:90vh;overflow-y:auto;animation:slideUp .22s ease}
 @keyframes slideUp{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
 .modal h3{font-family:'Changa';font-size:1rem;margin-bottom:12px;color:var(--ink)}
-.modal textarea{width:100%;border:1.5px solid var(--line);border-radius:9px;padding:9px;font:inherit;font-size:.8rem;resize:none;height:60px}
-.modal input:focus,.modal select:focus{outline:none;border-color:var(--amber)!important}
-.modal textarea:focus{outline:none;border-color:var(--amber)}
-.modal-actions{display:flex;gap:8px;margin-top:10px}
+.modal-field label{display:block;font-size:.68rem;font-weight:700;color:var(--steel);margin-bottom:4px}
+.modal-field input,.modal-field select,.modal-field textarea{width:100%;border:1.5px solid var(--line);border-radius:9px;padding:9px 11px;font:inherit;font-size:.82rem;color:var(--ink)}
+.modal-field input:focus,.modal-field select:focus,.modal-field textarea:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 3px rgba(247,168,35,.1)}
+.modal-field textarea{resize:none;height:60px}
+.modal-actions{display:flex;gap:8px;margin-top:12px}
 .modal-actions .btn{flex:1;justify-content:center;padding:11px}
 .photo-preview{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-.photo-thumb{width:70px;height:70px;border-radius:8px;object-fit:cover;border:2px solid var(--line)}
+.photo-thumb{width:72px;height:72px;border-radius:9px;object-fit:cover;border:2px solid var(--line)}
 
-/* توست */
+.form-grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+
 .toast{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(12px);background:var(--ink);color:#fff;padding:10px 16px;border-radius:24px;font-size:.76rem;z-index:200;opacity:0;pointer-events:none;transition:all .2s;display:flex;align-items:center;gap:6px;max-width:90vw;box-shadow:0 6px 20px rgba(0,0,0,.25)}
 .toast.show{opacity:1;transform:translateX(-50%)}
 .toast .dot{width:5px;height:5px;border-radius:50%;background:var(--amber);flex-shrink:0}
 
-/* حالة فارغة */
 .empty{text-align:center;padding:40px 20px;color:var(--muted)}
 .empty .ico{font-size:2.5rem;margin-bottom:10px;display:block;opacity:.35}
 .empty .t{font-size:.86rem;font-weight:600;color:var(--steel)}
 .empty .s{font-size:.74rem;margin-top:5px}
+
+/* قسم تحصيل المبلغ */
+.collect-box{background:var(--green-soft);border:1px solid rgba(27,158,110,.2);border-radius:11px;padding:12px;margin-bottom:10px}
+.collect-box-title{font-size:.76rem;font-weight:700;color:var(--green);margin-bottom:8px;display:flex;align-items:center;gap:6px}
 </style>
 </head>
 <body>
@@ -156,37 +152,72 @@ body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--bg);color:va
   <div class="empty"><span class="ico">⏳</span><div class="t">جارٍ التحميل…</div></div>
 </div>
 
-<!-- نافذة تأكيد الإنجاز -->
+<!-- نافذة تأكيد الإنجاز وتحصيل المبلغ -->
 <div class="modal-bg" id="doneModal">
   <div class="modal">
     <h3>✅ تأكيد إنجاز الطلب</h3>
-    
-    <!-- خانة المبلغ المحصّل -->
-    <div style="background:var(--green-soft);border-radius:10px;padding:12px;margin-bottom:10px;border:1px solid rgba(27,158,110,.2)">
-      <div style="font-size:.76rem;font-weight:700;color:var(--green);margin-bottom:8px">💰 تحصيل المبلغ من العميل</div>
-      <div style="display:flex;gap:8px;margin-bottom:8px">
-        <div style="flex:2">
-          <div style="font-size:.68rem;color:var(--steel);margin-bottom:4px">المبلغ المستلم (ر.س)</div>
-          <input id="collectedAmount" inputmode="numeric" placeholder="0" style="width:100%;border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;font-size:.86rem">
+
+    <!-- تحصيل المبلغ -->
+    <div class="collect-box">
+      <div class="collect-box-title">💰 تحصيل المبلغ من العميل</div>
+      <div class="form-grid2">
+        <div class="modal-field">
+          <label>المبلغ المستلم (ر.س)</label>
+          <input id="collectedAmount" inputmode="numeric" placeholder="0">
         </div>
-        <div style="flex:1">
-          <div style="font-size:.68rem;color:var(--steel);margin-bottom:4px">طريقة الدفع</div>
-          <select id="paymentMethod" style="width:100%;border:1.5px solid var(--line);border-radius:8px;padding:8px;font:inherit;font-size:.8rem">
-            <option value="cash">نقدي</option>
-            <option value="transfer">تحويل</option>
+        <div class="modal-field">
+          <label>طريقة الدفع</label>
+          <select id="paymentMethod">
+            <option value="cash">💵 نقدي</option>
+            <option value="transfer">🏦 تحويل</option>
+          </select>
+        </div>
+      </div>
+      <div id="collectConfirmMsg" style="display:none;font-size:.7rem;color:var(--green);font-weight:600;margin-top:4px">✓ سيتم إشعار مدير الفرع باستلام المبلغ</div>
+    </div>
+
+    <!-- تصوير الموقع -->
+    <div class="modal-field" style="margin-bottom:8px">
+      <label>📸 صور الموقع (اختياري)</label>
+      <button class="btn btn-ghost" onclick="takePhoto()" style="width:100%;justify-content:center;margin-top:4px">📷 التقاط صورة</button>
+      <div class="photo-preview" id="photoPreview"></div>
+    </div>
+
+    <div class="modal-field" style="margin-bottom:0">
+      <label>ملاحظات</label>
+      <textarea id="doneNote" placeholder="أي ملاحظات عن الطلب…"></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-green" onclick="confirmDone()">✓ تأكيد الإنجاز</button>
+      <button class="btn btn-ghost" onclick="closeModal('doneModal')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- نافذة تحصيل مبلغ منفردة (بدون إنجاز) -->
+<div class="modal-bg" id="collectModal">
+  <div class="modal">
+    <h3>💰 تحصيل مبلغ</h3>
+    <div id="collectOrderInfo" style="font-size:.78rem;color:var(--steel);margin-bottom:10px"></div>
+    <div class="collect-box">
+      <div class="form-grid2">
+        <div class="modal-field">
+          <label>المبلغ (ر.س)</label>
+          <input id="collectAmt" inputmode="numeric" placeholder="0">
+        </div>
+        <div class="modal-field">
+          <label>طريقة الدفع</label>
+          <select id="collectMethod">
+            <option value="cash">💵 نقدي</option>
+            <option value="transfer">🏦 تحويل</option>
           </select>
         </div>
       </div>
     </div>
-    
-    <textarea id="doneNote" placeholder="ملاحظات اختيارية…"></textarea>
-    <div style="margin-top:8px">
-      <button class="btn btn-ghost" onclick="takePhoto()" style="width:100%;margin-bottom:6px;justify-content:center;font-size:.76rem">📸 تصوير الموقع</button>
-      <div class="photo-preview" id="photoPreview"></div>
-    </div>
     <div class="modal-actions">
-      <button class="btn btn-green" onclick="confirmDone()">✓ تأكيد الإنجاز</button>
-      <button class="btn btn-ghost" onclick="closeModal()">إلغاء</button>
+      <button class="btn btn-amber" onclick="submitCollect()">✓ تأكيد الاستلام</button>
+      <button class="btn btn-ghost" onclick="closeModal('collectModal')">إلغاء</button>
     </div>
   </div>
 </div>
@@ -205,12 +236,12 @@ const api = (u, o={}) => fetch('/api/co' + u, {
 }).then(async r => { const d = await r.json(); if (!r.ok) { showToast('⚠ ' + (d.error||'خطأ')); throw d; } return d; });
 
 const typeAr = { DROP:'إنزال', PICKUP:'رفع', SWAP:'تبديل', MOVE:'نقل', PROJECT_CYCLE:'دورة' };
-const typeBd = { DROP:'bd-blue', PICKUP:'bd-green', SWAP:'bd-amber', MOVE:'bd-gray', PROJECT_CYCLE:'bd-blue' };
 const stLbl = { NEW:'جديد', ASSIGNED:'مسند', EN_ROUTE:'بالطريق', DONE:'منفذ' };
-const stBd = { NEW:'bd-gray', ASSIGNED:'bd-amber', EN_ROUTE:'bd-blue', DONE:'bd-green' };
+const stBd  = { NEW:'bd-gray', ASSIGNED:'bd-amber', EN_ROUTE:'bd-blue', DONE:'bd-green' };
 
 let orders = [];
 let activeOrderId = null;
+let collectOrderId = null;
 let capturedPhotos = [];
 let currentOrderId = null;
 let expandedCards = new Set();
@@ -219,14 +250,14 @@ let mapInstances = {};
 /* ===== Socket.IO ===== */
 let socket = null;
 function initSocket() {
+  if (typeof io === 'undefined') return;
   socket = io({ auth: { token: T } });
   socket.on('connect', () => {
     document.getElementById('sDot').style.background = 'var(--green)';
-    setTimeout(autoStartTracking, 1000);
+    setTimeout(autoStartTracking, 1200);
   });
-  socket.on('disconnect', () => {
-    document.getElementById('sDot').style.background = 'var(--red)';
-  });
+  socket.on('disconnect', () => { document.getElementById('sDot').style.background = 'var(--red)'; });
+  socket.on('order:updated', () => loadOrders());
 }
 
 function autoStartTracking() {
@@ -242,7 +273,6 @@ function autoStartTracking() {
     });
   }
   navigator.geolocation.watchPosition(send, ()=>{}, { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 });
-  setInterval(() => navigator.geolocation.getCurrentPosition(send, ()=>{}, { enableHighAccuracy: true }), 10000);
 }
 
 /* ===== تحميل الطلبات ===== */
@@ -250,29 +280,37 @@ async function loadOrders() {
   try {
     orders = await api('/driver/orders');
     renderOrders();
-    const txt = orders.length ? `لديك ${orders.length} طلب نشط` : 'لا توجد طلبات مسندة';
-    document.getElementById('statusText').textContent = txt;
+    const active = orders.filter(o => o.status !== 'DONE').length;
+    document.getElementById('statusText').textContent =
+      orders.length ? `لديك ${active} طلب نشط` : 'لا توجد طلبات مسندة';
   } catch(e) {
-    document.getElementById('content').innerHTML = '<div class="empty"><span class="ico">⚠️</span><div class="t">تعذر التحميل</div><button class="btn btn-ghost" onclick="loadOrders()" style="margin-top:12px">إعادة المحاولة</button></div>';
+    document.getElementById('content').innerHTML =
+      '<div class="empty"><span class="ico">⚠️</span><div class="t">تعذر التحميل</div>' +
+      '<button class="btn btn-ghost" onclick="loadOrders()" style="margin-top:12px">إعادة المحاولة</button></div>';
   }
 }
 
 function renderOrders() {
   const el = document.getElementById('content');
   if (!orders.length) {
-    el.innerHTML = '<div class="empty"><span class="ico">📦</span><div class="t">لا توجد طلبات مسندة</div><div class="s">ستظهر هنا طلباتك</div><button class="btn btn-ghost" onclick="loadOrders()" style="margin-top:12px;padding:9px 18px">🔄 تحديث</button></div>';
+    el.innerHTML = '<div class="empty"><span class="ico">📦</span><div class="t">لا توجد طلبات مسندة</div>' +
+      '<div class="s">ستظهر هنا طلباتك عند إسنادها</div>' +
+      '<button class="btn btn-ghost" onclick="loadOrders()" style="margin-top:12px;padding:9px 18px">🔄 تحديث</button></div>';
     return;
   }
+
   el.innerHTML = orders.map(o => {
-    const isNew = o.status === 'NEW' || o.status === 'ASSIGNED';
+    const isNew     = o.status === 'NEW' || o.status === 'ASSIGNED';
     const isEnroute = o.status === 'EN_ROUTE';
-    const isDone = o.status === 'DONE';
-    const isExp = expandedCards.has(o.id);
-    const stCls = isDone ? 'st-done' : isEnroute ? 'st-enroute' : 'st-new';
-    const s1 = true, s2 = isEnroute || isDone, s3 = isDone;
+    const isDone    = o.status === 'DONE';
+    const isExp     = expandedCards.has(o.id);
+    const stCls     = isDone ? 'st-done' : isEnroute ? 'st-enroute' : 'st-new';
+    const s2 = isEnroute || isDone;
+    const s3 = isDone;
+    const hasCollected = o.collectedAmount && o.collectedAmount > 0;
+
     return `
     <div class="order-card ${stCls} ${isExp ? 'expanded' : ''}" id="card-${o.id}">
-      <!-- رأس مضغوط -->
       <div class="card-head" onclick="toggleCard(${o.id})">
         <div class="card-head-left">
           <div class="card-num">#${o.id} — ${o.customerName}</div>
@@ -280,47 +318,55 @@ function renderOrders() {
         </div>
         <div class="card-badges">
           <span class="badge ${stBd[o.status]||'bd-gray'}">${stLbl[o.status]||o.status}</span>
+          ${hasCollected ? '<span class="badge bd-green">💰 محصّل</span>' : ''}
           ${o.dueDate ? `<span class="badge bd-amber">${new Date(o.dueDate).toLocaleDateString('ar-SA',{month:'short',day:'numeric'})}</span>` : ''}
         </div>
         <span class="expand-ico">▼</span>
       </div>
 
-      <!-- شريط تقدم مصغر -->
       <div class="progress-mini">
         <div class="pm-step done"><div class="pm-dot done">✓</div><div class="pm-lbl">استلام</div></div>
         <div class="pm-step ${s2?'done':isNew?'active':''}"><div class="pm-dot ${s2?'done':isNew?'active':''}">🚚</div><div class="pm-lbl">طريق</div></div>
         <div class="pm-step ${s3?'done':''}"><div class="pm-dot ${s3?'done':''}">📦</div><div class="pm-lbl">إنجاز</div></div>
       </div>
 
-      <!-- التفاصيل (تظهر عند التوسيع) -->
       <div class="card-body">
+        ${hasCollected ? `
+        <div class="collected-banner">
+          <span class="ico">✅</span>
+          <div>
+            <div class="t">تم استلام ${Number(o.collectedAmount).toLocaleString('ar-SA')} ر.س</div>
+            <div class="s">${o.paymentMethod==='transfer'?'تحويل بنكي':'نقدي'} — بانتظار تأكيد مدير الفرع</div>
+          </div>
+        </div>` : ''}
+
         <div class="info-row">
           <div class="info-ico blue">📞</div>
           <div>
             <div class="info-t"><a href="tel:${o.phone1}" style="color:var(--blue)">${o.phone1}</a></div>
-            ${o.phoneSite?`<div class="info-s">موقع: <a href="tel:${o.phoneSite}" style="color:var(--blue)">${o.phoneSite}</a></div>`:''}
-            ${o.phone3?`<div class="info-s">إضافي: <a href="tel:${o.phone3}" style="color:var(--blue)">${o.phone3}</a></div>`:''}
+            ${o.phoneSite ? `<div class="info-s">موقع: <a href="tel:${o.phoneSite}" style="color:var(--blue)">${o.phoneSite}</a></div>` : ''}
+            ${o.phone3 ? `<div class="info-s">إضافي: <a href="tel:${o.phone3}" style="color:var(--blue)">${o.phone3}</a></div>` : ''}
           </div>
         </div>
-        ${o.address?`<div class="info-row"><div class="info-ico amber">📍</div><div><div class="info-t">${o.address}</div>${o.lat&&o.lng?`<div class="info-s"><a href="https://maps.google.com/?q=${o.lat},${o.lng}" target="_blank" style="color:var(--blue)">فتح في خرائط قوقل ↗</a></div>`:''}</div></div>`:''}
-        ${o.contractNo?`<div class="info-row"><div class="info-ico green">📄</div><div class="info-t">عقد رقم: ${o.contractNo}</div></div>`:''}
-        ${o.container?`<div class="info-row"><div class="info-ico" style="background:#EFEAFE">📦</div><div><div class="info-t">${o.container.code}</div><div class="info-s">${o.container.size||''}</div></div></div>`:''}
-        ${o.lat&&o.lng?`<div class="mini-map"><div id="map-${o.id}" class="mini-map-el"></div></div>`:''}
-        ${o.notes?`<div class="info-row"><div class="info-ico" style="background:#F4F7F9">📝</div><div class="info-t" style="font-size:.74rem;color:var(--steel)">${o.notes}</div></div>`:''}
+        ${o.address ? `<div class="info-row"><div class="info-ico amber">📍</div><div><div class="info-t">${o.address}</div>${o.lat&&o.lng?`<div class="info-s"><a href="https://maps.google.com/?q=${o.lat},${o.lng}" target="_blank" style="color:var(--blue)">فتح في خرائط قوقل ↗</a></div>`:''}</div></div>` : ''}
+        ${o.contractNo ? `<div class="info-row"><div class="info-ico green">📄</div><div class="info-t">عقد رقم: ${o.contractNo}</div></div>` : ''}
+        ${o.container ? `<div class="info-row"><div class="info-ico" style="background:var(--violet-soft)">📦</div><div><div class="info-t">${o.container.code}</div><div class="info-s">${o.container.size||''}</div></div></div>` : ''}
+        ${o.price ? `<div class="info-row"><div class="info-ico green">﷼</div><div><div class="info-t">${Number(o.price).toLocaleString('ar-SA')} ر.س</div><div class="info-s">القيمة المتفق عليها</div></div></div>` : ''}
+        ${o.lat&&o.lng ? `<div class="mini-map"><div id="map-${o.id}" class="mini-map-el"></div></div>` : ''}
+        ${o.notes ? `<div class="info-row"><div class="info-ico" style="background:#F4F7F9">📝</div><div class="info-t" style="font-size:.74rem;color:var(--steel)">${o.notes}</div></div>` : ''}
       </div>
 
-      <!-- أزرار الإجراءات -->
       <div class="card-actions">
         ${isNew ? `<button class="btn btn-blue" onclick="markEnRoute(${o.id},event)">🚚 بدأت التوجه</button>` : ''}
         ${isEnroute ? `<button class="btn btn-green" onclick="openDoneModal(${o.id},event)">✅ تم التنفيذ</button>` : ''}
-        <a href="tel:${o.phone1}" class="btn btn-call" onclick="event.stopPropagation()">📞 اتصال</a>
-        ${o.lat&&o.lng?`<a href="https://maps.google.com/?q=${o.lat},${o.lng}" target="_blank" class="btn btn-ghost" onclick="event.stopPropagation()" style="font-size:.7rem">🗺</a>`:''}
+        ${(isEnroute || isDone) && !hasCollected ? `<button class="btn btn-amber" onclick="openCollectModal(${o.id},event)">💰 تحصيل مبلغ</button>` : ''}
+        <a href="tel:${o.phone1}" class="btn btn-call" onclick="event.stopPropagation()">📞</a>
+        ${o.lat&&o.lng ? `<a href="https://maps.google.com/?q=${o.lat},${o.lng}" target="_blank" class="btn btn-ghost" onclick="event.stopPropagation()">🗺</a>` : ''}
       </div>
     </div>`;
   }).join('');
 
-  // تهيئة الخرائط للبطاقات الموسعة
-  setTimeout(() => initExpandedMaps(), 100);
+  setTimeout(() => initExpandedMaps(), 80);
 }
 
 function toggleCard(id) {
@@ -330,7 +376,7 @@ function toggleCard(id) {
   setTimeout(() => {
     const o = orders.find(x => x.id === id);
     if (o?.lat && expandedCards.has(id)) initMap(id, o.lat, o.lng, o.customerName, o.address);
-  }, 50);
+  }, 60);
 }
 
 function initExpandedMaps() {
@@ -351,61 +397,91 @@ function initMap(id, lat, lng, name, addr) {
 
 /* ===== الإجراءات ===== */
 async function markEnRoute(id, e) {
-  if(e) e.stopPropagation();
+  if (e) e.stopPropagation();
+  async function go(lat, lng) {
+    await api('/driver/orders/' + id + '/action', {
+      method: 'POST', body: JSON.stringify({ action:'enroute', lat, lng })
+    });
+    currentOrderId = id;
+    if (socket?.connected) socket.emit('driver:status', { orderId:id, status:'EN_ROUTE' });
+    showToast('🚚 أنت في الطريق!');
+    loadOrders();
+  }
   navigator.geolocation.getCurrentPosition(
-    async pos => {
-      await api('/driver/orders/' + id + '/action', { method:'POST', body:JSON.stringify({ action:'enroute', lat:pos.coords.latitude, lng:pos.coords.longitude }) });
-      currentOrderId = id;
-      if(socket) socket.emit('driver:status', { orderId:id, status:'EN_ROUTE' });
-      showToast('🚚 أنت في الطريق');
-      loadOrders();
-    },
-    async () => {
-      await api('/driver/orders/' + id + '/action', { method:'POST', body:JSON.stringify({ action:'enroute' }) });
-      showToast('✓ تم التحديث');
-      loadOrders();
-    }
+    pos => go(pos.coords.latitude, pos.coords.longitude),
+    () => go(null, null)
   );
 }
 
 function openDoneModal(id, e) {
-  if(e) e.stopPropagation();
+  if (e) e.stopPropagation();
   activeOrderId = id;
   capturedPhotos = [];
   document.getElementById('doneNote').value = '';
+  document.getElementById('collectedAmount').value = '';
   document.getElementById('photoPreview').innerHTML = '';
+  document.getElementById('collectConfirmMsg').style.display = 'none';
   document.getElementById('doneModal').classList.add('open');
 }
 
-function closeModal() { document.getElementById('doneModal').classList.remove('open'); activeOrderId = null; }
+// ✅ نافذة تحصيل مستقلة
+function openCollectModal(id, e) {
+  if (e) e.stopPropagation();
+  collectOrderId = id;
+  const o = orders.find(x => x.id === id);
+  document.getElementById('collectAmt').value = o?.price || '';
+  document.getElementById('collectOrderInfo').textContent = `الطلب #${id} — ${o?.customerName || ''}${o?.price ? ' — المبلغ المتوقع: ' + Number(o.price).toLocaleString('ar-SA') + ' ر.س' : ''}`;
+  document.getElementById('collectModal').classList.add('open');
+}
+
+async function submitCollect() {
+  const amount = document.getElementById('collectAmt').value;
+  const method = document.getElementById('collectMethod').value;
+  if (!amount || +amount <= 0) return showToast('⚠ أدخل المبلغ');
+  try {
+    await api('/orders/' + collectOrderId + '/collect', {
+      method: 'POST', body: JSON.stringify({ amount: +amount, method })
+    });
+    closeModal('collectModal');
+    showToast(`✅ تم تسجيل استلام ${Number(amount).toLocaleString('ar-SA')} ر.س — بانتظار تأكيد المدير`);
+    loadOrders();
+  } catch(e) {}
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  activeOrderId = null; collectOrderId = null;
+}
 
 async function confirmDone() {
   if (!activeOrderId) return;
-  const note = document.getElementById('doneNote').value;
+  const note   = document.getElementById('doneNote').value;
   const amount = document.getElementById('collectedAmount').value;
   const method = document.getElementById('paymentMethod').value;
-  
+
   async function finalize(lat, lng) {
-    // تسجيل الإنجاز
     await api('/driver/orders/' + activeOrderId + '/action', {
-      method:'POST', body:JSON.stringify({ action:'done', lat, lng, note })
+      method: 'POST', body: JSON.stringify({ action:'done', lat, lng, note })
     });
-    // تسجيل المبلغ المحصّل إذا وُجد
     if (amount && +amount > 0) {
       await api('/orders/' + activeOrderId + '/collect', {
-        method:'POST', body:JSON.stringify({ amount:+amount, method })
+        method: 'POST', body: JSON.stringify({ amount: +amount, method })
       });
     }
-    if(socket) socket.emit('driver:status', { orderId:activeOrderId, status:'DONE' });
+    if (socket?.connected) socket.emit('driver:status', { orderId:activeOrderId, status:'DONE' });
     currentOrderId = null;
-    closeModal();
-    showToast(amount ? `🎉 تم الإنجاز وتسجيل ${amount} ر.س` : '🎉 تم تسجيل الإنجاز');
+    closeModal('doneModal');
+    showToast(amount && +amount > 0
+      ? `🎉 تم الإنجاز وتسجيل استلام ${Number(amount).toLocaleString('ar-SA')} ر.س`
+      : '🎉 تم تسجيل الإنجاز بنجاح'
+    );
     loadOrders();
   }
-  
+
   navigator.geolocation.getCurrentPosition(
     pos => finalize(pos.coords.latitude, pos.coords.longitude),
-    () => finalize(null, null)
+    () => finalize(null, null),
+    { enableHighAccuracy: true, timeout: 8000 }
   );
 }
 
@@ -421,23 +497,28 @@ function takePhoto() {
       const img = document.createElement('img');
       img.src = ev.target.result; img.className = 'photo-thumb';
       document.getElementById('photoPreview').appendChild(img);
-      showToast('تم التقاط الصورة ✓');
+      showToast('✓ تم التقاط الصورة');
     };
     reader.readAsDataURL(file);
   };
   input.click();
 }
 
+// إظهار رسالة تأكيد عند إدخال المبلغ
+document.getElementById('collectedAmount').addEventListener('input', function(){
+  const msg = document.getElementById('collectConfirmMsg');
+  msg.style.display = this.value && +this.value > 0 ? 'block' : 'none';
+});
+
 function showToast(msg) {
   const t = document.getElementById('toast');
   document.getElementById('toastTxt').textContent = msg;
   t.classList.add('show'); clearTimeout(t._h);
-  t._h = setTimeout(() => t.classList.remove('show'), 3000);
+  t._h = setTimeout(() => t.classList.remove('show'), 3500);
 }
 
 function logout() { localStorage.clear(); location.href = '/'; }
 
-/* التشغيل */
 initSocket();
 loadOrders();
 setInterval(loadOrders, 20000);
