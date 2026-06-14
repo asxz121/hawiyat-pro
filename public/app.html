@@ -299,7 +299,7 @@ tbody tr:hover{background:#F8FAFB}
   }
   .bottom-nav button .ico{font-size:1.15rem}
   .bottom-nav button.active{color:var(--amber)}
-  #menuBtn{display:grid!important}
+  #menuBtn{display:grid!important}.sidebar{display:flex!important}
 }
 
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
@@ -470,7 +470,7 @@ input::placeholder{color:#90A3B1}
       <h2 id="pageTitle">لوحة التحكم</h2>
       <div class="sub" id="pageDate"></div>
     </div>
-    <div class="grow"></div>
+    <button id="menuBtn" onclick="toggleSidebar()" style="display:none;width:40px;height:40px;border-radius:10px;background:#fff;border:1px solid var(--line);place-items:center;cursor:pointer;font-size:1.2rem;flex-shrink:0">☰</button><div class="grow"></div>
     <button onclick="refreshPage()" aria-label="تحديث" style="width:40px;height:40px;border-radius:10px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;cursor:pointer;position:relative;font-size:1rem;flex-shrink:0">↻<span id="notifDot" style="display:none;position:absolute;top:9px;left:10px;width:8px;height:8px;border-radius:50%;background:var(--red);border:2px solid #fff"></span></button>
     <button id="topBtn" onclick="ctxAdd()" style="border:0;cursor:pointer;font-weight:600;font-size:.85rem;padding:10px 17px;border-radius:10px;transition:all .15s;display:inline-flex;align-items:center;gap:8px;background:var(--amber);color:var(--ink);box-shadow:0 3px 10px rgba(247,168,35,.35)">＋ إضافة</button>
     <div id="userAv" style="width:40px;height:40px;border-radius:50%;background:var(--ink2);color:var(--amber);display:grid;place-items:center;font-weight:700;font-family:'Changa';flex-shrink:0">م</div>
