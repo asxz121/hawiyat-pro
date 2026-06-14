@@ -10,7 +10,7 @@ const scope = (req) => ({ companyId: req.user.companyId });
 router.get('/containers', async (req, res) => {
   res.json(await prisma.container.findMany({
     where: scope(req),
-    include: { order: { where: { status: { in: ['ASSIGNED','EN_ROUTE','NEW'] } }, take: 1 } },
+    include: { orders: { where: { status: { in: ['ASSIGNED','EN_ROUTE','NEW'] } }, take: 1, orderBy: { id: "desc" } } },
     orderBy: { code: 'asc' },
   }));
 });
@@ -344,8 +344,21 @@ router.patch('/containers/:id/warehouse', requireRole('OWNER', 'BRANCH_MGR', 'TR
 
 // استخراج إحداثيات من رابط
 router.post('/extract-location', requireRole('OWNER', 'BRANCH_MGR', 'TRAFFIC_MGR', 'DISPATCHER', 'DRIVER'), async (req, res) => {
-  const { url } = req.body;
+  let { url } = req.body;
   if (!url) return res.status(400).json({ error: 'الرابط مطلوب' });
+
+  // ✅ فك الروابط المختصرة (maps.app.goo.gl / goo.gl / bit.ly)
+  if (url.includes('goo.gl') || url.includes('bit.ly') || url.includes('maps.app')) {
+    try {
+      const https = require('https');
+      url = await new Promise((resolve) => {
+        https.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (r) => {
+          resolve(r.headers.location || url);
+        }).on('error', () => resolve(url));
+      });
+    } catch(e) {}
+  }
+
   let lat = null, lng = null;
   const patterns = [
     /[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/,
@@ -353,13 +366,14 @@ router.post('/extract-location', requireRole('OWNER', 'BRANCH_MGR', 'TRAFFIC_MGR
     /ll=(-?\d+\.?\d*),(-?\d+\.?\d*)/,
     /!3d(-?\d+\.?\d*)!4d(-?\d+\.?\d*)/,
     /place\/.*\/@(-?\d+\.?\d*),(-?\d+\.?\d*)/,
+    /\?q=(-?\d+\.?\d*)%2C(-?\d+\.?\d*)/,
   ];
   for (const pattern of patterns) {
     const match = url.match(pattern);
     if (match) { lat = +match[1]; lng = +match[2]; break; }
   }
   if (lat && lng) res.json({ lat, lng, found: true });
-  else res.json({ found: false, message: 'لم يتم استخراج الموقع — أدخل الإحداثيات يدوياً' });
+  else res.json({ found: false, message: 'لم يتم استخراج الموقع — حاول نسخ الرابط الكامل من قوقل ماب' });
 });
 
 // ===== تعديل مستخدم =====
