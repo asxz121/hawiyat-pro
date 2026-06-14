@@ -2,6 +2,11 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#F7A823">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="سائق">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>حاويات برو — السائق</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -140,7 +145,8 @@ body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--bg);color:va
     <h1>حاويات برو<small id="driverName">السائق</small></h1>
   </div>
   <span class="hdr-badge">سائق</span>
-  <button class="hdr-logout" onclick="logout()">خروج</button>
+  <button id="installBtn" onclick="installApp()" style="display:none;background:rgba(247,168,35,.15);border:1px solid rgba(247,168,35,.3);color:var(--amber);border-radius:8px;padding:5px 10px;font:inherit;font-size:.68rem;cursor:pointer;align-items:center;gap:4px">📲 تثبيت</button>
+<button class="hdr-logout" onclick="logout()">خروج</button>
 </div>
 
 <div class="status-bar">
@@ -530,6 +536,52 @@ function showToast(msg) {
 }
 
 function logout() { localStorage.clear(); location.href = '/'; }
+
+// PWA
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').then(reg => {
+    console.log('SW registered');
+  });
+  navigator.serviceWorker.addEventListener('message', e => {
+    if (e.data.type === 'SEND_LOCATION' && activeOrderId) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        api('/driver/location', {
+          method: 'POST',
+          body: JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude, orderId: activeOrderId })
+        });
+      });
+    }
+  });
+}
+
+// زر إضافة للشاشة الرئيسية
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBtn').style.display = 'flex';
+});
+
+function installApp() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(() => {
+    deferredPrompt = null;
+    document.getElementById('installBtn').style.display = 'none';
+  });
+}
+
+function startTracking(orderId) {
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({ type: 'START_TRACK', orderId });
+  }
+}
+
+function stopTracking() {
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({ type: 'STOP_TRACK' });
+  }
+}
 
 initSocket();
 loadOrders();
