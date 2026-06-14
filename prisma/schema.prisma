@@ -143,6 +143,7 @@ model Order {
   alertMuted   Boolean     @default(false) // تعطيل إشعار الاستحقاق لهذا الطلب
   price           Float?
   notes           String?
+  photos          String[]
   assignedTo      Int?           // معرف السائق المسند له
   collectedAmount Float?         // المبلغ المحصل من العميل (السائق)
   collectedAt     DateTime?      // وقت التحصيل

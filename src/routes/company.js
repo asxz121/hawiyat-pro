@@ -176,7 +176,7 @@ router.get('/driver/orders', requireRole('DRIVER'), async (req, res) => {
 
 // السائق يحدث حالة الطلب
 router.post('/driver/orders/:id/action', requireRole('DRIVER'), async (req, res) => {
-  const { action, lat, lng, note } = req.body;
+  const { action, lat, lng, note, photos } = req.body;
   const o = await prisma.order.findFirst({
     where: { id: +req.params.id, companyId: req.user.companyId, assignedTo: req.user.id },
   });
@@ -187,6 +187,21 @@ router.post('/driver/orders/:id/action', requireRole('DRIVER'), async (req, res)
   else if (action === 'done') newStatus = 'DONE';
   else return res.status(400).json({ error: 'إجراء غير صحيح' });
 
+  // حفظ الصور
+  let savedPhotos = [];
+  if (action === 'done' && Array.isArray(photos) && photos.length > 0) {
+    const fs = require('fs'), path = require('path');
+    const dir = path.join(__dirname, '../../public/uploads/orders', String(o.id));
+    fs.mkdirSync(dir, { recursive: true });
+    photos.slice(0,5).forEach((b64,i) => {
+      try {
+        const data = b64.replace(/^data:image[/]\w+;base64,/, '');
+        const fname = Date.now() + '_' + i + '.jpg';
+        fs.writeFileSync(path.join(dir,fname), Buffer.from(data,'base64'));
+        savedPhotos.push('/uploads/orders/' + o.id + '/' + fname);
+      } catch(e){}
+    });
+  }
   const updated = await prisma.order.update({
     where: { id: o.id },
     data: {
@@ -194,6 +209,7 @@ router.post('/driver/orders/:id/action', requireRole('DRIVER'), async (req, res)
       updatedBy: req.user.id,
       ...(lat && lng && { lat: +lat, lng: +lng }),
       ...(note && { notes: note }),
+      ...(savedPhotos.length > 0 && { photos: savedPhotos }),
     },
   });
   res.json(updated);

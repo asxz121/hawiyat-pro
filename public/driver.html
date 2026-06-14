@@ -461,7 +461,7 @@ async function confirmDone() {
 
   async function finalize(lat, lng) {
     await api('/driver/orders/' + activeOrderId + '/action', {
-      method: 'POST', body: JSON.stringify({ action:'done', lat, lng, note })
+      method: 'POST', body: JSON.stringify({ action:'done', lat, lng, note, photos: capturedPhotos })
     });
     if (amount && +amount > 0) {
       await api('/orders/' + activeOrderId + '/collect', {
@@ -493,11 +493,23 @@ function takePhoto() {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = ev => {
-      capturedPhotos.push(ev.target.result);
-      const img = document.createElement('img');
-      img.src = ev.target.result; img.className = 'photo-thumb';
-      document.getElementById('photoPreview').appendChild(img);
-      showToast('✓ تم التقاط الصورة');
+      // ضغط الصورة عبر Canvas
+      const image = new Image();
+      image.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX = 1200;
+        let w = image.width, h = image.height;
+        if (w > MAX) { h = h * MAX / w; w = MAX; }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(image, 0, 0, w, h);
+        const compressed = canvas.toDataURL('image/jpeg', 0.7);
+        capturedPhotos.push(compressed);
+        const img = document.createElement('img');
+        img.src = compressed; img.className = 'photo-thumb';
+        document.getElementById('photoPreview').appendChild(img);
+        showToast('✓ تم التقاط الصورة');
+      };
+      image.src = ev.target.result;
     };
     reader.readAsDataURL(file);
   };
