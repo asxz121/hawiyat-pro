@@ -6,6 +6,8 @@
 <title>حاويات برو — لوحة التحكم الاحترافية</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Changa:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <style>
@@ -390,6 +392,28 @@ input::placeholder{color:#90A3B1}
   .bottom-nav{backdrop-filter:blur(8px)}
 }
 
+
+/* ===== خريطة الحاويات ===== */
+#contMap{height:500px;border-radius:var(--radius);z-index:1}
+.cmark{width:34px;height:26px;border-radius:5px;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.35);position:relative;background-image:repeating-linear-gradient(90deg,transparent 0 5px,rgba(0,0,0,.16) 5px 8px)}
+.cmark::after{content:"";position:absolute;bottom:-7px;right:50%;transform:translateX(50%);border:5px solid transparent;border-top-color:inherit}
+.cm-amber{background-color:var(--amber);border-top-color:var(--amber)}
+.cm-green{background-color:#2FA877;border-top-color:#2FA877}
+.cm-red{background-color:#D86A6A;border-top-color:#D86A6A}
+.leaflet-popup-content-wrapper{border-radius:12px!important;font-family:'IBM Plex Sans Arabic',sans-serif;direction:rtl}
+.leaflet-popup-content{margin:13px 16px;font-size:.8rem;line-height:1.8;min-width:190px}
+.pp-code{font-family:'Changa';font-weight:700;font-size:1rem;display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.pp-row{display:flex;justify-content:space-between;gap:14px;color:var(--ink)}
+.pp-row span:first-child{color:var(--steel)}
+.map-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.74rem;align-items:center}
+.map-legend .sq{width:16px;height:12px;border-radius:3px;display:inline-block;vertical-align:middle;margin-inline-end:5px}
+.cont-list{max-height:500px;overflow-y:auto}
+.cont-list .li{cursor:pointer;border-radius:10px;padding:10px 8px;transition:background .15s;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line)}
+.cont-list .li:hover{background:#F4F7F9}
+.cont-list .li:last-child{border-bottom:none}
+.chip{background:#fff;border:1px solid var(--line);border-radius:20px;padding:7px 15px;font-size:.78rem;cursor:pointer;color:var(--ink-2);transition:all .15s}
+.chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+
 </style>
 </head>
 <body>
@@ -412,6 +436,7 @@ input::placeholder{color:#90A3B1}
     <button class="nav-item" data-page="alerts"><span class="ico">🔔</span> التنبيهات <span class="nav-badge" id="alertBadge" style="display:none">0</span></button>
     <button class="nav-item" data-page="orders"><span class="ico">📋</span> الطلبات</button>
     <button class="nav-item" data-page="containers"><span class="ico">📦</span> الحاويات</button>
+    <button class="nav-item" data-page="contmap"><span class="ico">⌖</span> خريطة الحاويات</button>
 
     <div class="nav-sec">الموارد البشرية</div>
     <button class="nav-item" data-page="employees"><span class="ico">👥</span> الموظفون</button>
@@ -810,6 +835,30 @@ input::placeholder{color:#90A3B1}
       </div>
       <div id="warehouseCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px"></div>
     </div>
+
+    <!-- ===== خريطة الحاويات ===== -->
+    <div class="page" id="page-contmap">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center">
+        <button class="chip active" data-cmf="all">جميع الحاويات</button>
+        <button class="chip" data-cmf="ON_SITE">مؤجرة</button>
+        <button class="chip" data-cmf="IN_DEPOT">متاحة</button>
+        <button class="chip" data-cmf="MAINTENANCE">صيانة</button>
+        <div style="flex:1"></div>
+        <div class="map-legend">
+          <span><span class="sq" style="background:var(--amber)"></span>مؤجرة</span>
+          <span><span class="sq" style="background:#2FA877"></span>متاحة</span>
+          <span><span class="sq" style="background:#D86A6A"></span>صيانة</span>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:2.2fr 1fr;gap:14px">
+        <div class="card" style="padding:0;overflow:hidden"><div id="contMap"></div></div>
+        <div class="card">
+          <h3>الحاويات <span class="end" id="contMapCount"></span></h3>
+          <div class="cont-list" id="contMapList"></div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- content -->
 </div><!-- main -->
 </div><!-- layout -->
@@ -925,9 +974,9 @@ function showToast(msg){
 }
 
 /* ===== التنقل ===== */
-const titles={dash:'لوحة التحكم',alerts:'التنبيهات',orders:'الطلبات',containers:'الحاويات',employees:'الموظفون',shifts:'الشفتات',attendance:'الحضور والانصراف',payroll:'الرواتب',vehicles:'السيارات وعداد الزيت',maintenance:'الصيانة',reports:'التقارير والإحصائيات',accounting:'المحاسبة',daily:'التقارير اليومية',warehouses:'المستودعات',users:'المستخدمون'};
+const titles={dash:'لوحة التحكم',alerts:'التنبيهات',orders:'الطلبات',containers:'الحاويات',employees:'الموظفون',shifts:'الشفتات',attendance:'الحضور والانصراف',payroll:'الرواتب',vehicles:'السيارات وعداد الزيت',maintenance:'الصيانة',reports:'التقارير والإحصائيات',accounting:'المحاسبة',daily:'التقارير اليومية',warehouses:'المستودعات',users:'المستخدمون',contmap:'خريطة الحاويات'};
 const addLabels={orders:'＋ طلب جديد',containers:'＋ حاوية جديدة',employees:'＋ موظف جديد',vehicles:'＋ سيارة جديدة',maintenance:'＋ عملية صيانة',users:'＋ مستخدم جديد'};
-const loaders={dash:loadDash,alerts:loadAlerts,orders:loadOrders,containers:loadConts,employees:loadEmps,shifts:loadShifts,attendance:loadAtt,payroll:loadPayroll,vehicles:loadVehs,maintenance:loadMaint,reports:loadReports,accounting:loadAccounting,daily:loadDailyReport,warehouses:loadWarehouses,users:loadUsers};
+const loaders={dash:loadDash,alerts:loadAlerts,orders:loadOrders,containers:loadConts,employees:loadEmps,shifts:loadShifts,attendance:loadAtt,payroll:loadPayroll,vehicles:loadVehs,maintenance:loadMaint,reports:loadReports,accounting:loadAccounting,daily:loadDailyReport,warehouses:loadWarehouses,users:loadUsers,contmap:loadContMap};
 let curPage='dash';
 
 function go(p){
@@ -1072,10 +1121,9 @@ async function loadOrders(){
       </td>
       <td><span class="badge ${stBd[o.status]||'bd-gray'}">${stLbl[o.status]||o.status}</span></td>
       <td>
-        <select onchange="assignOrder(${o.id},this.value)" style="border:1px solid var(--line);border-radius:7px;padding:4px 7px;font:inherit;font-size:.68rem;max-width:110px">
-          <option value="">— إسناد —</option>
-          ${driversList.map(d=>`<option value="${d.id}" ${o.assignedTo===d.id?'selected':''}>${d.name.split(' ')[0]}</option>`).join('')}
-        </select>
+        <button class="btn btn-ghost btn-sm" onclick="openAssignModal(${o.id},${o.assignedTo||'null'})" style="font-size:.7rem">
+          ${o.assignedTo?'🚚 معيّن':'+ إسناد'}
+        </button>
       </td>
       <td><button class="btn btn-ghost btn-sm" onclick="muteOrder(${o.id},${!o.alertMuted})">${o.alertMuted?'🔕':'🔔'}</button></td>
     </tr>`).join(''):'<tr><td colspan="9" style="text-align:center;padding:22px;color:var(--muted)">لا توجد طلبات</td></tr>';
@@ -1485,9 +1533,9 @@ async function loadReports(){
 
 /* ===== نظام الصلاحيات ===== */
 const PERMISSIONS = {
-  OWNER:       ['dash','alerts','orders','containers','employees','shifts','attendance','payroll','vehicles','maintenance','reports','accounting','daily','warehouses','users'],
+  OWNER:       ['dash','alerts','orders','containers','contmap','employees','shifts','attendance','payroll','vehicles','maintenance','reports','accounting','daily','warehouses','users'],
   BRANCH_MGR:  ['dash','alerts','orders','containers','employees','shifts','attendance','vehicles','maintenance'],
-  TRAFFIC_MGR: ['dash','alerts','orders','containers','attendance','vehicles','maintenance','reports','warehouses'],
+  TRAFFIC_MGR: ['dash','alerts','orders','containers','contmap','attendance','vehicles','maintenance','reports','warehouses'],
   DISPATCHER:  ['dash','alerts','orders','containers'],
   ACCOUNTANT:  ['dash','payroll','accounting','daily'],
   DRIVER:      ['dash','orders'],
@@ -2026,6 +2074,148 @@ async function deleteTransaction(id){
   await hrApi('/transactions/'+id,{method:'DELETE'});
   await loadTransactions();
   showToast('تم حذف المعاملة ✓');
+}
+
+
+/* ===== خريطة الحاويات ===== */
+let contMapObj = null, contMarkers = {}, contMapFilter = 'all';
+const cStMap = {
+  ON_SITE:['مؤجرة','bd-amber','cm-amber'],
+  IN_DEPOT:['متاحة','bd-green','cm-green'],
+  MAINTENANCE:['صيانة','bd-red','cm-red'],
+};
+
+function contIcon(st){
+  const cls = cStMap[st]?.[2] || 'cm-amber';
+  return L.divIcon({className:'',html:`<div class="cmark ${cls}"></div>`,iconSize:[34,33],iconAnchor:[17,33],popupAnchor:[0,-30]});
+}
+
+async function loadContMap(){
+  try{
+    const conts = await coApi('/containers');
+    if(!contMapObj){
+      contMapObj = L.map('contMap',{zoomControl:true}).setView([24.80,46.66],11);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(contMapObj);
+    }
+    contMapObj.invalidateSize();
+
+    // إزالة العلامات القديمة
+    Object.values(contMarkers).forEach(m=>contMapObj.removeLayer(m));
+    contMarkers = {};
+
+    // إضافة الحاويات التي لها موقع
+    const withLoc = conts.filter(c=>c.lat&&c.lng);
+    const withoutLoc = conts.filter(c=>!c.lat||!c.lng);
+
+    withLoc.forEach(c=>{
+      const [lbl,bd] = cStMap[c.status] || ['—','bd-gray'];
+      const popup = `
+        <div class="pp-code">${c.code}<span class="badge ${bd}">${lbl}</span></div>
+        <div class="pp-row"><span>الحجم</span><b>${c.size||'—'}</b></div>
+        ${c.order?`<div class="pp-row"><span>العميل</span><b>${c.order.customerName||'—'}</b></div>`:''}
+        <a href="https://www.google.com/maps?q=${c.lat},${c.lng}" target="_blank"
+           style="display:block;text-align:center;margin-top:8px;background:#F7A823;color:#141F28;font-weight:600;border-radius:8px;padding:6px;text-decoration:none;font-size:.76rem">
+          فتح في خرائط قوقل ⌖
+        </a>`;
+      contMarkers[c.code] = L.marker([c.lat,c.lng],{icon:contIcon(c.status)})
+        .addTo(contMapObj).bindPopup(popup);
+    });
+
+    // تحديث القائمة الجانبية
+    applyContMapFilter(conts);
+
+    // ضبط الخريطة لتشمل الحاويات
+    if(withLoc.length>1){
+      contMapObj.fitBounds(withLoc.map(c=>[c.lat,c.lng]),{padding:[40,40]});
+    } else if(withLoc.length===1){
+      contMapObj.setView([withLoc[0].lat,withLoc[0].lng],14);
+    }
+
+    // تخزين للفلترة
+    contMapObj._allConts = conts;
+  }catch(e){console.error(e)}
+}
+
+function applyContMapFilter(conts){
+  if(!conts) conts = contMapObj?._allConts || [];
+  const filtered = contMapFilter==='all' ? conts : conts.filter(c=>c.status===contMapFilter);
+
+  // إظهار/إخفاء العلامات
+  conts.forEach(c=>{
+    if(!contMarkers[c.code]) return;
+    const show = contMapFilter==='all' || c.status===contMapFilter;
+    if(show) contMarkers[c.code].addTo(contMapObj);
+    else contMapObj.removeLayer(contMarkers[c.code]);
+  });
+
+  document.getElementById('contMapCount').textContent = filtered.length + ' حاوية';
+  document.getElementById('contMapList').innerHTML = filtered.map(c=>{
+    const [lbl,bd] = cStMap[c.status] || ['—','bd-gray'];
+    return `<div class="li" onclick="flyToCont('${c.code}')">
+      <div style="width:36px;height:36px;border-radius:9px;background:var(--bg);display:grid;place-items:center;font-family:'Changa';font-weight:700;font-size:.7rem;flex-shrink:0;color:var(--steel)">${c.code.slice(-3)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;font-size:.82rem">${c.code} · ${c.size||''}</div>
+        <div style="font-size:.68rem;color:var(--steel)">${c.order?.customerName||c.notes||'متاحة'}</div>
+      </div>
+      <span class="badge ${bd}">${lbl}</span>
+    </div>`;
+  }).join('') || '<div style="text-align:center;padding:20px;color:var(--muted);font-size:.8rem">لا توجد حاويات</div>';
+}
+
+function flyToCont(code){
+  const c = (contMapObj?._allConts||[]).find(x=>x.code===code);
+  if(c?.lat&&c?.lng){
+    contMapObj.flyTo([c.lat,c.lng],16,{duration:.8});
+    contMarkers[code]?.openPopup();
+  }
+}
+
+// فلترة خريطة الحاويات
+document.addEventListener('click', e=>{
+  const btn = e.target.closest('[data-cmf]');
+  if(!btn) return;
+  document.querySelectorAll('[data-cmf]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  contMapFilter = btn.dataset.cmf;
+  applyContMapFilter();
+});
+
+/* ===== إسناد الطلب لسائق ===== */
+async function assignOrder(orderId, driverId){
+  try{
+    await coApi('/orders/'+orderId+'/assign',{method:'POST',body:JSON.stringify({driverId:driverId||null})});
+    loadOrders();
+    showToast(driverId?'تم إسناد الطلب للسائق ✓':'تم إلغاء الإسناد');
+  }catch(e){showToast('⚠ خطأ في الإسناد')}
+}
+
+// نافذة إسناد الطلب
+function openAssignModal(orderId, currentDriverId){
+  hrApi('/employees').then(emps=>{
+    const drivers = emps.filter(e=>e.role==='سائق'&&e.status==='ACTIVE');
+    const opts = `<option value="">— بدون إسناد —</option>` +
+      drivers.map(d=>`<option value="${d.id}" ${d.id===currentDriverId?'selected':''}>${d.name}</option>`).join('');
+
+    const modal = document.createElement('div');
+    modal.className = 'modal-bg open';
+    modal.innerHTML = `
+      <div class="modal" style="max-width:360px">
+        <h3>إسناد الطلب #${orderId} لسائق</h3>
+        <div class="field">
+          <label>اختر السائق</label>
+          <select id="assignDriverSel">${opts}</select>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:14px">
+          <button class="btn btn-amber" style="flex:1;justify-content:center" onclick="
+            assignOrder(${orderId}, document.getElementById('assignDriverSel').value);
+            this.closest('.modal-bg').remove();
+          ">تأكيد الإسناد</button>
+          <button class="btn btn-ghost" onclick="this.closest('.modal-bg').remove()">إلغاء</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.onclick = e=>{ if(e.target===modal) modal.remove(); };
+  });
 }
 
 /* ===== التشغيل الأولي ===== */
