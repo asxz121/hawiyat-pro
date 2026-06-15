@@ -36,6 +36,7 @@ model Company {
   maintenance  Maintenance[]
   dailyReports DailyReport[]
   warehouses        Warehouse[]
+  dumpSites         DumpSite[]
   empTransactions   EmployeeTransaction[]
 }
 
@@ -98,6 +99,8 @@ model Container {
   warehouseId Int?
   orders      Order[]
   notes       String?
+  lat         Float?
+  lng         Float?
 
   @@unique([companyId, code])
 }
@@ -288,6 +291,8 @@ model DailyReport {
   otherOut    Float    @default(0)   // مصروفات أخرى
   netProfit   Float    @default(0)   // الصافي
   notes       String?
+  lat         Float?
+  lng         Float?
   createdBy   Int?
   createdAt   DateTime @default(now())
 }
@@ -306,6 +311,19 @@ model Warehouse {
   containers  Container[]
 }
 
+
+// ===== مواقع المكبات =====
+model DumpSite {
+  id          Int      @id @default(autoincrement())
+  name        String
+  address     String?
+  lat         Float?
+  lng         Float?
+  company     Company  @relation(fields: [companyId], references: [id])
+  companyId   Int
+  createdBy   Int?
+  createdAt   DateTime @default(now())
+}
 // ===== المعاملات المالية للموظفين =====
 enum TransactionType {
   BONUS_AMOUNT   // زيادة بالقيمة

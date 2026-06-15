@@ -13,27 +13,43 @@ async function notify(companyId, type, message, refOrderId = null) {
 
 // 1) استحقاق الحاويات: كل 6 ساعات
 async function checkDueOrders() {
-  const limit = new Date(Date.now() + DUE_HOURS * 3600 * 1000);
+  const now = new Date();
+  // جلب كل الطلبات النشطة التي لها تاريخ استحقاق
   const orders = await prisma.order.findMany({
     where: {
-      dueDate: { lte: limit, gte: new Date(Date.now() - 7 * 86400000) }, // المستحقة قريباً أو المتأخرة حتى أسبوع
+      dueDate: { not: null, gte: new Date(now.getTime() - 14 * 86400000) },
       status: { in: ['NEW', 'ASSIGNED', 'EN_ROUTE'] },
-      alertMuted: false, // المكتومة لا تنبّه
+      alertMuted: false,
     },
     include: { container: true, company: { select: { status: true } } },
   });
+
   for (const o of orders) {
     if (o.company.status !== 'ACTIVE') continue;
-    // لا نكرر إن وُجد تنبيه غير مطّلع عليه لنفس الطلب (سيظل ظاهراً)؛
-    // وإن اطُّلع على السابق يُنشأ جديد في الدورة التالية — هذا هو التكرار كل 6 ساعات
     const open = await prisma.alert.findFirst({ where: { refOrderId: o.id, acknowledged: false } });
     if (open) continue;
-    const late = o.dueDate < new Date();
-    await notify(o.companyId, 'DUE_SOON',
-      late
-        ? `⚠ الحاوية ${o.container?.code || o.size || ''} لدى ${o.customerName} تجاوزت الاستحقاق — جدولة الرفع فوراً`
-        : `حاوية ${o.container?.code || o.size || ''} لدى ${o.customerName} يستحق رفعها خلال يومين (${o.dueDate.toLocaleDateString('ar-SA')})`,
-      o.id);
+
+    const daysLeft = Math.ceil((o.dueDate - now) / 86400000);
+    const code = o.container?.code || o.size || '';
+    const cust = o.customerName;
+    const dateStr = o.dueDate.toLocaleDateString('ar-SA');
+
+    let message = null;
+
+    if (daysLeft < 0) {
+      // متأخر
+      message = `🔴 متأخر ${Math.abs(daysLeft)} يوم — حاوية ${code} لدى ${cust} تجاوزت الاستحقاق (${dateStr}) — جدولة الرفع فوراً`;
+    } else if (daysLeft <= 2) {
+      // خطر — أقل من يومين
+      message = `🟠 تنبيه عاجل — حاوية ${code} لدى ${cust} تستحق الرفع خلال ${daysLeft} يوم (${dateStr})`;
+    } else if (daysLeft <= 5) {
+      // تحذير — أقل من 5 أيام
+      message = `🟡 تنبيه — حاوية ${code} لدى ${cust} تستحق الرفع خلال ${daysLeft} أيام (${dateStr})`;
+    }
+
+    if (message) {
+      await notify(o.companyId, 'DUE_SOON', message, o.id);
+    }
   }
 }
 

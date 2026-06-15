@@ -367,7 +367,7 @@ function renderOrders() {
         ${isEnroute ? `<button class="btn btn-green" onclick="openDoneModal(${o.id},event)">✅ تم التنفيذ</button>` : ''}
         ${(isEnroute || isDone) && !hasCollected ? `<button class="btn btn-amber" onclick="openCollectModal(${o.id},event)">💰 تحصيل مبلغ</button>` : ''}
         <a href="tel:${o.phone1}" class="btn btn-call" onclick="event.stopPropagation()">📞</a>
-        ${o.lat&&o.lng ? `<a href="https://maps.google.com/?q=${o.lat},${o.lng}" target="_blank" class="btn btn-ghost" onclick="event.stopPropagation()">🗺</a>` : ''}
+        ${o.lat&&o.lng ? `<button class="btn btn-ghost" onclick="openNavigation(${o.lat},${o.lng},event)" style="font-size:.72rem">🗺 توجيه</button>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -528,6 +528,32 @@ document.getElementById('collectedAmount').addEventListener('input', function(){
   msg.style.display = this.value && +this.value > 0 ? 'block' : 'none';
 });
 
+function openNavigation(destLat, destLng, e){
+  if(e) e.stopPropagation();
+  // فتح تطبيق قوقل ماب مباشرة (يبقى المتصفح مفتوح)
+  const geoUrl = `geo:${destLat},${destLng}?q=${destLat},${destLng}`;
+  const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${destLat},${destLng}&travelmode=driving`;
+  // على الأندرويد يفتح التطبيق مباشرة
+  const intent = `intent://maps/dir/?api=1&destination=${destLat},${destLng}&travelmode=driving#Intent;scheme=https;package=com.google.android.apps.maps;end`;
+  // محاولة فتح التطبيق أولاً
+  const a = document.createElement('a');
+  a.href = mapsUrl;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+function openNavigation_OLD(destLat, destLng, e){
+  if(e) e.stopPropagation();
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(
+      pos => { window.open(`https://www.google.com/maps/dir/${pos.coords.latitude},${pos.coords.longitude}/${destLat},${destLng}`,"_blank"); },
+      () => { window.open(`https://maps.google.com/?q=${destLat},${destLng}`,"_blank"); },
+      {enableHighAccuracy:true,timeout:5000}
+    );
+  } else { window.open(`https://maps.google.com/?q=${destLat},${destLng}`,"_blank"); }
+}
 function showToast(msg) {
   const t = document.getElementById('toast');
   document.getElementById('toastTxt').textContent = msg;

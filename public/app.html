@@ -299,7 +299,7 @@ tbody tr:hover{background:#F8FAFB}
   }
   .bottom-nav button .ico{font-size:1.15rem}
   .bottom-nav button.active{color:var(--amber)}
-  #menuBtn{display:grid!important}.sidebar{display:flex!important}
+  #menuBtn{display:grid!important}
 }
 
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
@@ -414,6 +414,14 @@ input::placeholder{color:#90A3B1}
 .chip{background:#fff;border:1px solid var(--line);border-radius:20px;padding:7px 15px;font-size:.78rem;cursor:pointer;color:var(--ink-2);transition:all .15s}
 .chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
 
+
+/* THEME */
+.sidebar{background:#161B22!important}
+.nav-sec{color:#484F58!important}
+.nav-item,.nav button{color:#8B949E!important}
+.nav-item:hover,.nav button:hover{background:#21262D!important;color:#fff!important}
+.nav-item.active,.nav button.active{background:#F7A823!important;color:#0D1117!important}
+/* END THEME */
 </style>
 </head>
 <body>
@@ -447,6 +455,8 @@ input::placeholder{color:#90A3B1}
     <div class="nav-sec">الأسطول</div>
     <button class="nav-item" data-page="vehicles"><span class="ico">🚚</span> السيارات وعداد الزيت <span class="nav-badge" id="oilBadge" style="display:none">0</span></button>
     <button class="nav-item" data-page="maintenance"><span class="ico">🔧</span> الصيانة</button>
+    <button class="nav-item" data-page="warehouses"><span class="ico">🏭</span> المستودعات</button>
+    <button class="nav-item" data-page="dumpsites"><span class="ico">🗑</span> مواقع المكبات</button>
     <button class="nav-item" onclick="window.open('/tracking.html','_blank')"><span class="ico">📡</span> تتبع السائقين</button>
 
     <div class="nav-sec">التحليلات</div>
@@ -470,7 +480,7 @@ input::placeholder{color:#90A3B1}
       <h2 id="pageTitle">لوحة التحكم</h2>
       <div class="sub" id="pageDate"></div>
     </div>
-    <button id="menuBtn" onclick="toggleSidebar()" style="display:none;width:40px;height:40px;border-radius:10px;background:#fff;border:1px solid var(--line);place-items:center;cursor:pointer;font-size:1.2rem;flex-shrink:0">☰</button><div class="grow"></div>
+    <div class="grow"></div>
     <button onclick="refreshPage()" aria-label="تحديث" style="width:40px;height:40px;border-radius:10px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;cursor:pointer;position:relative;font-size:1rem;flex-shrink:0">↻<span id="notifDot" style="display:none;position:absolute;top:9px;left:10px;width:8px;height:8px;border-radius:50%;background:var(--red);border:2px solid #fff"></span></button>
     <button id="topBtn" onclick="ctxAdd()" style="border:0;cursor:pointer;font-weight:600;font-size:.85rem;padding:10px 17px;border-radius:10px;transition:all .15s;display:inline-flex;align-items:center;gap:8px;background:var(--amber);color:var(--ink);box-shadow:0 3px 10px rgba(247,168,35,.35)">＋ إضافة</button>
     <div id="userAv" style="width:40px;height:40px;border-radius:50%;background:var(--ink2);color:var(--amber);display:grid;place-items:center;font-weight:700;font-family:'Changa';flex-shrink:0">م</div>
@@ -520,25 +530,38 @@ input::placeholder{color:#90A3B1}
     <div class="page" id="page-orders">
       <div class="card" id="orderForm">
         <div class="card-head"><h3>طلب جديد</h3></div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:7px">
-          <div class="field" style="grid-column:1/-1"><label style="font-size:.68rem">اسم العميل *</label><input id="oCust" placeholder="مؤسسة البنيان" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field"><label style="font-size:.68rem">رقم العميل *</label><input id="oP1" inputmode="tel" placeholder="05XXXXXXXX" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field"><label style="font-size:.68rem">رقم الموقع</label><input id="oPS" inputmode="tel" placeholder="05XXXXXXXX" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field"><label style="font-size:.68rem">رقم إضافي</label><input id="oP3" inputmode="tel" placeholder="اختياري" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field"><label style="font-size:.68rem">نوع الطلب</label><select id="oType" style="padding:8px 10px;font-size:.8rem"><option value="DROP">إنزال</option><option value="PICKUP">رفع</option><option value="SWAP">تبديل</option><option value="MOVE">نقل</option><option value="PROJECT_CYCLE">دورة مشروع</option></select></div>
-          <div class="field"><label style="font-size:.68rem">الحجم</label><input id="oSize" placeholder="8 ياردة" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field"><label style="font-size:.68rem">رقم العقد</label><input id="oContract" placeholder="فارغ = بدون عقد" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field"><label style="font-size:.68rem">الاستحقاق</label><input id="oDue" type="date" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field"><label style="font-size:.68rem">السعر (ر.س)</label><input id="oPrice" inputmode="numeric" placeholder="0" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field"><label style="font-size:.68rem">وصف الموقع</label><input id="oAddr" placeholder="حي النرجس" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field" style="grid-column:1/-1"><label style="font-size:.68rem">رابط الموقع من واتساب/قوقل</label><input id="oLocUrl" placeholder="الصق الرابط هنا لاستخراج الإحداثيات تلقائياً" style="padding:8px 10px;font-size:.8rem"></div>
+        <!-- سطر 1 -->
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:6px;margin-bottom:6px;align-items:end">
+          <div class="field" style="margin:0"><label style="font-size:.62rem">اسم العميل *</label><input id="oCust" placeholder="مؤسسة البنيان" style="padding:6px 8px;font-size:.78rem"></div>
+          <div class="field" style="margin:0"><label style="font-size:.62rem">رقم العميل *</label><input id="oP1" inputmode="tel" placeholder="05XXXXXXXX" style="padding:6px 8px;font-size:.78rem"></div>
+          <div class="field" style="margin:0"><label style="font-size:.62rem">رقم الموقع</label><input id="oPS" inputmode="tel" placeholder="05XXXXXXXX" style="padding:6px 8px;font-size:.78rem"></div>
+          <div class="field" style="margin:0"><label style="font-size:.62rem">رقم إضافي</label><input id="oP3" inputmode="tel" placeholder="اختياري" style="padding:6px 8px;font-size:.78rem"></div>
+          <div class="field" style="margin:0"><label style="font-size:.62rem">نوع الطلب</label><select id="oType" style="padding:6px 8px;font-size:.78rem"><option value="DROP">إنزال</option><option value="PICKUP">رفع</option><option value="SWAP">تبديل</option><option value="MOVE">نقل</option><option value="PROJECT_CYCLE">دورة</option></select></div>
         </div>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-ghost" onclick="getLoc()" style="padding:8px 12px;font-size:.78rem;flex:1">📍 موقعي</button>
-          <button class="btn btn-ghost" onclick="extractOrderLocation()" style="padding:8px 12px;font-size:.78rem;flex:1">🔗 رابط العميل</button>
-          <button class="btn btn-amber" onclick="addOrder()" style="padding:8px 14px;font-size:.78rem;flex:2">＋ إنشاء الطلب</button>
+        <!-- سطر 2 -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 0.7fr 1fr 1fr 2fr;gap:6px;margin-bottom:8px;align-items:end">
+          <div class="field" style="margin:0"><label style="font-size:.62rem">الحجم</label><input id="oSize" placeholder="8 ياردة" style="padding:6px 8px;font-size:.78rem"></div>
+          <div class="field" style="margin:0"><label style="font-size:.62rem">الحاوية (اختياري)</label><select id="oContainer" style="padding:6px 8px;font-size:.78rem"><option value="">— بدون حاوية —</option></select></div>
+          <div class="field" style="margin:0"><label style="font-size:.62rem">رقم العقد</label><input id="oContract" placeholder="بدون عقد" style="padding:6px 8px;font-size:.78rem"></div>
+          <div class="field" style="margin:0"><label style="font-size:.62rem">عدد الأيام</label><input id="oDays" inputmode="numeric" placeholder="30" style="padding:6px 8px;font-size:.78rem" oninput="calcDueDate()"></div>
+          <div class="field" style="margin:0"><label style="font-size:.62rem">الاستحقاق</label><input id="oDue" type="date" style="padding:6px 8px;font-size:.78rem" oninput="calcDaysFromDate()"></div>
+          <div class="field" style="margin:0"><label style="font-size:.62rem">السعر (ر.س)</label><input id="oPrice" inputmode="numeric" placeholder="0" style="padding:6px 8px;font-size:.78rem"></div>
+          <div class="field" style="margin:0"><label style="font-size:.62rem">رابط الموقع (واتساب/قوقل)</label><input id="oLocUrl" placeholder="الصق الرابط لاستخراج الإحداثيات" onpaste="setTimeout(extractOrderLocation,300)" style="padding:6px 8px;font-size:.78rem"></div>
         </div>
-        <div id="locMsg"></div>
+        <!-- أزرار -->
+        <div style="display:flex;gap:6px;align-items:center">
+          <div class="field" style="margin:0;flex:2"><label style="font-size:.62rem">وصف الموقع</label><input id="oAddr" placeholder="حي النرجس" style="padding:6px 8px;font-size:.78rem"></div>
+          <button class="btn btn-ghost" onclick="getLoc()" style="padding:7px 10px;font-size:.74rem;margin-top:14px">📍 موقعي</button>
+          <button class="btn btn-ghost" onclick="extractOrderLocation()" style="padding:7px 10px;font-size:.74rem;margin-top:14px">🔗 رابط</button>
+          <button class="btn btn-amber" onclick="addOrder()" style="padding:7px 14px;font-size:.78rem;flex:1;margin-top:14px">＋ إنشاء الطلب</button>
+        </div>
+        <div id="locMsg" style="margin-top:4px"></div>
+<div id="orderMapWrap" style="display:none;margin-top:8px">
+  <div style="font-size:.72rem;color:var(--steel);margin-bottom:4px">📍 اضغط على الخريطة لتحديد موقع العميل</div>
+  <div id="orderMap" style="height:220px;border-radius:10px;border:1px solid var(--line);z-index:1"></div>
+  <div id="orderMapCoords" style="font-size:.7rem;color:var(--green);margin-top:4px;display:none">✓ تم تحديد الموقع</div>
+</div>
+<button class="btn btn-ghost" onclick="toggleOrderMap()" style="margin-top:6px;padding:6px 12px;font-size:.74rem;width:100%">🗺 فتح الخريطة لتحديد الموقع يدوياً</button>
       </div>
       <div class="card">
         <div class="card-head"><h3>سجل الطلبات</h3></div>
@@ -572,7 +595,7 @@ input::placeholder{color:#90A3B1}
           <div class="field"><label>رقم الجوال</label><input id="ePhone" inputmode="tel" placeholder="05XXXXXXXX"></div>
           <div class="field"><label>الراتب الأساسي (ر.س) *</label><input id="eSalary" inputmode="numeric" placeholder="4500"></div>
           <div class="field"><label>البدلات والإضافي</label><input id="eExtra" inputmode="numeric" placeholder="0"></div>
-          <div class="field"><label>تاريخ التعيين</label><input id="eHired" placeholder="2024/01"></div>
+          <div class="field"><label>تاريخ التعيين</label><input id="eHired" placeholder="2024/01" type="month"></div>
         </div>
         <button class="btn btn-amber" onclick="addEmp()" style="padding:9px 16px">＋ إضافة الموظف</button>
       </div>
@@ -836,6 +859,24 @@ input::placeholder{color:#90A3B1}
       <div id="warehouseCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px"></div>
     </div>
 
+    <!-- ===== مواقع المكبات ===== -->
+    <div class="page" id="page-dumpsites">
+      <div class="card" id="dumpForm">
+        <div class="card-head"><h3>إضافة موقع مكب</h3></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:12px">
+          <div class="field"><label>اسم المكب *</label><input id="dsName" placeholder="مكب النفايات الشمالي"></div>
+          <div class="field"><label>العنوان</label><input id="dsAddr" placeholder="طريق الدائري الشمالي"></div>
+          <div class="field"><label>رابط الموقع</label><input id="dsUrl" placeholder="الصق رابط قوقل ماب" onpaste="setTimeout(extractDsLocation,300)"></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost" onclick="extractDsLocation()" style="padding:9px 14px">📍 استخراج الموقع</button>
+          <button class="btn btn-amber" onclick="addDumpSite()" style="padding:9px 16px">＋ إضافة المكب</button>
+        </div>
+        <div id="dsLocMsg" style="margin-top:6px;font-size:.74rem"></div>
+      </div>
+      <div id="dumpSiteCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px"></div>
+    </div>
+
     <!-- ===== خريطة الحاويات ===== -->
     <div class="page" id="page-contmap">
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center">
@@ -974,9 +1015,9 @@ function showToast(msg){
 }
 
 /* ===== التنقل ===== */
-const titles={dash:'لوحة التحكم',alerts:'التنبيهات',orders:'الطلبات',containers:'الحاويات',employees:'الموظفون',shifts:'الشفتات',attendance:'الحضور والانصراف',payroll:'الرواتب',vehicles:'السيارات وعداد الزيت',maintenance:'الصيانة',reports:'التقارير والإحصائيات',accounting:'المحاسبة',daily:'التقارير اليومية',warehouses:'المستودعات',users:'المستخدمون',contmap:'خريطة الحاويات'};
+const titles={dash:'لوحة التحكم',alerts:'التنبيهات',orders:'الطلبات',containers:'الحاويات',employees:'الموظفون',shifts:'الشفتات',attendance:'الحضور والانصراف',payroll:'الرواتب',vehicles:'السيارات وعداد الزيت',maintenance:'الصيانة',reports:'التقارير والإحصائيات',accounting:'المحاسبة',daily:'التقارير اليومية',warehouses:'المستودعات',dumpsites:'مواقع المكبات',users:'المستخدمون',contmap:'خريطة الحاويات'};
 const addLabels={orders:'＋ طلب جديد',containers:'＋ حاوية جديدة',employees:'＋ موظف جديد',vehicles:'＋ سيارة جديدة',maintenance:'＋ عملية صيانة',users:'＋ مستخدم جديد'};
-const loaders={dash:loadDash,alerts:loadAlerts,orders:loadOrders,containers:loadConts,employees:loadEmps,shifts:loadShifts,attendance:loadAtt,payroll:loadPayroll,vehicles:loadVehs,maintenance:loadMaint,reports:loadReports,accounting:loadAccounting,daily:loadDailyReport,warehouses:loadWarehouses,users:loadUsers,contmap:loadContMap};
+const loaders={dash:loadDash,alerts:loadAlerts,orders:loadOrders,containers:loadConts,employees:loadEmps,shifts:loadShifts,attendance:loadAtt,payroll:loadPayroll,vehicles:loadVehs,maintenance:loadMaint,reports:loadReports,accounting:loadAccounting,daily:loadDailyReport,warehouses:loadWarehouses,dumpsites:loadDumpSites,users:loadUsers,contmap:loadContMap};
 let curPage='dash';
 
 function go(p){
@@ -1004,26 +1045,6 @@ function ctxAdd(){
 function refreshPage(){if(loaders[curPage])loaders[curPage]()}
 function closeModal(id){
   document.getElementById(id).classList.remove('open');
-}
-function showPhotos(photos){
-  const bg = document.createElement('div');
-  bg.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px';
-  bg.onclick=e=>{if(e.target===bg)bg.remove()};
-  const close = document.createElement('button');
-  close.textContent='✕ إغلاق';
-  close.style.cssText='background:#fff;border:0;border-radius:8px;padding:8px 18px;cursor:pointer;font-family:inherit;font-weight:700;align-self:flex-end';
-  close.onclick=()=>bg.remove();
-  bg.appendChild(close);
-  const wrap = document.createElement('div');
-  wrap.style.cssText='display:flex;gap:10px;flex-wrap:wrap;justify-content:center;overflow-y:auto;max-height:80vh';
-  photos.forEach(src=>{
-    const img=document.createElement('img');
-    img.src=src;
-    img.style.cssText='max-width:min(90vw,480px);max-height:70vh;border-radius:12px;object-fit:contain;box-shadow:0 8px 32px rgba(0,0,0,.5)';
-    wrap.appendChild(img);
-  });
-  bg.appendChild(wrap);
-  document.body.appendChild(bg);
 }
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sOverlay').classList.toggle('open')}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sOverlay').classList.remove('open')}
@@ -1110,6 +1131,44 @@ const stBd={NEW:'bd-blue',ASSIGNED:'bd-amber',EN_ROUTE:'bd-amber',DONE:'bd-green
 const stLbl={NEW:'جديد',ASSIGNED:'مسند',EN_ROUTE:'بالطريق',DONE:'منفذ',CANCELLED:'ملغي'};
 let loc={lat:null,lng:null};
 
+let orderMapObj = null, orderMapMarker = null;
+function toggleOrderMap(){
+  const wrap = document.getElementById('orderMapWrap');
+  if(wrap.style.display === 'none'){
+    wrap.style.display = 'block';
+    setTimeout(()=>{
+      if(!orderMapObj){
+        orderMapObj = L.map('orderMap').setView([24.7136, 46.6753], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(orderMapObj);
+        orderMapObj.on('click', function(e){
+          const {lat, lng} = e.latlng;
+          loc = {lat, lng};
+          if(orderMapMarker) orderMapObj.removeLayer(orderMapMarker);
+          orderMapMarker = L.marker([lat, lng]).addTo(orderMapObj);
+          document.getElementById('orderMapCoords').style.display = 'block';
+          document.getElementById('orderMapCoords').textContent = '✓ تم تحديد الموقع: ' + lat.toFixed(5) + ', ' + lng.toFixed(5);
+          document.getElementById('locMsg').innerHTML = '<div class="loc-msg loc-ok">✓ تم تحديد موقع العميل من الخريطة (' + lat.toFixed(5) + ', ' + lng.toFixed(5) + ')</div>';
+        });
+      }
+      orderMapObj.invalidateSize();
+    }, 100);
+  } else {
+    wrap.style.display = 'none';
+  }
+}
+function calcDueDate(){
+  const days = parseInt(document.getElementById('oDays').value);
+  if(!days || days <= 0) return;
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  document.getElementById('oDue').value = d.toISOString().split('T')[0];
+}
+function calcDaysFromDate(){
+  const due = document.getElementById('oDue').value;
+  if(!due) return;
+  const diff = Math.round((new Date(due) - new Date()) / 86400000);
+  if(diff > 0) document.getElementById('oDays').value = diff;
+}
 function getLoc(){
   const msg=document.getElementById('locMsg');
   msg.innerHTML='<div class="loc-msg loc-load">⏳ جارٍ تحديد الموقع…</div>';
@@ -1120,6 +1179,16 @@ function getLoc(){
   );
 }
 async function loadOrders(){
+  // تحميل الحاويات المتاحة
+  try{
+    const conts = await coApi('/containers');
+    const sel = document.getElementById('oContainer');
+    if(sel){
+      const available = conts.filter(c=>c.status==='IN_DEPOT'||c.status==='ON_SITE');
+      sel.innerHTML = '<option value="">— بدون حاوية —</option>' +
+        available.map(c=>`<option value="${c.id}">${c.code} · ${c.size} · <span>${c.status==='IN_DEPOT'?'متاحة':'مؤجرة'}</span></option>`).join('');
+    }
+  }catch(e){}
   try{
     const os=await coApi('/orders');
     // تحميل السائقين للإسناد
@@ -1146,7 +1215,6 @@ async function loadOrders(){
         </button>
       </td>
       <td><button class="btn btn-ghost btn-sm" onclick="muteOrder(${o.id},${!o.alertMuted})">${o.alertMuted?'🔕':'🔔'}</button></td>
-      <td>${o.photos&&o.photos.length?`<button class="btn btn-ghost btn-sm" onclick="showPhotos(${JSON.stringify(o.photos)})" style="color:var(--blue)">📷 ${o.photos.length}</button>`:''}</td>
     </tr>`).join(''):'<tr><td colspan="9" style="text-align:center;padding:22px;color:var(--muted)">لا توجد طلبات</td></tr>';
   }catch(e){console.error(e)}
 }
@@ -1160,6 +1228,7 @@ async function addOrder(){
       type:document.getElementById('oType').value,size:document.getElementById('oSize').value,
       contractNo:document.getElementById('oContract').value,dueDate:document.getElementById('oDue').value||null,
       price:document.getElementById('oPrice').value,address:document.getElementById('oAddr').value,
+      containerId:document.getElementById('oContainer').value||null,
       lat:loc.lat,lng:loc.lng
     })});
     ['oCust','oP1','oPS','oP3','oSize','oContract','oPrice','oAddr'].forEach(i=>document.getElementById(i).value='');
@@ -1791,6 +1860,68 @@ function closeMobileMenu(){
 }
 
 
+/* ===== مواقع المكبات ===== */
+let dsLat = null, dsLng = null;
+
+async function loadDumpSites(){
+  try{
+    const sites = await coApi('/dumpsites');
+    const el = document.getElementById('dumpSiteCards');
+    el.innerHTML = sites.length ? sites.map(s=>`
+      <div style="background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;border-top:4px solid var(--red)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="width:42px;height:42px;border-radius:10px;background:var(--red-soft);display:grid;place-items:center;font-size:1.3rem">🗑</div>
+          <div>
+            <div style="font-weight:700;font-size:.95rem">${s.name}</div>
+            <div style="font-size:.72rem;color:var(--steel)">${s.address||'—'}</div>
+          </div>
+          ${s.lat?`<a href="https://maps.google.com/?q=${s.lat},${s.lng}" target="_blank" style="margin-inline-start:auto;color:var(--blue);font-size:.72rem">📍 خريطة</a>`:''}
+          <button onclick="deleteDumpSite(${s.id})" style="background:var(--red-soft);border:none;border-radius:8px;padding:5px 10px;color:var(--red);cursor:pointer;font-size:.72rem">حذف</button>
+        </div>
+        <div style="font-size:.76rem;color:var(--steel);padding:8px;background:var(--bg);border-radius:8px;text-align:center">
+          ${s.lat&&s.lng?`الإحداثيات: ${s.lat.toFixed(4)}, ${s.lng.toFixed(4)}`:'لا يوجد موقع محدد'}
+        </div>
+      </div>`).join('') :
+      '<div style="text-align:center;padding:40px;color:var(--muted);grid-column:1/-1">لا توجد مكبات — أضف موقع مكب جديد</div>';
+  }catch(e){console.error(e)}
+}
+
+function extractDsLocation(){
+  const url = document.getElementById('dsUrl').value.trim();
+  if(!url) return showToast('⚠ الصق رابط الموقع أولاً');
+  const coords = extractCoordsFromUrl(url);
+  const msg = document.getElementById('dsLocMsg');
+  if(coords){
+    dsLat = coords.lat; dsLng = coords.lng;
+    msg.innerHTML = `<span style="color:var(--green)">✓ تم استخراج الموقع: ${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}</span>`;
+  } else {
+    msg.innerHTML = `<span style="color:var(--red)">✗ لم يتم استخراج الموقع</span>`;
+  }
+}
+
+async function addDumpSite(){
+  const name = document.getElementById('dsName').value.trim();
+  if(!name) return showToast('⚠ اسم المكب مطلوب');
+  try{
+    await coApi('/dumpsites',{method:'POST',body:JSON.stringify({
+      name, address:document.getElementById('dsAddr').value,
+      lat:dsLat, lng:dsLng,
+    })});
+    ['dsName','dsAddr','dsUrl'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('dsLocMsg').innerHTML='';
+    dsLat=null; dsLng=null;
+    loadDumpSites();
+    showToast('تمت إضافة المكب ✓');
+  }catch(e){showToast('⚠ خطأ في الإضافة')}
+}
+
+async function deleteDumpSite(id){
+  if(!confirm('هل تريد حذف هذا المكب؟')) return;
+  await coApi('/dumpsites/'+id,{method:'DELETE'});
+  loadDumpSites();
+  showToast('تم حذف المكب ✓');
+}
+
 /* ===== المستودعات ===== */
 let whLat = null, whLng = null;
 
@@ -2200,9 +2331,9 @@ async function assignOrder(orderId, driverId){
 
 // نافذة إسناد الطلب
 function openAssignModal(orderId, currentDriverId){
-  coApi('/drivers').then(drivers=>{
+  coApi(`/drivers`).then(drivers=>{
     const opts = `<option value="">— بدون إسناد —</option>` +
-      drivers.map(d=>`<option value="${d.id}" ${d.id===currentDriverId?'selected':''}>${d.name}</option>`).join('');
+      drivers.map(d=>`<option value="${d.id}" ${d.id===currentDriverId?"selected":""}>${d.name}</option>`).join("");
       drivers.map(d=>`<option value="${d.id}" ${d.id===currentDriverId?'selected':''}>${d.name}</option>`).join('');
 
     const modal = document.createElement('div');
@@ -2252,6 +2383,8 @@ const allowed = PERMISSIONS[role] || ['dash'];
 const startPage = allowed[0] || 'dash';
 go(startPage);
 setInterval(()=>{if(curPage==='dash')loadDash();if(curPage==='alerts')loadAlerts()},60000);
+document.getElementById('oDue').value=new Date().toISOString().split('T')[0];
+document.getElementById('eHired').value=new Date().toISOString().slice(0,7);
 </script>
 </body>
 </html>
