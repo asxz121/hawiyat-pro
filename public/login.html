@@ -48,7 +48,7 @@ async function doLogin(){
   err.style.display='none';
   if(!phone||!password){err.textContent='أدخل الجوال وكلمة المرور';err.style.display='block';return;}
   try{
-    const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone,password})});
+    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone,password})});
     const d=await r.json();
     if(!r.ok){err.textContent=d.error||'خطأ في تسجيل الدخول';err.style.display='block';return;}
     localStorage.setItem('token',d.token);
