@@ -987,7 +987,7 @@ input::placeholder{color:#90A3B1}
 <script>
 /* ===== التهيئة ===== */
 const T=localStorage.getItem('token');
-if(!T)location.href='/';
+if(!T)location.href='/login.html';
 const who=JSON.parse(localStorage.getItem('who')||'{}');
 const uname = who.name||'المستخدم';
 const uav = document.getElementById('userAv');
@@ -999,7 +999,7 @@ document.getElementById('pageDate').textContent=new Date().toLocaleDateString('a
 if(window.innerWidth<=768)document.getElementById('menuBtn').style.display='grid';
 
 const api=(u,o={})=>fetch(u,{...o,headers:{'Content-Type':'application/json','Authorization':'Bearer '+T}})
-  .then(async r=>{const d=await r.json();if(!r.ok){if(r.status===401){localStorage.clear();location.href='/'}showToast('⚠ '+(d.error||'خطأ'));throw d}return d});
+  .then(async r=>{const d=await r.json();if(!r.ok){if(r.status===401){localStorage.clear();location.href='/login.html'}showToast('⚠ '+(d.error||'خطأ'));throw d}return d});
 
 const coApi=(u,o={})=>api('/api/co'+u,o);
 const hrApi=(u,o={})=>api('/api/hr'+u,o);
@@ -1048,7 +1048,7 @@ function closeModal(id){
 }
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sOverlay').classList.toggle('open')}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sOverlay').classList.remove('open')}
-function logout(){localStorage.clear();location.href='/'}
+function logout(){localStorage.clear();location.href='/login.html'}
 
 /* ===== لوحة التحكم ===== */
 let weekChart=null;
