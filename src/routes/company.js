@@ -212,48 +212,6 @@ router.post('/driver/orders/:id/action', requireRole('DRIVER'), async (req, res)
       ...(savedPhotos.length > 0 && { photos: savedPhotos }),
     },
   });
-
-  // ✅ عند الإنجاز — تحديث الحاوية تلقائياً
-  if (action === 'done' && o.containerId) {
-    const orderLat = lat ? +lat : o.lat;
-    const orderLng = lng ? +lng : o.lng;
-
-    if (o.type === 'DROP') {
-      // إنزال — الحاوية أصبحت في موقع العميل
-      await prisma.container.update({
-        where: { id: o.containerId },
-        data: {
-          status: 'ON_SITE',
-          lat: orderLat,
-          lng: orderLng,
-          notes: `لدى ${o.customerName} — ${o.address || ''}`,
-        },
-      });
-    } else if (o.type === 'PICKUP') {
-      // رفع — الحاوية رجعت للمستودع
-      await prisma.container.update({
-        where: { id: o.containerId },
-        data: {
-          status: 'IN_DEPOT',
-          lat: null,
-          lng: null,
-          notes: null,
-        },
-      });
-    } else if (o.type === 'SWAP') {
-      // تبديل — الحاوية الجديدة في الموقع
-      await prisma.container.update({
-        where: { id: o.containerId },
-        data: {
-          status: 'ON_SITE',
-          lat: orderLat,
-          lng: orderLng,
-          notes: `لدى ${o.customerName} — ${o.address || ''}`,
-        },
-      });
-    }
-  }
-
   res.json(updated);
 });
 
@@ -405,37 +363,15 @@ router.post('/extract-location', requireRole('OWNER', 'BRANCH_MGR', 'TRAFFIC_MGR
   let { url } = req.body;
   if (!url) return res.status(400).json({ error: 'الرابط مطلوب' });
 
-  // ✅ فك الروابط المختصرة مع متابعة redirects متعددة
-  if (url.includes('goo.gl') || url.includes('bit.ly') || url.includes('maps.app') || url.includes('short')) {
+  // ✅ فك الروابط المختصرة (maps.app.goo.gl / goo.gl / bit.ly)
+  if (url.includes('goo.gl') || url.includes('bit.ly') || url.includes('maps.app')) {
     try {
       const https = require('https');
-      const http = require('http');
-      
-      const followRedirects = (targetUrl, maxRedirects = 5) => new Promise((resolve) => {
-        if (maxRedirects === 0) return resolve(targetUrl);
-        const lib = targetUrl.startsWith('https') ? https : http;
-        const req = lib.get(targetUrl, {
-          headers: { 
-            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15',
-            'Accept': 'text/html',
-          },
-          timeout: 5000,
-        }, (r) => {
-          if (r.statusCode >= 300 && r.statusCode < 400 && r.headers.location) {
-            const next = r.headers.location.startsWith('http') 
-              ? r.headers.location 
-              : new URL(r.headers.location, targetUrl).href;
-            resolve(followRedirects(next, maxRedirects - 1));
-          } else {
-            resolve(targetUrl);
-          }
-          r.resume();
-        });
-        req.on('error', () => resolve(targetUrl));
-        req.on('timeout', () => { req.destroy(); resolve(targetUrl); });
+      url = await new Promise((resolve) => {
+        https.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (r) => {
+          resolve(r.headers.location || url);
+        }).on('error', () => resolve(url));
       });
-      
-      url = await followRedirects(url);
     } catch(e) {}
   }
 
@@ -485,32 +421,3 @@ router.delete('/users/:id', requireRole('OWNER'), async (req, res) => {
 });
 
 module.exports = router;
-
-// ===== مواقع المكبات =====
-router.get('/dumpsites', async (req, res) => {
-  res.json(await prisma.dumpSite.findMany({
-    where: { companyId: req.user.companyId },
-    orderBy: { id: 'asc' },
-  }));
-});
-
-router.post('/dumpsites', requireRole('OWNER', 'BRANCH_MGR', 'TRAFFIC_MGR'), async (req, res) => {
-  const { name, address, lat, lng } = req.body;
-  if (!name) return res.status(400).json({ error: 'اسم المكب مطلوب' });
-  res.json(await prisma.dumpSite.create({
-    data: {
-      companyId: req.user.companyId,
-      name, address: address || null,
-      lat: lat ? +lat : null,
-      lng: lng ? +lng : null,
-      createdBy: req.user.id,
-    },
-  }));
-});
-
-router.delete('/dumpsites/:id', requireRole('OWNER', 'BRANCH_MGR', 'TRAFFIC_MGR'), async (req, res) => {
-  const d = await prisma.dumpSite.findFirst({ where: { id: +req.params.id, companyId: req.user.companyId } });
-  if (!d) return res.status(404).json({ error: 'المكب غير موجود' });
-  await prisma.dumpSite.delete({ where: { id: d.id } });
-  res.json({ ok: true });
-});
