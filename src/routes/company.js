@@ -349,6 +349,17 @@ router.patch('/warehouses/:id', requireRole('OWNER', 'BRANCH_MGR'), async (req, 
   }));
 });
 
+router.delete('/containers/:id', requireRole('OWNER', 'BRANCH_MGR'), async (req, res) => {
+  try {
+    const c = await prisma.container.findFirst({ where: { id: +req.params.id, ...scope(req) } });
+    if (!c) return res.status(404).json({ error: 'غير موجودة' });
+    await prisma.container.delete({ where: { id: +req.params.id } });
+    res.json({ ok: true });
+  } catch(e) {
+    res.status(400).json({ error: 'لا يمكن الحذف' });
+  }
+});
+
 router.patch('/containers/:id/warehouse', requireRole('OWNER', 'BRANCH_MGR', 'TRAFFIC_MGR', 'DISPATCHER'), async (req, res) => {
   const c = await prisma.container.findFirst({ where: { id: +req.params.id, ...scope(req) } });
   if (!c) return res.status(404).json({ error: 'الحاوية غير موجودة' });
@@ -418,6 +429,71 @@ router.delete('/users/:id', requireRole('OWNER'), async (req, res) => {
   if (u.role === 'OWNER') return res.status(403).json({ error: 'لا يمكن حذف مدير الشركة' });
   await prisma.user.delete({ where: { id: u.id } });
   res.json({ ok: true });
+});
+
+// ===== الإدارة المالية =====
+router.get('/expenses', requireRole('OWNER', 'ACCOUNTANT'), async (req, res) => {
+  const { from, to, category } = req.query;
+  const where = { ...scope(req) };
+  if (from || to) {
+    where.date = {};
+    if (from) where.date.gte = new Date(from);
+    if (to) { const t = new Date(to); t.setHours(23,59,59); where.date.lte = t; }
+  }
+  if (category) where.category = category;
+  const expenses = await prisma.expense.findMany({ where, orderBy: { date: 'desc' } });
+  res.json(expenses);
+});
+
+router.post('/expenses', requireRole('OWNER', 'ACCOUNTANT'), async (req, res) => {
+  const { amount, category, description, ref, date } = req.body;
+  if (!amount || !category) return res.status(400).json({ error: 'المبلغ والفئة مطلوبان' });
+  const expense = await prisma.expense.create({
+    data: {
+      ...scope(req),
+      amount: +amount,
+      category,
+      description,
+      ref,
+      date: date ? new Date(date) : new Date(),
+      createdBy: req.user.id,
+    }
+  });
+  res.json(expense);
+});
+
+router.delete('/expenses/:id', requireRole('OWNER', 'ACCOUNTANT'), async (req, res) => {
+  const e = await prisma.expense.findFirst({ where: { id: +req.params.id, ...scope(req) } });
+  if (!e) return res.status(404).json({ error: 'غير موجود' });
+  await prisma.expense.delete({ where: { id: +req.params.id } });
+  res.json({ ok: true });
+});
+
+router.get('/financial-report', requireRole('OWNER', 'ACCOUNTANT'), async (req, res) => {
+  const { period, date } = req.query; // period: day | month | year
+  const d = date ? new Date(date) : new Date();
+  let from, to;
+  if (period === 'day') {
+    from = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    to = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
+  } else if (period === 'year') {
+    from = new Date(d.getFullYear(), 0, 1);
+    to = new Date(d.getFullYear() + 1, 0, 1);
+  } else {
+    from = new Date(d.getFullYear(), d.getMonth(), 1);
+    to = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+  }
+  const [orders, expenses] = await Promise.all([
+    prisma.order.findMany({ where: { ...scope(req), createdAt: { gte: from, lt: to } } }),
+    prisma.expense.findMany({ where: { ...scope(req), date: { gte: from, lt: to } } }),
+  ]);
+  const cashIn = orders.reduce((s, o) => s + (o.paymentMethod === 'cash' ? (o.collectedAmount || 0) : 0), 0);
+  const transferIn = orders.reduce((s, o) => s + (o.paymentMethod === 'transfer' ? (o.collectedAmount || 0) : 0), 0);
+  const totalIn = cashIn + transferIn;
+  const expByCategory = {};
+  expenses.forEach(e => { expByCategory[e.category] = (expByCategory[e.category] || 0) + e.amount; });
+  const totalOut = expenses.reduce((s, e) => s + e.amount, 0);
+  res.json({ from, to, period, cashIn, transferIn, totalIn, totalOut, netProfit: totalIn - totalOut, expByCategory, totalOrders: orders.length });
 });
 
 module.exports = router;

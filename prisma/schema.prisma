@@ -35,6 +35,7 @@ model Company {
   vehicles     Vehicle[]
   maintenance  Maintenance[]
   dailyReports DailyReport[]
+  expenses      Expense[]
   warehouses        Warehouse[]
   empTransactions   EmployeeTransaction[]
 }
@@ -330,4 +331,27 @@ model EmployeeTransaction {
   note        String?         // ملاحظة
   createdBy   Int?
   createdAt   DateTime        @default(now())
+}
+
+// ===== المصروفات =====
+model Expense {
+  id          Int      @id @default(autoincrement())
+  company     Company  @relation(fields: [companyId], references: [id])
+  companyId   Int
+  date        DateTime @default(now())
+  amount      Float
+  category    ExpenseCategory
+  description String?
+  ref         String?  // رقم مرجعي (فاتورة، عقد...)
+  createdBy   Int?
+  createdAt   DateTime @default(now())
+}
+
+enum ExpenseCategory {
+  RENT        // إيجار
+  FUEL        // وقود
+  MAINTENANCE // صيانة
+  SALARY      // رواتب
+  UTILITIES   // كهرباء/ماء
+  OTHER       // أخرى
 }

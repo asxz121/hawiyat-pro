@@ -435,6 +435,7 @@ input::placeholder{color:#90A3B1}
     <div class="nav-sec">العمليات</div>
     <button class="nav-item" data-page="alerts"><span class="ico">🔔</span> التنبيهات <span class="nav-badge" id="alertBadge" style="display:none">0</span></button>
     <button class="nav-item" data-page="orders"><span class="ico">📋</span> الطلبات</button>
+    <button class="nav-item" data-page="finance"><span class="ico">💰</span> الإدارة المالية</button>
     <button class="nav-item" data-page="containers"><span class="ico">📦</span> الحاويات</button>
     <button class="nav-item" data-page="contmap"><span class="ico">⌖</span> خريطة الحاويات</button>
 
@@ -520,23 +521,24 @@ input::placeholder{color:#90A3B1}
     <div class="page" id="page-orders">
       <div class="card" id="orderForm">
         <div class="card-head"><h3>طلب جديد</h3></div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:7px">
-          <div class="field" style="grid-column:1/-1"><label style="font-size:.68rem">اسم العميل *</label><input id="oCust" placeholder="مؤسسة البنيان" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field"><label style="font-size:.68rem">رقم العميل *</label><input id="oP1" inputmode="tel" placeholder="05XXXXXXXX" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field"><label style="font-size:.68rem">رقم الموقع</label><input id="oPS" inputmode="tel" placeholder="05XXXXXXXX" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field"><label style="font-size:.68rem">رقم إضافي</label><input id="oP3" inputmode="tel" placeholder="اختياري" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field"><label style="font-size:.68rem">نوع الطلب</label><select id="oType" style="padding:8px 10px;font-size:.8rem"><option value="DROP">إنزال</option><option value="PICKUP">رفع</option><option value="SWAP">تبديل</option><option value="MOVE">نقل</option><option value="PROJECT_CYCLE">دورة مشروع</option></select></div>
-          <div class="field"><label style="font-size:.68rem">الحجم</label><input id="oSize" placeholder="8 ياردة" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field"><label style="font-size:.68rem">رقم العقد</label><input id="oContract" placeholder="فارغ = بدون عقد" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field"><label style="font-size:.68rem">الاستحقاق</label><input id="oDue" type="date" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field"><label style="font-size:.68rem">السعر (ر.س)</label><input id="oPrice" inputmode="numeric" placeholder="0" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field"><label style="font-size:.68rem">وصف الموقع</label><input id="oAddr" placeholder="حي النرجس" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field" style="grid-column:1/-1"><label style="font-size:.68rem">رابط الموقع من واتساب/قوقل</label><input id="oLocUrl" placeholder="الصق الرابط هنا لاستخراج الإحداثيات تلقائياً" style="padding:8px 10px;font-size:.8rem"></div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-bottom:4px">
+          <div class="field" style="grid-column:span 2"><label style="font-size:.58rem">اسم العميل *</label><input id="oCust" placeholder="مؤسسة البنيان" style="padding:2px 5px;font-size:.62rem"></div>
+          <div class="field"><label style="font-size:.58rem">رقم العميل *</label><input id="oP1" inputmode="tel" placeholder="05XXXXXXXX" style="padding:2px 5px;font-size:.62rem"></div>
+          <div class="field"><label style="font-size:.58rem">رقم الموقع</label><input id="oPS" inputmode="tel" placeholder="05XXXXXXXX" style="padding:2px 5px;font-size:.62rem"></div>
+          <div class="field"><label style="font-size:.58rem">رقم إضافي</label><input id="oP3" inputmode="tel" placeholder="اختياري" style="padding:2px 5px;font-size:.62rem"></div>
+          <div class="field"><label style="font-size:.58rem">نوع الطلب</label><select id="oType" style="padding:2px 5px;font-size:.62rem" onchange="onTypeChange()"><option value="DROP">إنزال</option><option value="PICKUP">رفع</option><option value="SWAP">تبديل</option><option value="MOVE">نقل</option><option value="PROJECT_CYCLE">دورة مشروع</option></select></div>
+          <div class="field"><label style="font-size:.58rem">الحجم</label><input id="oSize" placeholder="8 ياردة" style="padding:2px 5px;font-size:.62rem"></div>
+          <div class="field" id="contPickerWrap" style="display:none"><label style="font-size:.58rem">اختر الحاوية</label><select id="oContPicker" style="padding:2px 5px;font-size:.62rem;width:100%"><option value="">-- اختر --</option></select></div>
+          <div class="field"><label style="font-size:.58rem">السعر (ر.س)</label><input id="oPrice" inputmode="numeric" placeholder="0" style="padding:2px 5px;font-size:.62rem"></div>
+          <div class="field"><label style="font-size:.58rem">رقم العقد</label><input id="oContract" placeholder="بدون عقد" style="padding:2px 5px;font-size:.62rem"></div>
+          <div class="field"><label style="font-size:.58rem">وصف الموقع</label><input id="oAddr" placeholder="حي النرجس" style="padding:2px 5px;font-size:.62rem"></div>
+          <div class="field" style="grid-column:span 2"><label style="font-size:.58rem">مدة الإيجار (أيام)</label><div style="display:flex;gap:6px;align-items:center"><input id="oDueDays" inputmode="numeric" placeholder="3" style="padding:2px 5px;font-size:.62rem;width:55px" oninput="calcDueDate()"><span id="oDueDisplay" style="font-size:.6rem;color:#F7A823"></span></div><input id="oDue" type="hidden"></div>
+          <div class="field" style="grid-column:1/-1"><label style="font-size:.58rem">رابط الموقع من واتساب/قوقل</label><input id="oLocUrl" placeholder="الصق الرابط هنا لاستخراج الإحداثيات تلقائياً" style="padding:2px 5px;font-size:.62rem"></div>
         </div>
         <div style="display:flex;gap:8px">
-          <button class="btn btn-ghost" onclick="getLoc()" style="padding:8px 12px;font-size:.78rem;flex:1">📍 موقعي</button>
-          <button class="btn btn-ghost" onclick="extractOrderLocation()" style="padding:8px 12px;font-size:.78rem;flex:1">🔗 رابط العميل</button>
-          <button class="btn btn-amber" onclick="addOrder()" style="padding:8px 14px;font-size:.78rem;flex:2">＋ إنشاء الطلب</button>
+          <button class="btn btn-ghost" onclick="getLoc()" style="padding:4px 8px;font-size:.65rem;flex:1">📍 موقعي</button>
+          <button class="btn btn-ghost" onclick="extractOrderLocation()" style="padding:4px 8px;font-size:.65rem;flex:1">🔗 رابط العميل</button>
+          <button class="btn btn-amber" onclick="addOrder()" style="padding:4px 10px;font-size:.65rem;flex:2">＋ إنشاء الطلب</button>
         </div>
         <div id="locMsg"></div>
       </div>
@@ -550,14 +552,29 @@ input::placeholder{color:#90A3B1}
     <div class="page" id="page-containers">
       <div class="card" id="contForm">
         <div class="card-head"><h3>إضافة حاوية</h3></div>
-        <div style="display:flex;gap:11px;flex-wrap:wrap;align-items:flex-end">
-          <div class="field" style="flex:1;min-width:150px"><label>رقم الحاوية *</label><input id="cCode" placeholder="HW-101"></div>
-          <div class="field" style="flex:1;min-width:130px"><label>الحجم *</label><input id="cSize" placeholder="8 ياردة"></div>
-          <button class="btn btn-amber" onclick="addCont()" style="padding:9px 16px;margin-bottom:0">＋ إضافة</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+          <div class="field" style="flex:1;min-width:120px"><label>رقم الحاوية *</label><input id="cCode" placeholder="HW-101"></div>
+          <div class="field" style="flex:1;min-width:100px"><label>الحجم *</label><input id="cSize" placeholder="8 ياردة"></div>
+          <div class="field" style="flex:1;min-width:130px"><label>المستودع</label><select id="cWarehouse"><option value="">بدون مستودع</option></select></div>
+          <button class="btn btn-amber" onclick="addCont()" style="padding:7px 14px;margin-bottom:0">＋ إضافة</button>
         </div>
       </div>
-      <div class="card"><div class="card-head"><h3>الحاويات</h3></div>
-        <div class="tbl-wrap"><table><thead><tr><th>الرقم</th><th>الحجم</th><th>الحالة</th></tr></thead><tbody id="contRows"></tbody></table></div>
+      <div class="card"><div class="card-head"><h3>الحاويات</h3>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <select id="contFilterStatus" onchange="loadConts()" style="padding:4px 8px;font-size:.72rem;border:1px solid var(--line);border-radius:8px">
+            <option value="">كل الحالات</option>
+            <option value="IN_DEPOT">بالمستودع</option>
+            <option value="ON_SITE">بالموقع</option>
+            <option value="AWAIT_PICKUP">انتظار رفع</option>
+            <option value="IN_TRANSIT">بالطريق</option>
+            <option value="MAINTENANCE">صيانة</option>
+          </select>
+          <select id="contFilterWarehouse" onchange="loadConts()" style="padding:4px 8px;font-size:.72rem;border:1px solid var(--line);border-radius:8px">
+            <option value="">كل المستودعات</option>
+          </select>
+        </div>
+      </div>
+        <div class="tbl-wrap"><table><thead><tr><th>الرقم</th><th>الحجم</th><th>الحالة</th><th>المستودع</th><th>إجراءات</th></tr></thead><tbody id="contRows"></tbody></table></div>
       </div>
     </div>
 
@@ -777,11 +794,11 @@ input::placeholder{color:#90A3B1}
               <option value="other">أخرى</option>
             </select>
           </div>
-          <div class="field"><label>المبلغ (ر.س) *</label><input id="expAmount" inputmode="numeric" placeholder="0"></div>
-          <div class="field"><label>التاريخ</label><input id="expDate" type="date"></div>
-          <div class="field"><label>الوصف</label><input id="expNote" placeholder="تفاصيل المصروف"></div>
+          <div class="field"><label>المبلغ (ر.س) *</label><input id="accExpAmount" inputmode="numeric" placeholder="0"></div>
+          <div class="field"><label>التاريخ</label><input id="accExpDate" type="date"></div>
+          <div class="field"><label>الوصف</label><input id="accExpNote" placeholder="تفاصيل المصروف"></div>
         </div>
-        <button class="btn btn-amber" onclick="addExpense()" style="padding:9px 16px">＋ إضافة مصروف</button>
+        <button class="btn btn-amber" onclick="addAccExpense()" style="padding:9px 16px">＋ إضافة مصروف</button>
       </div>
 
       <!-- ملخص مالي -->
@@ -818,6 +835,121 @@ input::placeholder{color:#90A3B1}
     </div>
 
     <!-- ===== المستودعات ===== -->
+    <!-- ===== الإدارة المالية ===== -->
+    <div class="page" id="page-finance">
+      <!-- تبويبات -->
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+        <button onclick="finTab('report')" id="ftab-report" class="btn btn-amber" style="padding:8px 18px;font-size:.8rem">📊 التقارير</button>
+        <button onclick="finTab('expenses')" id="ftab-expenses" class="btn btn-ghost" style="padding:8px 18px;font-size:.8rem">💸 المصروفات</button>
+        <button onclick="finTab('payroll')" id="ftab-payroll" class="btn btn-ghost" style="padding:8px 18px;font-size:.8rem">﷼ الرواتب</button>
+      </div>
+
+      <!-- تقارير -->
+      <div id="fin-report">
+        <div class="card" style="margin-bottom:14px">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <select id="finPeriod" onchange="loadFinReport()" style="padding:7px 12px;border:1px solid var(--line);border-radius:8px;font-size:.8rem">
+              <option value="day">يومي</option>
+              <option value="month" selected>شهري</option>
+              <option value="year">سنوي</option>
+            </select>
+            <input type="date" id="finDate" onchange="loadFinReport()" style="padding:7px 12px;border:1px solid var(--line);border-radius:8px;font-size:.8rem">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px">
+          <div class="card" style="text-align:center;border-top:3px solid var(--green)">
+            <div style="font-size:.72rem;color:var(--steel);margin-bottom:4px">إجمالي الدخل</div>
+            <div class="num" id="finTotalIn" style="font-size:1.6rem;font-weight:700;color:var(--green)">—</div>
+            <div style="font-size:.65rem;color:var(--muted)">ر.س</div>
+          </div>
+          <div class="card" style="text-align:center;border-top:3px solid var(--amber)">
+            <div style="font-size:.72rem;color:var(--steel);margin-bottom:4px">نقدي</div>
+            <div class="num" id="finCashIn" style="font-size:1.6rem;font-weight:700;color:var(--amber-d)">—</div>
+            <div style="font-size:.65rem;color:var(--muted)">ر.س</div>
+          </div>
+          <div class="card" style="text-align:center;border-top:3px solid var(--blue)">
+            <div style="font-size:.72rem;color:var(--steel);margin-bottom:4px">تحويل</div>
+            <div class="num" id="finTransferIn" style="font-size:1.6rem;font-weight:700;color:var(--blue)">—</div>
+            <div style="font-size:.65rem;color:var(--muted)">ر.س</div>
+          </div>
+          <div class="card" style="text-align:center;border-top:3px solid var(--red)">
+            <div style="font-size:.72rem;color:var(--steel);margin-bottom:4px">إجمالي المصروفات</div>
+            <div class="num" id="finTotalOut" style="font-size:1.6rem;font-weight:700;color:var(--red)">—</div>
+            <div style="font-size:.65rem;color:var(--muted)">ر.س</div>
+          </div>
+          <div class="card" style="text-align:center;border-top:3px solid var(--green)">
+            <div style="font-size:.72rem;color:var(--steel);margin-bottom:4px">صافي الربح</div>
+            <div class="num" id="finNetProfit" style="font-size:1.6rem;font-weight:700">—</div>
+            <div style="font-size:.65rem;color:var(--muted)">ر.س</div>
+          </div>
+          <div class="card" style="text-align:center;border-top:3px solid var(--steel)">
+            <div style="font-size:.72rem;color:var(--steel);margin-bottom:4px">عدد الطلبات</div>
+            <div class="num" id="finOrders" style="font-size:1.6rem;font-weight:700">—</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>تفاصيل المصروفات</h3></div>
+          <div id="finExpBreakdown" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;padding:8px"></div>
+        </div>
+      </div>
+
+      <!-- المصروفات -->
+      <div id="fin-expenses" style="display:none">
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-head"><h3>إضافة مصروف</h3></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:10px">
+            <div class="field"><label>المبلغ *</label><input id="expAmount" type="number" placeholder="0.00" inputmode="decimal"></div>
+            <div class="field"><label>الفئة *</label>
+              <select id="expCategory">
+                <option value="RENT">إيجار</option>
+                <option value="FUEL">وقود</option>
+                <option value="MAINTENANCE">صيانة</option>
+                <option value="SALARY">رواتب</option>
+                <option value="UTILITIES">كهرباء/ماء</option>
+                <option value="OTHER">أخرى</option>
+              </select>
+            </div>
+            <div class="field"><label>التاريخ</label><input id="expDate" type="date"></div>
+            <div class="field"><label>البيان</label><input id="expDesc" placeholder="وصف المصروف"></div>
+            <div class="field"><label>رقم مرجعي</label><input id="expRef" placeholder="فاتورة / عقد"></div>
+          </div>
+          <button class="btn btn-amber" onclick="addExpense()" style="padding:8px 18px">＋ إضافة</button>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>سجل المصروفات</h3>
+            <div style="display:flex;gap:6px">
+              <select id="expFilterCat" onchange="loadExpenses()" style="padding:4px 8px;font-size:.72rem;border:1px solid var(--line);border-radius:8px">
+                <option value="">كل الفئات</option>
+                <option value="RENT">إيجار</option>
+                <option value="FUEL">وقود</option>
+                <option value="MAINTENANCE">صيانة</option>
+                <option value="SALARY">رواتب</option>
+                <option value="UTILITIES">كهرباء/ماء</option>
+                <option value="OTHER">أخرى</option>
+              </select>
+            </div>
+          </div>
+          <div class="tbl-wrap"><table><thead><tr><th>التاريخ</th><th>الفئة</th><th>المبلغ</th><th>البيان</th><th>مرجع</th><th></th></tr></thead><tbody id="expRows"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- الرواتب -->
+      <div id="fin-payroll" style="display:none">
+        <div class="card" style="margin-bottom:14px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <input type="month" id="finPayMonth" onchange="loadFinPayroll()" style="padding:7px 12px;border:1px solid var(--line);border-radius:8px;font-size:.8rem">
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>مسير الرواتب</h3></div>
+          <div class="tbl-wrap"><table><thead><tr><th>الموظف</th><th>الأساسي</th><th>البدلات</th><th>الخصومات</th><th>الصافي</th><th>الحالة</th></tr></thead><tbody id="finPayRows"></tbody></table></div>
+          <div style="margin-top:10px;padding:10px;background:var(--bg);border-radius:8px;display:flex;justify-content:space-between;font-size:.8rem">
+            <span>إجمالي الرواتب: <b class="num" id="finPayTotal">—</b> ر.س</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="page" id="page-warehouses">
       <div class="card" id="whForm">
         <div class="card-head"><h3>إضافة مستودع جديد</h3></div>
@@ -974,9 +1106,9 @@ function showToast(msg){
 }
 
 /* ===== التنقل ===== */
-const titles={dash:'لوحة التحكم',alerts:'التنبيهات',orders:'الطلبات',containers:'الحاويات',employees:'الموظفون',shifts:'الشفتات',attendance:'الحضور والانصراف',payroll:'الرواتب',vehicles:'السيارات وعداد الزيت',maintenance:'الصيانة',reports:'التقارير والإحصائيات',accounting:'المحاسبة',daily:'التقارير اليومية',warehouses:'المستودعات',users:'المستخدمون',contmap:'خريطة الحاويات'};
+const titles={dash:'لوحة التحكم',alerts:'التنبيهات',orders:'الطلبات',containers:'الحاويات',employees:'الموظفون',shifts:'الشفتات',attendance:'الحضور والانصراف',payroll:'الرواتب',vehicles:'السيارات وعداد الزيت',maintenance:'الصيانة',reports:'التقارير والإحصائيات',accounting:'المحاسبة',daily:'التقارير اليومية',warehouses:'المستودعات',finance:'الإدارة المالية',users:'المستخدمون',contmap:'خريطة الحاويات'};
 const addLabels={orders:'＋ طلب جديد',containers:'＋ حاوية جديدة',employees:'＋ موظف جديد',vehicles:'＋ سيارة جديدة',maintenance:'＋ عملية صيانة',users:'＋ مستخدم جديد'};
-const loaders={dash:loadDash,alerts:loadAlerts,orders:loadOrders,containers:loadConts,employees:loadEmps,shifts:loadShifts,attendance:loadAtt,payroll:loadPayroll,vehicles:loadVehs,maintenance:loadMaint,reports:loadReports,accounting:loadAccounting,daily:loadDailyReport,warehouses:loadWarehouses,users:loadUsers,contmap:loadContMap};
+const loaders={dash:loadDash,alerts:loadAlerts,orders:loadOrders,containers:loadConts,employees:loadEmps,shifts:loadShifts,attendance:loadAtt,payroll:loadPayroll,vehicles:loadVehs,maintenance:loadMaint,reports:loadReports,accounting:loadAccounting,daily:loadDailyReport,warehouses:loadWarehouses,users:loadUsers,contmap:loadContMap,finance:loadFinance};
 let curPage='dash';
 
 function go(p){
@@ -1151,13 +1283,51 @@ async function loadOrders(){
   }catch(e){console.error(e)}
 }
 async function muteOrder(id,v){await coApi('/orders/'+id,{method:'PATCH',body:JSON.stringify({alertMuted:v})});loadOrders();showToast(v?'تم كتم التنبيه':'تم تفعيل التنبيه')}
+function calcDueDate(){
+  const days = parseInt(document.getElementById("oDueDays").value);
+  if (!days || days < 1) { document.getElementById("oDueDisplay").innerHTML = ""; document.getElementById("oDue").value = ""; return; }
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  document.getElementById("oDue").value = d.toISOString().split("T")[0];
+  const dayNames = ["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+  const dayName = dayNames[d.getDay()];
+  const dateStr = d.toLocaleDateString("ar-SA",{day:"2-digit",month:"2-digit",year:"numeric"});
+  document.getElementById("oDueDisplay").innerHTML = "📅 رفع: <b style='color:#fff;font-size:.65rem'>" + dayName + " " + dateStr + "</b>";
+}
+async function onTypeChange(){
+  const type = document.getElementById('oType').value;
+  const wrap = document.getElementById('contPickerWrap');
+  const picker = document.getElementById('oContPicker');
+  if(type === 'PICKUP' || type === 'SWAP'){
+    wrap.style.display = '';
+    try{
+      const cs = await coApi('/containers');
+      const valid = cs.filter(c => c.status === 'ON_SITE' || c.status === 'AWAIT_PICKUP');
+      picker.innerHTML = '<option value="">-- اختر الحاوية --</option>' +
+        valid.map(c => `<option value="${c.id}">${c.code} — ${c.size}${c.address?' — '+c.address:''}</option>`).join('');
+      if(!valid.length) picker.innerHTML = '<option value="">لا توجد حاويات بالمواقع</option>';
+    }catch(e){ picker.innerHTML = '<option value="">خطأ في التحميل</option>'; }
+  } else if(type === 'DROP'){
+    wrap.style.display = '';
+    try{
+      const cs = await coApi('/containers');
+      const valid = cs.filter(c => c.status === 'IN_DEPOT');
+      picker.innerHTML = '<option value="">-- اختر الحاوية (اختياري) --</option>' +
+        valid.map(c => `<option value="${c.id}">${c.code} — ${c.size}</option>`).join('');
+      if(!valid.length) picker.innerHTML = '<option value="">لا توجد حاويات في المستودع</option>';
+    }catch(e){ picker.innerHTML = '<option value="">خطأ في التحميل</option>'; }
+  } else {
+    wrap.style.display = 'none';
+    picker.innerHTML = '<option value="">-- اختر --</option>';
+  }
+}
 async function addOrder(){
   if(!document.getElementById('oCust').value||!document.getElementById('oP1').value)return showToast('⚠ اسم العميل والجوال مطلوبان');
   try{
     await coApi('/orders',{method:'POST',body:JSON.stringify({
       customerName:document.getElementById('oCust').value,phone1:document.getElementById('oP1').value,
       phoneSite:document.getElementById('oPS').value,phone3:document.getElementById('oP3').value,
-      type:document.getElementById('oType').value,size:document.getElementById('oSize').value,
+      type:document.getElementById('oType').value,size:document.getElementById('oSize').value,containerId:document.getElementById('oContPicker').value?parseInt(document.getElementById('oContPicker').value):null,
       contractNo:document.getElementById('oContract').value,dueDate:document.getElementById('oDue').value||null,
       price:document.getElementById('oPrice').value,address:document.getElementById('oAddr').value,
       lat:loc.lat,lng:loc.lng
@@ -1174,13 +1344,69 @@ const cStLbl={IN_DEPOT:'بالمستودع',SCHEDULED:'مجدولة',ON_SITE:'ب
 const cStBd={IN_DEPOT:'bd-green',SCHEDULED:'bd-blue',ON_SITE:'bd-amber',AWAIT_PICKUP:'bd-amber',IN_TRANSIT:'bd-blue',MAINTENANCE:'bd-red'};
 async function loadConts(){
   try{
-    const cs=await coApi('/containers');
-    document.getElementById('contRows').innerHTML=cs.length?cs.map(c=>`<tr>
-      <td style="font-weight:700">${c.code}</td><td>${c.size}</td>
-      <td><span class="badge ${cStBd[c.status]||'bd-gray'}">${cStLbl[c.status]||c.status}</span></td>
-    </tr>`).join(''):'<tr><td colspan="3" style="text-align:center;padding:22px;color:var(--muted)">لا توجد حاويات</td></tr>';
+    const [cs, ws] = await Promise.all([coApi('/containers'), coApi('/warehouses')]);
+
+    const wFilter = document.getElementById('contFilterWarehouse');
+    if(wFilter){
+      const cur = wFilter.value;
+      wFilter.innerHTML = '<option value="">كل المستودعات</option>' +
+        ws.map(w=>'<option value="'+w.id+'">'+w.name+'</option>').join('');
+      wFilter.value = cur;
+    }
+    const wSel = document.getElementById('cWarehouse');
+    if(wSel){
+      const cur2 = wSel.value;
+      wSel.innerHTML = '<option value="">بدون مستودع</option>' +
+        ws.map(w=>'<option value="'+w.id+'">'+w.name+'</option>').join('');
+      wSel.value = cur2;
+    }
+
+    const stFilter = document.getElementById('contFilterStatus')?.value || '';
+    const whFilter = document.getElementById('contFilterWarehouse')?.value || '';
+    let filtered = cs;
+    if(stFilter) filtered = filtered.filter(c => c.status === stFilter);
+    if(whFilter) filtered = filtered.filter(c => c.warehouseId === +whFilter);
+
+    const wMap = {};
+    ws.forEach(w => wMap[w.id] = w.name);
+
+    document.getElementById('contRows').innerHTML = filtered.length ? filtered.map(c=>
+      '<tr>' +
+      '<td style="font-weight:700">'+c.code+'</td>' +
+      '<td>'+(c.size||'—')+'</td>' +
+      '<td><select onchange="changeContStatus('+c.id+',this.value)" style="font-size:.72rem;padding:3px 6px;border:1px solid var(--line);border-radius:7px">' +
+        ['IN_DEPOT','ON_SITE','AWAIT_PICKUP','IN_TRANSIT','MAINTENANCE'].map(s=>
+          '<option value="'+s+'"'+(c.status===s?' selected':'')+'>'+cStLbl[s]+'</option>'
+        ).join('') +
+      '</select></td>' +
+      '<td><select onchange="moveContWarehouse('+c.id+',this.value,this)" style="font-size:.72rem;padding:3px 6px;border:1px solid var(--line);border-radius:7px">' +
+        '<option value="0"'+(!c.warehouseId?' selected':'')+'>بدون مستودع</option>' +
+        ws.map(w=>'<option value="'+w.id+'"'+(c.warehouseId===w.id?' selected':'')+'>'+w.name+'</option>').join('') +
+      '</select></td>' +
+      '<td><button onclick="deleteCont('+c.id+',\''+c.code+'\')" style="background:var(--red-soft);color:var(--red);border:1px solid var(--red);border-radius:6px;padding:3px 8px;font-size:.68rem;cursor:pointer">حذف</button></td>' +
+      '</tr>'
+    ).join('') :
+    '<tr><td colspan="5" style="text-align:center;padding:22px;color:var(--muted)">لا توجد حاويات</td></tr>';
   }catch(e){console.error(e)}
 }
+
+async function changeContStatus(id, status){
+  try{
+    await coApi('/containers/'+id+'/status', {method:'PATCH', body:JSON.stringify({status})});
+    showToast('تم تحديث الحالة');
+    loadConts();
+  }catch(e){ showToast('خطأ'); }
+}
+
+async function deleteCont(id, code){
+  if(!confirm('حذف الحاوية ' + code + '؟')) return;
+  try{
+    await coApi('/containers/'+id, {method:'DELETE'});
+    showToast('تم الحذف');
+    loadConts();
+  }catch(e){ showToast('لا يمكن الحذف'); }
+}
+
 async function addCont(){
   if(!document.getElementById('cCode').value||!document.getElementById('cSize').value)return showToast('⚠ الرقم والحجم مطلوبان');
   try{
@@ -1554,11 +1780,11 @@ async function loadReports(){
 
 /* ===== نظام الصلاحيات ===== */
 const PERMISSIONS = {
-  OWNER:       ['dash','alerts','orders','containers','contmap','employees','shifts','attendance','payroll','vehicles','maintenance','reports','accounting','daily','warehouses','users'],
+  OWNER:       ['dash','alerts','orders','containers','contmap','employees','shifts','attendance','payroll','vehicles','maintenance','reports','accounting','daily','warehouses','users','finance'],
   BRANCH_MGR:  ['dash','alerts','orders','containers','employees','shifts','attendance','vehicles','maintenance'],
   TRAFFIC_MGR: ['dash','alerts','orders','containers','contmap','attendance','vehicles','maintenance','reports','warehouses'],
   DISPATCHER:  ['dash','alerts','orders','containers'],
-  ACCOUNTANT:  ['dash','payroll','accounting','daily'],
+  ACCOUNTANT:  ['dash','payroll','accounting','daily','finance'],
   DRIVER:      ['dash','orders'],
   SUPER_ADMIN: ['dash','alerts','orders','containers','employees','shifts','attendance','payroll','vehicles','maintenance','reports','users'],
 };
@@ -1731,15 +1957,15 @@ async function payEmpFromAc(id){
   showToast('تم صرف الراتب ✓');
 }
 
-function addExpense(){
-  const amount = document.getElementById('expAmount').value;
+function addAccExpense(){
+  const amount = document.getElementById('accExpAmount').value;
   const type = document.getElementById('expType').value;
-  const date = document.getElementById('expDate').value || new Date().toISOString().split('T')[0];
-  const note = document.getElementById('expNote').value;
+  const date = document.getElementById('accExpDate').value || new Date().toISOString().split('T')[0];
+  const note = document.getElementById('accExpNote').value;
   if(!amount) return showToast('⚠ المبلغ مطلوب');
   extraExpenses.push({type, amount:+amount, date, note});
-  document.getElementById('expAmount').value='';
-  document.getElementById('expNote').value='';
+  document.getElementById('accExpAmount').value='';
+  document.getElementById('accExpNote').value='';
   loadAccounting();
   showToast('تمت إضافة المصروف ✓');
 }
@@ -1793,6 +2019,157 @@ function closeMobileMenu(){
 
 /* ===== المستودعات ===== */
 let whLat = null, whLng = null;
+
+
+/* ===== الإدارة المالية ===== */
+function loadFinance(){
+  document.getElementById('finDate').value = new Date().toISOString().slice(0,10);
+  document.getElementById('finPayMonth').value = new Date().toISOString().slice(0,7);
+  finTab('report');
+}
+
+const expCatLbl = {RENT:'إيجار',FUEL:'وقود',MAINTENANCE:'صيانة',SALARY:'رواتب',UTILITIES:'كهرباء/ماء',OTHER:'أخرى'};
+const expCatColor = {RENT:'var(--blue)',FUEL:'var(--amber-d)',MAINTENANCE:'var(--red)',SALARY:'var(--green)',UTILITIES:'var(--steel)',OTHER:'var(--muted)'};
+
+function finTab(tab) {
+  ['report','expenses','payroll'].forEach(t => {
+    document.getElementById('fin-'+t).style.display = t===tab ? '' : 'none';
+    const btn = document.getElementById('ftab-'+t);
+    if(btn){ btn.className = t===tab ? 'btn btn-amber' : 'btn btn-ghost'; btn.style.padding='8px 18px'; btn.style.fontSize='.8rem'; }
+  });
+  if(tab==='report') loadFinReport();
+  if(tab==='expenses'){ document.getElementById('expDate').value=new Date().toISOString().slice(0,10); loadExpenses(); }
+  if(tab==='payroll') loadFinPayroll();
+}
+
+async function loadFinReport() {
+  try {
+    const period = document.getElementById('finPeriod')?.value || 'month';
+    const date = document.getElementById('finDate')?.value || new Date().toISOString().slice(0,10);
+    const r = await coApi('/financial-report?period='+period+'&date='+date);
+    document.getElementById('finTotalIn').textContent = r.totalIn.toLocaleString('ar-SA');
+    document.getElementById('finCashIn').textContent = r.cashIn.toLocaleString('ar-SA');
+    document.getElementById('finTransferIn').textContent = r.transferIn.toLocaleString('ar-SA');
+    document.getElementById('finTotalOut').textContent = r.totalOut.toLocaleString('ar-SA');
+    document.getElementById('finOrders').textContent = r.totalOrders;
+    const net = r.netProfit;
+    const netEl = document.getElementById('finNetProfit');
+    netEl.textContent = net.toLocaleString('ar-SA');
+    netEl.style.color = net >= 0 ? 'var(--green)' : 'var(--red)';
+    const breakdown = document.getElementById('finExpBreakdown');
+    if(Object.keys(r.expByCategory).length) {
+      breakdown.innerHTML = Object.entries(r.expByCategory).map(([cat,amt]) =>
+        '<div style="background:var(--bg);border-radius:8px;padding:10px;text-align:center">'+
+        '<div style="font-size:.68rem;color:'+expCatColor[cat]+';font-weight:600;margin-bottom:4px">'+expCatLbl[cat]+'</div>'+
+        '<div class="num" style="font-size:1.1rem;font-weight:700">'+amt.toLocaleString('ar-SA')+'</div>'+
+        '<div style="font-size:.62rem;color:var(--muted)">ر.س</div></div>'
+      ).join('');
+    } else {
+      breakdown.innerHTML = '<div style="color:var(--muted);font-size:.8rem;padding:12px">لا توجد مصروفات في هذه الفترة</div>';
+    }
+  } catch(e){ console.error(e); }
+}
+
+async function loadExpenses() {
+  try {
+    const cat = document.getElementById('expFilterCat')?.value || '';
+    const exps = await coApi('/expenses'+(cat?'?category='+cat:''));
+    document.getElementById('expRows').innerHTML = exps.length ? exps.map(e =>
+      '<tr>'+
+      '<td style="font-size:.75rem">'+new Date(e.date).toLocaleDateString('ar-SA')+'</td>'+
+      '<td><span style="font-size:.68rem;font-weight:600;color:'+expCatColor[e.category]+'">'+expCatLbl[e.category]+'</span></td>'+
+      '<td class="num" style="font-weight:700">'+e.amount.toLocaleString('ar-SA')+'</td>'+
+      '<td style="font-size:.75rem">'+(e.description||'—')+'</td>'+
+      '<td style="font-size:.72rem;color:var(--steel)">'+(e.ref||'—')+'</td>'+
+      '<td style="display:flex;gap:4px">'+
+      '<button onclick="editExpense('+e.id+','+e.amount+',\''+e.category+'\',\''+( e.description||'')+'\',\''+( e.ref||'')+'\',\''+e.date.slice(0,10)+'\')" style="background:var(--amber-soft);color:var(--amber-d);border:1px solid var(--amber);border-radius:6px;padding:2px 8px;font-size:.65rem;cursor:pointer">تعديل</button>'+
+      '<button onclick="deleteExpense('+e.id+')" style="background:var(--red-soft);color:var(--red);border:1px solid var(--red);border-radius:6px;padding:2px 8px;font-size:.65rem;cursor:pointer">حذف</button>'+
+      '</td>'+
+      '</tr>'
+    ).join('') : '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted)">لا توجد مصروفات</td></tr>';
+  } catch(e){ console.error(e); }
+}
+
+async function addExpense() {
+  const amount = document.getElementById('expAmount').value;
+  const category = document.getElementById('expCategory').value;
+  const description = document.getElementById('expDesc').value;
+  const ref = document.getElementById('expRef').value;
+  const date = document.getElementById('expDate').value;
+  if(!amount || !category) return showToast('⚠ المبلغ والفئة مطلوبان');
+  try {
+    await coApi('/expenses', {method:'POST', body:JSON.stringify({amount,category,description,ref,date})});
+    showToast('✓ تم إضافة المصروف');
+    document.getElementById('expAmount').value='';
+    document.getElementById('expDesc').value='';
+    document.getElementById('expRef').value='';
+    document.getElementById('expDate').value=new Date().toISOString().slice(0,10);
+    loadExpenses();
+  } catch(e){ showToast('⚠ خطأ'); }
+}
+
+function editExpense(id, amount, category, description, ref, date){
+  document.getElementById('expAmount').value = amount;
+  document.getElementById('expCategory').value = category;
+  document.getElementById('expDesc').value = description;
+  document.getElementById('expRef').value = ref;
+  document.getElementById('expDate').value = date;
+  // غير زر الإضافة لزر حفظ التعديل
+  const btn = document.querySelector('#fin-expenses .btn.btn-amber');
+  btn.textContent = '💾 حفظ التعديل';
+  btn.onclick = async () => {
+    try {
+      await coApi('/expenses/'+id, {method:'DELETE'});
+      await coApi('/expenses', {method:'POST', body:JSON.stringify({
+        amount: document.getElementById('expAmount').value,
+        category: document.getElementById('expCategory').value,
+        description: document.getElementById('expDesc').value,
+        ref: document.getElementById('expRef').value,
+        date: document.getElementById('expDate').value,
+      })});
+      showToast('✓ تم التعديل');
+      btn.textContent = '＋ إضافة';
+      btn.onclick = addExpense;
+      document.getElementById('expAmount').value='';
+      document.getElementById('expDesc').value='';
+      document.getElementById('expRef').value='';
+      document.getElementById('expDate').value=new Date().toISOString().slice(0,10);
+      loadExpenses();
+    } catch(e){ showToast('⚠ خطأ'); }
+  };
+  document.getElementById('expAmount').scrollIntoView({behavior:'smooth'});
+}
+
+async function deleteExpense(id) {
+  if(!confirm('حذف هذا المصروف؟')) return;
+  try {
+    await coApi('/expenses/'+id, {method:'DELETE'});
+    showToast('✓ تم الحذف');
+    loadExpenses();
+  } catch(e){ showToast('⚠ خطأ'); }
+}
+
+async function loadFinPayroll() {
+  try {
+    const month = document.getElementById('finPayMonth')?.value?.replace('-','/') || new Date().toISOString().slice(0,7).replace('-','/');
+    const data = await hrApi('/payroll?month='+month);
+    let total = 0;
+    document.getElementById('finPayRows').innerHTML = data.length ? data.map(e => {
+      const allowances = (e.housingAllowance||0)+(e.transportAllowance||0)+(e.extra||0);
+      const deductions = (e.deduction||0)+(e.penalties||0)-(e.bonus||0)-(e.overtime||0);
+      total += e.netSalary||0;
+      return '<tr>'+
+        '<td style="font-weight:600">'+e.name+'</td>'+
+        '<td class="num">'+e.salary.toLocaleString('ar-SA')+'</td>'+
+        '<td class="num" style="color:var(--green)">+'+allowances.toLocaleString('ar-SA')+'</td>'+
+        '<td class="num" style="color:var(--red)">-'+(e.deduction||0).toLocaleString('ar-SA')+'</td>'+
+        '<td class="num" style="font-weight:700">'+(e.netSalary||0).toLocaleString('ar-SA')+'</td>'+
+        '<td><span style="font-size:.68rem;padding:2px 8px;border-radius:8px;background:'+(e.paid?'var(--green-soft)':'var(--amber-soft)')+';color:'+(e.paid?'var(--green)':'var(--amber-d)')+';">'+(e.paid?'مدفوع':'معلق')+'</span></td>'+
+      '</tr>';
+    }).join('') : '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted)">لا يوجد موظفون</td></tr>';
+    document.getElementById('finPayTotal').textContent = total.toLocaleString('ar-SA');
+  } catch(e){ console.error(e); }
+}
 
 async function loadWarehouses(){
   try{
