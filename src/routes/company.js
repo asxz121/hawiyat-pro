@@ -483,17 +483,78 @@ router.get('/financial-report', requireRole('OWNER', 'ACCOUNTANT'), async (req, 
     from = new Date(d.getFullYear(), d.getMonth(), 1);
     to = new Date(d.getFullYear(), d.getMonth() + 1, 1);
   }
-  const [orders, expenses] = await Promise.all([
+  const [orders, expenses, incomes] = await Promise.all([
     prisma.order.findMany({ where: { ...scope(req), createdAt: { gte: from, lt: to } } }),
     prisma.expense.findMany({ where: { ...scope(req), date: { gte: from, lt: to } } }),
+    prisma.income.findMany({ where: { ...scope(req), date: { gte: from, lt: to } } }),
   ]);
   const cashIn = orders.reduce((s, o) => s + (o.paymentMethod === 'cash' ? (o.collectedAmount || 0) : 0), 0);
   const transferIn = orders.reduce((s, o) => s + (o.paymentMethod === 'transfer' ? (o.collectedAmount || 0) : 0), 0);
-  const totalIn = cashIn + transferIn;
+  const ordersIn = cashIn + transferIn;
+  const incomesCash = incomes.filter(i => i.payType === 'CASH').reduce((s, i) => s + i.amount, 0);
+  const incomesTransfer = incomes.filter(i => i.payType === 'TRANSFER').reduce((s, i) => s + i.amount, 0);
+  const incomesCredit = incomes.filter(i => i.payType === 'CREDIT' && i.isPaid).reduce((s, i) => s + i.amount, 0);
+  const totalIn = ordersIn + incomesCash + incomesTransfer + incomesCredit;
   const expByCategory = {};
   expenses.forEach(e => { expByCategory[e.category] = (expByCategory[e.category] || 0) + e.amount; });
   const totalOut = expenses.reduce((s, e) => s + e.amount, 0);
-  res.json({ from, to, period, cashIn, transferIn, totalIn, totalOut, netProfit: totalIn - totalOut, expByCategory, totalOrders: orders.length });
+  res.json({ from, to, period, cashIn: cashIn + incomesCash, transferIn: transferIn + incomesTransfer, totalIn, totalOut, netProfit: totalIn - totalOut, expByCategory, totalOrders: orders.length, totalIncomes: incomes.length });
+});
+
+// ===== الدخل =====
+router.get('/incomes', requireRole('OWNER', 'ACCOUNTANT', 'BRANCH_MGR'), async (req, res) => {
+  const { from, to, payType } = req.query;
+  const where = { ...scope(req) };
+  if (from || to) {
+    where.date = {};
+    if (from) where.date.gte = new Date(from);
+    if (to) { const t = new Date(to); t.setHours(23,59,59); where.date.lte = t; }
+  }
+  if (payType) where.payType = payType;
+  const incomes = await prisma.income.findMany({
+    where,
+    include: { container: { select: { id: true, code: true, size: true } } },
+    orderBy: { date: 'desc' }
+  });
+  res.json(incomes);
+});
+
+router.post('/incomes', requireRole('OWNER', 'ACCOUNTANT', 'BRANCH_MGR', 'DISPATCHER'), async (req, res) => {
+  const { amount, payType, description, containerId, driverId, date, isPaid } = req.body;
+  if (!amount || !payType) return res.status(400).json({ error: 'المبلغ ونوع الدفع مطلوبان' });
+  const income = await prisma.income.create({
+    data: {
+      ...scope(req),
+      amount: +amount,
+      payType,
+      description,
+      containerId: containerId ? +containerId : null,
+      driverId: driverId ? +driverId : null,
+      date: date ? new Date(date) : new Date(),
+      isPaid: isPaid !== false,
+      paidAt: isPaid !== false ? new Date() : null,
+      createdBy: req.user.id,
+    },
+    include: { container: { select: { id: true, code: true, size: true } } }
+  });
+  res.json(income);
+});
+
+router.patch('/incomes/:id/pay', requireRole('OWNER', 'ACCOUNTANT', 'BRANCH_MGR'), async (req, res) => {
+  const inc = await prisma.income.findFirst({ where: { id: +req.params.id, ...scope(req) } });
+  if (!inc) return res.status(404).json({ error: 'غير موجود' });
+  const updated = await prisma.income.update({
+    where: { id: +req.params.id },
+    data: { isPaid: true, paidAt: new Date() }
+  });
+  res.json(updated);
+});
+
+router.delete('/incomes/:id', requireRole('OWNER', 'ACCOUNTANT'), async (req, res) => {
+  const inc = await prisma.income.findFirst({ where: { id: +req.params.id, ...scope(req) } });
+  if (!inc) return res.status(404).json({ error: 'غير موجود' });
+  await prisma.income.delete({ where: { id: +req.params.id } });
+  res.json({ ok: true });
 });
 
 module.exports = router;

@@ -36,6 +36,7 @@ model Company {
   maintenance  Maintenance[]
   dailyReports DailyReport[]
   expenses      Expense[]
+  incomes       Income[]
   warehouses        Warehouse[]
   empTransactions   EmployeeTransaction[]
 }
@@ -101,6 +102,7 @@ model Container {
   notes       String?
 
   @@unique([companyId, code])
+  incomes     Income[]
 }
 
 // ===== أوامر العمل / الطلبات =====
@@ -354,4 +356,29 @@ enum ExpenseCategory {
   SALARY      // رواتب
   UTILITIES   // كهرباء/ماء
   OTHER       // أخرى
+}
+
+// ===== الدخل =====
+model Income {
+  id          Int         @id @default(autoincrement())
+  company     Company     @relation(fields: [companyId], references: [id])
+  companyId   Int
+  date        DateTime    @default(now())
+  amount      Float
+  payType     PayType     // نقدي / تحويل / آجل
+  category    String      @default("CONTAINER") // CONTAINER | OTHER
+  description String?
+  containerId Int?
+  container   Container?  @relation(fields: [containerId], references: [id])
+  driverId    Int?
+  isPaid      Boolean     @default(true) // false للآجل
+  paidAt      DateTime?
+  createdBy   Int?
+  createdAt   DateTime    @default(now())
+}
+
+enum PayType {
+  CASH      // نقدي
+  TRANSFER  // تحويل
+  CREDIT    // آجل
 }

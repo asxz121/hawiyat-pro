@@ -760,6 +760,13 @@ input::placeholder{color:#90A3B1}
         </div>
       </div>
 
+
+
+
+
+      <!-- الدخل -->
+      
+
       <!-- المصروفات -->
       <div class="grid11">
         <div class="card">
@@ -840,6 +847,7 @@ input::placeholder{color:#90A3B1}
       <!-- تبويبات -->
       <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
         <button onclick="finTab('report')" id="ftab-report" class="btn btn-amber" style="padding:8px 18px;font-size:.8rem">📊 التقارير</button>
+        <button onclick="finTab('income')" id="ftab-income" class="btn btn-ghost" style="padding:8px 18px;font-size:.8rem">💵 الدخل</button>
         <button onclick="finTab('expenses')" id="ftab-expenses" class="btn btn-ghost" style="padding:8px 18px;font-size:.8rem">💸 المصروفات</button>
         <button onclick="finTab('payroll')" id="ftab-payroll" class="btn btn-ghost" style="padding:8px 18px;font-size:.8rem">﷼ الرواتب</button>
       </div>
@@ -890,6 +898,52 @@ input::placeholder{color:#90A3B1}
         <div class="card">
           <div class="card-head"><h3>تفاصيل المصروفات</h3></div>
           <div id="finExpBreakdown" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;padding:8px"></div>
+        </div>
+      </div>
+
+      <!-- الدخل -->
+      <div id="fin-income" style="display:none">
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-head"><h3>تسجيل دخل</h3></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:10px">
+            <div class="field"><label>المصدر / الحاوية</label>
+              <div style="display:flex;gap:4px">
+                <input id="incSource" placeholder="اسم العميل / رقم الحاوية / المصدر" style="flex:1;min-width:200px">
+                <select id="incContainer" onchange="if(this.value){document.getElementById('incSource').value=this.options[this.selectedIndex].text;this.value=''}" style="width:110px;font-size:.72rem">
+                  <option value="">حاوية...</option>
+                </select>
+              </div>
+            </div>
+            <div class="field"><label>المبلغ *</label><input id="incAmount" type="number" placeholder="0.00" inputmode="decimal"></div>
+            <div class="field"><label>نوع الدفع *</label>
+              <select id="incPayType">
+                <option value="CASH">نقدي 💵</option>
+                <option value="TRANSFER">تحويل 🏦</option>
+                <option value="CREDIT">آجل ⏳</option>
+              </select>
+            </div>
+            <div class="field"><label>التاريخ</label><input id="incDate" type="date"></div>
+            <div class="field"><label>دخل إضافي</label><input id="incExtra" type="number" placeholder="0.00" inputmode="decimal"></div>
+            <div class="field"><label>البيان</label><input id="incDesc" placeholder="وصف الدخل"></div>
+          </div>
+          <button class="btn btn-amber" onclick="addIncome()" style="padding:8px 18px">＋ تسجيل</button>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>سجل الدخل</h3>
+            <div style="display:flex;gap:6px">
+              <select id="incFilterPay" onchange="loadIncomes()" style="padding:4px 8px;font-size:.72rem;border:1px solid var(--line);border-radius:8px">
+                <option value="">كل أنواع الدفع</option>
+                <option value="CASH">نقدي</option>
+                <option value="TRANSFER">تحويل</option>
+                <option value="CREDIT">آجل</option>
+              </select>
+            </div>
+          </div>
+          <div class="tbl-wrap"><table><thead><tr><th>التاريخ</th><th>المصدر</th><th>المبلغ</th><th>نوع الدفع</th><th>البيان</th><th>الحالة</th><th></th></tr></thead><tbody id="incRows"></tbody></table></div>
+          <div style="margin-top:8px;padding:8px;background:var(--bg);border-radius:8px;font-size:.8rem;display:flex;gap:16px">
+            <span>الإجمالي: <b class="num" id="incTotal">0</b> ر.س</span>
+            <span style="color:var(--amber-d)">آجل: <b class="num" id="incCredit">0</b> ر.س</span>
+          </div>
         </div>
       </div>
 
@@ -1962,7 +2016,7 @@ function addAccExpense(){
   const type = document.getElementById('expType').value;
   const date = document.getElementById('accExpDate').value || new Date().toISOString().split('T')[0];
   const note = document.getElementById('accExpNote').value;
-  if(!amount) return showToast('⚠ المبلغ مطلوب');
+  if(!amount && !extra) return showToast('⚠ أدخل المبلغ أو الدخل الإضافي');
   extraExpenses.push({type, amount:+amount, date, note});
   document.getElementById('accExpAmount').value='';
   document.getElementById('accExpNote').value='';
@@ -2022,6 +2076,106 @@ let whLat = null, whLng = null;
 
 
 /* ===== الإدارة المالية ===== */
+function fmtNum(n){ return (+n||0).toLocaleString('ar-EG'); }
+
+
+const payTypeLbl = {CASH:'نقدي 💵', TRANSFER:'تحويل 🏦', CREDIT:'آجل ⏳'};
+const payTypeColor = {CASH:'var(--green)', TRANSFER:'var(--blue)', CREDIT:'var(--amber-d)'};
+
+async function loadIncomes(){
+  try{
+    const [incs, cs] = await Promise.all([
+      coApi('/incomes'+(document.getElementById('incFilterPay')?.value ? '?payType='+document.getElementById('incFilterPay').value : '')),
+      coApi('/containers')
+    ]);
+
+    // تعبئة قائمة الحاويات
+    const sel = document.getElementById('incContainer');
+    if(sel){
+      const cur = sel.value;
+      sel.innerHTML = '<option value="">اختر حاوية (اختياري)</option>' +
+        cs.map(c=>'<option value="'+c.id+'">'+c.code+(c.size?' — '+c.size:'')+'</option>').join('');
+      sel.value = cur;
+    }
+
+    let total = 0, credit = 0;
+    document.getElementById('incRows').innerHTML = incs.length ? incs.map(inc => {
+      total += inc.amount;
+      if(inc.payType==='CREDIT' && !inc.isPaid) credit += inc.amount;
+      return '<tr>'+
+        '<td style="font-size:.75rem">'+new Date(inc.date).toLocaleDateString('ar-SA')+'</td>'+
+        '<td style="font-weight:600;color:var(--amber-d)">'+(inc.container ? inc.container.code : '—')+'</td>'+
+        '<td class="num" style="font-weight:700">'+fmtNum(inc.amount)+'</td>'+
+        '<td><span style="font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:8px;background:var(--bg);color:'+payTypeColor[inc.payType]+'">'+payTypeLbl[inc.payType]+'</span></td>'+
+        '<td style="font-size:.75rem">'+(inc.description||'—')+'</td>'+
+        '<td>'+(inc.payType==='CREDIT' ? (inc.isPaid ?
+          '<span style="font-size:.65rem;color:var(--green);font-weight:600">✓ مدفوع</span>' :
+          '<button onclick="payIncome('+inc.id+')" style="background:var(--green-soft);color:var(--green);border:1px solid var(--green);border-radius:6px;padding:2px 8px;font-size:.65rem;cursor:pointer">تحصيل</button>'
+        ) : '<span style="font-size:.65rem;color:var(--green);font-weight:600">✓ محصّل</span>')+'</td>'+
+        '<td><button onclick="deleteIncome('+inc.id+')" style="background:var(--red-soft);color:var(--red);border:1px solid var(--red);border-radius:6px;padding:2px 8px;font-size:.65rem;cursor:pointer">حذف</button></td>'+
+      '</tr>';
+    }).join('') : '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--muted)">لا يوجد دخل مسجل</td></tr>';
+
+    document.getElementById('incTotal').textContent = fmtNum(total);
+    document.getElementById('incCredit').textContent = fmtNum(credit);
+  }catch(e){console.error(e)}
+}
+
+async function addIncome(){
+  const containerId = null;
+  const sourceText = document.getElementById('incSource').value;
+  const amount = document.getElementById('incAmount').value;
+  const payType = document.getElementById('incPayType').value;
+  const date = document.getElementById('incDate').value;
+  const description = document.getElementById('incDesc').value;
+  const extra = +document.getElementById('incExtra').value || 0;
+
+  if(!amount) return showToast('⚠ المبلغ مطلوب');
+
+  // رسالة تأكيد
+  const contSel = document.getElementById('incContainer');
+  const contText = contSel.value ? contSel.options[contSel.selectedIndex].text : 'بدون حاوية';
+  const payText = payTypeLbl[payType];
+  if(!confirm('تأكيد تسجيل دخل\n\nالحاوية: '+contText+'\nالمبلغ: '+amount+' ر.س\nنوع الدفع: '+payText)) return;
+
+  try{
+    await coApi('/incomes', {method:'POST', body:JSON.stringify({
+      amount, payType, description,
+      containerId: containerId || null,
+      amount: +amount + extra,
+      description: (sourceText ? '['+sourceText+'] ' : '') + description + (extra ? ' (إضافي: '+extra+')' : ''),
+      date: date || new Date().toISOString().slice(0,10),
+      isPaid: payType !== 'CREDIT'
+    })});
+    showToast('✓ تم تسجيل الدخل');
+    document.getElementById('incAmount').value='';
+    document.getElementById('incDesc').value='';
+    document.getElementById('incClient').value='';
+    document.getElementById('incSource').value='';
+    document.getElementById('incExtra').value='';
+    document.getElementById('incContainer').value='';
+    loadIncomes();
+  }catch(e){ showToast('⚠ خطأ'); }
+}
+
+async function payIncome(id){
+  if(!confirm('تأكيد تحصيل المبلغ الآجل؟')) return;
+  try{
+    await coApi('/incomes/'+id+'/pay', {method:'PATCH'});
+    showToast('✓ تم التحصيل');
+    loadIncomes();
+  }catch(e){ showToast('⚠ خطأ'); }
+}
+
+async function deleteIncome(id){
+  if(!confirm('حذف هذا السجل؟')) return;
+  try{
+    await coApi('/incomes/'+id, {method:'DELETE'});
+    showToast('✓ تم الحذف');
+    loadIncomes();
+  }catch(e){ showToast('⚠ خطأ'); }
+}
+
 function loadFinance(){
   document.getElementById('finDate').value = new Date().toISOString().slice(0,10);
   document.getElementById('finPayMonth').value = new Date().toISOString().slice(0,7);
@@ -2032,12 +2186,13 @@ const expCatLbl = {RENT:'إيجار',FUEL:'وقود',MAINTENANCE:'صيانة',SA
 const expCatColor = {RENT:'var(--blue)',FUEL:'var(--amber-d)',MAINTENANCE:'var(--red)',SALARY:'var(--green)',UTILITIES:'var(--steel)',OTHER:'var(--muted)'};
 
 function finTab(tab) {
-  ['report','expenses','payroll'].forEach(t => {
+  ['report','income','expenses','payroll'].forEach(t => {
     document.getElementById('fin-'+t).style.display = t===tab ? '' : 'none';
     const btn = document.getElementById('ftab-'+t);
     if(btn){ btn.className = t===tab ? 'btn btn-amber' : 'btn btn-ghost'; btn.style.padding='8px 18px'; btn.style.fontSize='.8rem'; }
   });
   if(tab==='report') loadFinReport();
+  if(tab==='income'){ document.getElementById('incDate').value=new Date().toISOString().slice(0,10); loadIncomes(); }
   if(tab==='expenses'){ document.getElementById('expDate').value=new Date().toISOString().slice(0,10); loadExpenses(); }
   if(tab==='payroll') loadFinPayroll();
 }
@@ -2047,10 +2202,10 @@ async function loadFinReport() {
     const period = document.getElementById('finPeriod')?.value || 'month';
     const date = document.getElementById('finDate')?.value || new Date().toISOString().slice(0,10);
     const r = await coApi('/financial-report?period='+period+'&date='+date);
-    document.getElementById('finTotalIn').textContent = r.totalIn.toLocaleString('ar-SA');
-    document.getElementById('finCashIn').textContent = r.cashIn.toLocaleString('ar-SA');
-    document.getElementById('finTransferIn').textContent = r.transferIn.toLocaleString('ar-SA');
-    document.getElementById('finTotalOut').textContent = r.totalOut.toLocaleString('ar-SA');
+    document.getElementById('finTotalIn').textContent = fmtNum(r.totalIn);
+    document.getElementById('finCashIn').textContent = fmtNum(r.cashIn);
+    document.getElementById('finTransferIn').textContent = fmtNum(r.transferIn);
+    document.getElementById('finTotalOut').textContent = fmtNum(r.totalOut);
     document.getElementById('finOrders').textContent = r.totalOrders;
     const net = r.netProfit;
     const netEl = document.getElementById('finNetProfit');
@@ -2061,7 +2216,7 @@ async function loadFinReport() {
       breakdown.innerHTML = Object.entries(r.expByCategory).map(([cat,amt]) =>
         '<div style="background:var(--bg);border-radius:8px;padding:10px;text-align:center">'+
         '<div style="font-size:.68rem;color:'+expCatColor[cat]+';font-weight:600;margin-bottom:4px">'+expCatLbl[cat]+'</div>'+
-        '<div class="num" style="font-size:1.1rem;font-weight:700">'+amt.toLocaleString('ar-SA')+'</div>'+
+        '<div class="num" style="font-size:1.1rem;font-weight:700">'+fmtNum(amt)+'</div>'+
         '<div style="font-size:.62rem;color:var(--muted)">ر.س</div></div>'
       ).join('');
     } else {
@@ -2078,7 +2233,7 @@ async function loadExpenses() {
       '<tr>'+
       '<td style="font-size:.75rem">'+new Date(e.date).toLocaleDateString('ar-SA')+'</td>'+
       '<td><span style="font-size:.68rem;font-weight:600;color:'+expCatColor[e.category]+'">'+expCatLbl[e.category]+'</span></td>'+
-      '<td class="num" style="font-weight:700">'+e.amount.toLocaleString('ar-SA')+'</td>'+
+      '<td class="num" style="font-weight:700">'+fmtNum(e.amount)+'</td>'+
       '<td style="font-size:.75rem">'+(e.description||'—')+'</td>'+
       '<td style="font-size:.72rem;color:var(--steel)">'+(e.ref||'—')+'</td>'+
       '<td style="display:flex;gap:4px">'+
@@ -2161,13 +2316,13 @@ async function loadFinPayroll() {
       return '<tr>'+
         '<td style="font-weight:600">'+e.name+'</td>'+
         '<td class="num">'+e.salary.toLocaleString('ar-SA')+'</td>'+
-        '<td class="num" style="color:var(--green)">+'+allowances.toLocaleString('ar-SA')+'</td>'+
-        '<td class="num" style="color:var(--red)">-'+(e.deduction||0).toLocaleString('ar-SA')+'</td>'+
-        '<td class="num" style="font-weight:700">'+(e.netSalary||0).toLocaleString('ar-SA')+'</td>'+
+        '<td class="num" style="color:var(--green)">+'+fmtNum(allowances)+'</td>'+
+        '<td class="num" style="color:var(--red)">-'+fmtNum(e.deduction||0)+'</td>'+
+        '<td class="num" style="font-weight:700">'+fmtNum(e.netSalary||0)+'</td>'+
         '<td><span style="font-size:.68rem;padding:2px 8px;border-radius:8px;background:'+(e.paid?'var(--green-soft)':'var(--amber-soft)')+';color:'+(e.paid?'var(--green)':'var(--amber-d)')+';">'+(e.paid?'مدفوع':'معلق')+'</span></td>'+
       '</tr>';
     }).join('') : '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted)">لا يوجد موظفون</td></tr>';
-    document.getElementById('finPayTotal').textContent = total.toLocaleString('ar-SA');
+    document.getElementById('finPayTotal').textContent = fmtNum(total);
   } catch(e){ console.error(e); }
 }
 
