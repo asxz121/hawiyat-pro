@@ -6,6 +6,15 @@ const { requireAuth, requireRole, requireActiveCompany, hash } = require('../aut
 router.use(requireAuth, requireActiveCompany);
 const scope = (req) => ({ companyId: req.user.companyId });
 
+// أداة مشتركة: مزامنة حالة الحاوية بعد اكتمال الطلب
+async function syncContainerOnComplete(order) {
+  if (!order.containerId) return;
+  const newStatus = order.type === 'PICKUP' ? 'IN_DEPOT' : 'ON_SITE';
+  try {
+    await prisma.container.update({ where: { id: order.containerId }, data: { status: newStatus } });
+  } catch (e) { console.error('container sync error:', e.message); }
+}
+
 // ===== الحاويات =====
 router.get('/containers', async (req, res) => {
   res.json(await prisma.container.findMany({
@@ -47,13 +56,14 @@ router.get('/orders', async (req, res) => {
 });
 
 router.post('/orders', requireRole('OWNER', 'BRANCH_MGR', 'TRAFFIC_MGR', 'DISPATCHER'), async (req, res) => {
-  const { customerName, phone1, type, size, phoneSite, phone3, lat, lng, address, contractNo, dueDate, price, notes, containerId } = req.body;
+  const { customerName, phone1, type, size, phoneSite, phone3, lat, lng, locationUrl, address, contractNo, dueDate, price, notes, containerId } = req.body;
   if (!customerName || !phone1) return res.status(400).json({ error: 'اسم العميل ورقمه مطلوبان' });
   const order = await prisma.order.create({
     data: {
       ...scope(req), customerName, phone1,
       type: type || 'DROP', size, phoneSite, phone3,
       lat: lat ? +lat : null, lng: lng ? +lng : null,
+      locationUrl: locationUrl || null,
       address, contractNo: contractNo || null,
       dueDate: dueDate ? new Date(dueDate) : null,
       price: price ? +price : null, notes,
@@ -67,18 +77,26 @@ router.post('/orders', requireRole('OWNER', 'BRANCH_MGR', 'TRAFFIC_MGR', 'DISPAT
 router.patch('/orders/:id', requireRole('OWNER', 'BRANCH_MGR', 'TRAFFIC_MGR', 'DISPATCHER', 'DRIVER'), async (req, res) => {
   const o = await prisma.order.findFirst({ where: { id: +req.params.id, ...scope(req) } });
   if (!o) return res.status(404).json({ error: 'الطلب غير موجود' });
+
   // السائق يعدل فقط طلباته
   if (req.user.role === 'DRIVER' && o.assignedTo !== req.user.id)
     return res.status(403).json({ error: 'هذا الطلب ليس مسنداً لك' });
-  const { status, alertMuted } = req.body;
-  res.json(await prisma.order.update({
+
+  const { status, alertMuted, dueDate } = req.body;
+
+  const updated = await prisma.order.update({
     where: { id: o.id },
     data: {
       ...(status && { status }),
       ...(alertMuted !== undefined && { alertMuted }),
+      ...(dueDate !== undefined && { dueDate: dueDate ? new Date(dueDate) : null }),
       updatedBy: req.user.id,
     },
-  }));
+  });
+
+  if (status === 'DONE') await syncContainerOnComplete(o);
+
+  res.json(updated);
 });
 
 // ===== التنبيهات =====
@@ -212,6 +230,9 @@ router.post('/driver/orders/:id/action', requireRole('DRIVER'), async (req, res)
       ...(savedPhotos.length > 0 && { photos: savedPhotos }),
     },
   });
+
+  if (action === 'done') await syncContainerOnComplete(o);
+
   res.json(updated);
 });
 
