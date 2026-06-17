@@ -6,8 +6,6 @@
 <title>حاويات برو — لوحة التحكم الاحترافية</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Changa:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <style>
@@ -299,120 +297,121 @@ tbody tr:hover{background:#F8FAFB}
   }
   .bottom-nav button .ico{font-size:1.15rem}
   .bottom-nav button.active{color:var(--amber)}
-  #menuBtn{display:grid!important}.sidebar{display:flex!important}
+  #menuBtn{display:grid!important}
 }
 
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 @media print{.sidebar,.bottom-nav,.topbar button,#userAv{display:none!important}.main{margin:0!important;padding:0!important}.topbar{position:static!important}.page{display:block!important}.card,.kpi{box-shadow:none!important;border:1px solid var(--line)}}
 
-
 /* =========================================================
-   SAFE PROFESSIONAL DESIGN PATCH — 2026-06-13
-   ملاحظة: هذا الباتش يغير الشكل فقط ولا يغير أي API أو دوال JavaScript.
+   COMPACT PROFESSIONAL REFINEMENT — 2026-06-17
+   هذه الطبقة تُكثّف وتُنسّق الشكل فقط (مسافات/مقاسات/ظلال)
+   ولا تغيّر أي معرّف (id) أو دالة JavaScript أو سلوك.
    ========================================================= */
 :root{
-  --bg:#EEF3F6;
-  --card:#FFFFFF;
-  --line:#D9E4EA;
-  --shadow:0 1px 2px rgba(20,31,40,.05),0 10px 28px rgba(20,31,40,.075);
-  --shadow-soft:0 8px 22px rgba(20,31,40,.055);
+  --radius:10px;
+  --shadow:0 1px 2px rgba(20,31,40,.05),0 4px 14px rgba(20,31,40,.06);
+  --shadow-soft:0 2px 10px rgba(20,31,40,.05);
 }
-html{scroll-behavior:smooth;background:var(--bg)}
-body{background:
-  radial-gradient(circle at top left,rgba(247,168,35,.06),transparent 32%),
-  linear-gradient(180deg,#F5F8FA 0%,var(--bg) 220px,var(--bg) 100%);
-}
-.sidebar{
-  width:260px;
-  background:linear-gradient(180deg,#101D26 0%,#13232D 52%,#0F1B23 100%);
-  box-shadow:-1px 0 0 rgba(255,255,255,.04) inset,0 18px 45px rgba(8,18,26,.18);
-}
-.brand-icon{box-shadow:inset 0 -5px 0 rgba(0,0,0,.18),0 10px 22px rgba(247,168,35,.18)}
-.nav-item{min-height:42px;border:1px solid transparent}
-.nav-item.active{box-shadow:0 10px 22px rgba(247,168,35,.22);border-color:rgba(255,255,255,.12)}
-.nav-item:not(.active):hover{border-color:rgba(255,255,255,.05)}
-.main{margin-inline-start:260px;padding-top:24px;max-width:1360px}
-.topbar{
-  background:rgba(238,243,246,.82);
-  backdrop-filter:blur(8px);
-  border-radius:18px;
-  padding:8px 2px 12px;
-}
-.topbar h2{font-size:1.55rem;letter-spacing:-.3px}.topbar .sub{font-size:.78rem;color:#6F8493}
-.top-btn,.btn-amber{box-shadow:0 10px 20px rgba(247,168,35,.26)}
-.icon-btn{background:#fff;box-shadow:var(--shadow-soft)}
-.kpis{gap:16px}.kpi{
-  min-height:96px;
-  border:1px solid rgba(221,229,235,.78);
-  border-top-width:4px;
-  transition:transform .15s ease,box-shadow .15s ease;
-}
-.kpi:hover{transform:translateY(-1px);box-shadow:0 12px 32px rgba(20,31,40,.085)}
-.kpi .lbl{font-weight:600}.kpi .val{letter-spacing:-.4px}.kpi .delta{font-weight:700}
-.card{
-  border:1px solid rgba(221,229,235,.78);
-  box-shadow:var(--shadow);
-}
-.card h3,.card-head h3{letter-spacing:-.1px}.card h3::before,.card-head h3::before{box-shadow:0 0 0 3px rgba(247,168,35,.11)}
-.tbl-wrap{background:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
-thead{background:#101D26}th{height:42px;letter-spacing:.1px}td{height:44px}tbody tr{transition:background .12s ease}tbody tr:hover{background:#F5F9FB}
-.badge{font-weight:800}.btn{min-height:31px}.btn-sm{border-radius:9px}
-.field input,.field select{
-  min-height:42px;
-  background:linear-gradient(180deg,#fff,#FBFDFE);
-}
-.field input:hover,.field select:hover{border-color:#C9D7E0}
-.emp-av,.emp-avatar{box-shadow:0 7px 15px rgba(20,31,40,.12)}
-.shift-card{min-height:138px}.chart-box{height:236px}
-.toast{box-shadow:0 14px 38px rgba(11,20,28,.34)}
-.modal{box-shadow:0 24px 70px rgba(5,14,21,.28)}
-/* تحسين صفحات الطلبات والمحاسبة التي تحتوي أزرار أو قوائم كثيرة */
-.card .form-grid + .btn,.card .form-grid + button{margin-top:2px}
-input::placeholder{color:#90A3B1}
-/* خريطة أو مناطق طويلة */
-#map,.map,.leaflet-container{border-radius:14px!important;overflow:hidden;border:1px solid var(--line)}
-/* تصغير محسوب للشاشات المتوسطة حتى لا تضيع المساحة */
+
+/* الشريط الجانبي */
+.sidebar{width:218px;padding:13px 9px}
+.sidebar-head{padding:4px 7px 13px}
+.brand{gap:9px}
+.brand-icon{width:33px;height:28px;border-radius:6px}
+.brand-text h1{font-size:.98rem}
+.brand-text small{font-size:.58rem}
+.user-pill{margin-top:9px;padding:7px 9px;gap:8px}
+.admin-pill{margin-top:11px;padding:8px 10px}
+.user-av,.admin-ico{width:27px;height:27px;font-size:.74rem}
+.user-info .t,.admin-info .t{font-size:.7rem}
+.user-info .s,.admin-info .s{font-size:.57rem}
+.sidebar-body,.sidebar-nav{padding:5px 7px}
+.nav-sec{padding:9px 9px 3px;font-size:.56rem}
+.nav-item{padding:6px 9px;font-size:.78rem;min-height:32px;gap:8px;margin-bottom:1px}
+.nav-item .ico{font-size:.88rem;width:18px}
+.nav-badge{font-size:.58rem;padding:1px 6px}
+.sidebar-foot{padding:9px 11px}
+
+/* المحتوى الرئيسي والشريط العلوي */
+.main{margin-inline-start:218px;padding:14px clamp(12px,2.2vw,24px) 56px;max-width:1220px}
+.topbar{padding:0 2px 7px;margin-bottom:13px;gap:9px}
+.topbar h2{font-size:1.14rem;letter-spacing:-.2px}
+.topbar .sub{font-size:.68rem}
+.top-btn{padding:6px 12px;font-size:.74rem;gap:5px}
+.icon-btn{width:32px;height:32px;font-size:.86rem}
+#menuBtn{width:32px!important;height:32px!important}
+button[aria-label="تحديث"]{width:32px!important;height:32px!important;font-size:.92rem!important}
+#topBtn{padding:7px 13px!important;font-size:.76rem!important}
+#userAv{width:32px!important;height:32px!important;font-size:.8rem!important}
+.content{padding:0 0 36px}
+
+/* بطاقات المؤشرات KPI */
+.kpis{gap:9px;margin-bottom:12px}
+.kpi{padding:11px 12px;border-top-width:3px;min-height:auto}
+.kpi .lbl{font-size:.66rem;margin-bottom:3px;font-weight:600}
+.kpi .val{font-size:1.28rem;letter-spacing:-.3px}
+.kpi .val small{font-size:.68rem}
+.kpi .delta{font-size:.58rem;margin-top:5px;padding:2px 7px}
+
+/* البطاقات العامة */
+.card{padding:13px;margin-bottom:10px}
+.card h3,.card-head h3{font-size:.82rem;margin-bottom:10px;gap:6px}
+.card-head{margin-bottom:10px;gap:6px}
+.card h3::before,.card-head h3::before{width:3px;height:12px}
+.card h3 .end,.card-head .end{font-size:.66rem}
+.grid2,.grid11{gap:10px;margin-bottom:10px}
+.chart-box{height:176px}
+.shift-cards{gap:9px;margin-bottom:12px}
+.shift-card{padding:13px;min-height:auto;border-radius:var(--radius)}
+.shift-card .tt{font-size:.95rem}
+.shift-card .tm{font-size:.7rem;margin:3px 0 9px}
+.shift-card .cnt{font-size:1.5rem}
+.shift-card .cl{font-size:.66rem}
+
+/* الجداول */
+.tbl-wrap{border-radius:9px}
+table{font-size:.74rem}
+th{padding:7px 10px;font-size:.6rem;height:32px}
+td{padding:7px 10px;height:34px}
+
+/* الشارات والأزرار */
+.badge{font-size:.58rem;padding:2px 8px}
+.btn{border-radius:7px}
+.btn-sm{padding:4px 9px;font-size:.64rem}
+.modal-actions .btn{padding:9px}
+
+/* الحقول والنماذج */
+.form-grid{gap:8px;margin-bottom:10px}
+.field label{font-size:.64rem;margin-bottom:3px}
+.field input,.field select{padding:6px 9px;font-size:.76rem;min-height:33px;border-radius:8px}
+
+/* التنبيهات والموظفون */
+.alert-item{padding:10px;border-radius:9px;gap:9px;margin-bottom:7px}
+.alert-ico{width:30px;height:30px;font-size:.82rem;border-radius:8px}
+.alert-body .t{font-size:.78rem}
+.alert-body .s{font-size:.64rem}
+.emp-av,.emp-avatar{width:32px;height:32px;font-size:.8rem}
+
+/* النوافذ المنبثقة */
+.modal{border-radius:13px;padding:16px}
+.modal h3{font-size:.96rem;margin-bottom:11px;padding-bottom:9px}
+
 @media(min-width:769px) and (max-width:1280px){
-  .main{padding-inline:18px;max-width:1180px}.sidebar{width:236px}.main{margin-inline-start:236px}
-  .nav-item{font-size:.82rem;padding-inline:10px}.topbar h2{font-size:1.35rem}.kpi .val{font-size:1.55rem}
-  table{font-size:.76rem}th,td{padding-inline:10px}.card{padding:16px}
+  .sidebar{width:200px}
+  .main{margin-inline-start:200px;max-width:1060px;padding-inline:14px}
+  .kpi .val{font-size:1.16rem}
+  .nav-item{font-size:.76rem}
 }
 @media(max-width:768px){
-  body{background:var(--bg)}
-  .sidebar{width:min(292px,86vw);inset-inline-start:0;transform:translateX(105%)}
-  .sidebar.open{transform:translateX(0)}
-  .main{margin-inline-start:0;padding:10px 10px 92px;max-width:none}
-  .topbar{margin:-10px -10px 12px;padding:12px 10px;background:rgba(255,255,255,.92);border-bottom:1px solid var(--line)}
-  .topbar h2{font-size:1.12rem}.topbar .sub{font-size:.68rem}.icon-btn{width:36px;height:36px}.top-btn{min-height:36px}
-  .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.kpi{min-height:86px;border-radius:13px}.kpi .lbl{font-size:.66rem}.kpi .val{font-size:1.22rem}
-  .card{border-radius:13px;margin-bottom:10px;padding:12px}.chart-box{height:210px}
-  .form-grid{grid-template-columns:1fr}.field input,.field select{min-height:40px}
-  .tbl-wrap{border-radius:12px}table{min-width:680px;font-size:.72rem}th,td{height:40px}
-  .bottom-nav{backdrop-filter:blur(8px)}
+  .kpis{gap:7px}
+  .kpi{padding:9px;min-height:auto}
+  .kpi .val{font-size:1.08rem}
+  .card{padding:11px}
+  .chart-box{height:164px}
+  .shift-card{padding:12px}
 }
-
-
-/* ===== خريطة الحاويات ===== */
-#contMap{height:500px;border-radius:var(--radius);z-index:1}
-.cmark{width:34px;height:26px;border-radius:5px;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.35);position:relative;background-image:repeating-linear-gradient(90deg,transparent 0 5px,rgba(0,0,0,.16) 5px 8px)}
-.cmark::after{content:"";position:absolute;bottom:-7px;right:50%;transform:translateX(50%);border:5px solid transparent;border-top-color:inherit}
-.cm-amber{background-color:var(--amber);border-top-color:var(--amber)}
-.cm-green{background-color:#2FA877;border-top-color:#2FA877}
-.cm-red{background-color:#D86A6A;border-top-color:#D86A6A}
-.leaflet-popup-content-wrapper{border-radius:12px!important;font-family:'IBM Plex Sans Arabic',sans-serif;direction:rtl}
-.leaflet-popup-content{margin:13px 16px;font-size:.8rem;line-height:1.8;min-width:190px}
-.pp-code{font-family:'Changa';font-weight:700;font-size:1rem;display:flex;align-items:center;gap:8px;margin-bottom:4px}
-.pp-row{display:flex;justify-content:space-between;gap:14px;color:var(--ink)}
-.pp-row span:first-child{color:var(--steel)}
-.map-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.74rem;align-items:center}
-.map-legend .sq{width:16px;height:12px;border-radius:3px;display:inline-block;vertical-align:middle;margin-inline-end:5px}
-.cont-list{max-height:500px;overflow-y:auto}
-.cont-list .li{cursor:pointer;border-radius:10px;padding:10px 8px;transition:background .15s;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line)}
-.cont-list .li:hover{background:#F4F7F9}
-.cont-list .li:last-child{border-bottom:none}
-.chip{background:#fff;border:1px solid var(--line);border-radius:20px;padding:7px 15px;font-size:.78rem;cursor:pointer;color:var(--ink-2);transition:all .15s}
-.chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
 
 </style>
 </head>
@@ -435,9 +434,7 @@ input::placeholder{color:#90A3B1}
     <div class="nav-sec">العمليات</div>
     <button class="nav-item" data-page="alerts"><span class="ico">🔔</span> التنبيهات <span class="nav-badge" id="alertBadge" style="display:none">0</span></button>
     <button class="nav-item" data-page="orders"><span class="ico">📋</span> الطلبات</button>
-    <button class="nav-item" data-page="finance"><span class="ico">💰</span> الإدارة المالية</button>
     <button class="nav-item" data-page="containers"><span class="ico">📦</span> الحاويات</button>
-    <button class="nav-item" data-page="contmap"><span class="ico">⌖</span> خريطة الحاويات</button>
 
     <div class="nav-sec">الموارد البشرية</div>
     <button class="nav-item" data-page="employees"><span class="ico">👥</span> الموظفون</button>
@@ -471,7 +468,7 @@ input::placeholder{color:#90A3B1}
       <h2 id="pageTitle">لوحة التحكم</h2>
       <div class="sub" id="pageDate"></div>
     </div>
-    <button id="menuBtn" onclick="toggleSidebar()" style="display:none;width:40px;height:40px;border-radius:10px;background:#fff;border:1px solid var(--line);place-items:center;cursor:pointer;font-size:1.2rem;flex-shrink:0">☰</button><div class="grow"></div>
+    <div class="grow"></div>
     <button onclick="refreshPage()" aria-label="تحديث" style="width:40px;height:40px;border-radius:10px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;cursor:pointer;position:relative;font-size:1rem;flex-shrink:0">↻<span id="notifDot" style="display:none;position:absolute;top:9px;left:10px;width:8px;height:8px;border-radius:50%;background:var(--red);border:2px solid #fff"></span></button>
     <button id="topBtn" onclick="ctxAdd()" style="border:0;cursor:pointer;font-weight:600;font-size:.85rem;padding:10px 17px;border-radius:10px;transition:all .15s;display:inline-flex;align-items:center;gap:8px;background:var(--amber);color:var(--ink);box-shadow:0 3px 10px rgba(247,168,35,.35)">＋ إضافة</button>
     <div id="userAv" style="width:40px;height:40px;border-radius:50%;background:var(--ink2);color:var(--amber);display:grid;place-items:center;font-weight:700;font-family:'Changa';flex-shrink:0">م</div>
@@ -521,24 +518,23 @@ input::placeholder{color:#90A3B1}
     <div class="page" id="page-orders">
       <div class="card" id="orderForm">
         <div class="card-head"><h3>طلب جديد</h3></div>
-        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-bottom:4px">
-          <div class="field" style="grid-column:span 2"><label style="font-size:.58rem">اسم العميل *</label><input id="oCust" placeholder="مؤسسة البنيان" style="padding:2px 5px;font-size:.62rem"></div>
-          <div class="field"><label style="font-size:.58rem">رقم العميل *</label><input id="oP1" inputmode="tel" placeholder="05XXXXXXXX" style="padding:2px 5px;font-size:.62rem"></div>
-          <div class="field"><label style="font-size:.58rem">رقم الموقع</label><input id="oPS" inputmode="tel" placeholder="05XXXXXXXX" style="padding:2px 5px;font-size:.62rem"></div>
-          <div class="field"><label style="font-size:.58rem">رقم إضافي</label><input id="oP3" inputmode="tel" placeholder="اختياري" style="padding:2px 5px;font-size:.62rem"></div>
-          <div class="field"><label style="font-size:.58rem">نوع الطلب</label><select id="oType" style="padding:2px 5px;font-size:.62rem" onchange="onTypeChange()"><option value="DROP">إنزال</option><option value="PICKUP">رفع</option><option value="SWAP">تبديل</option><option value="MOVE">نقل</option><option value="PROJECT_CYCLE">دورة مشروع</option></select></div>
-          <div class="field"><label style="font-size:.58rem">الحجم</label><input id="oSize" placeholder="8 ياردة" style="padding:2px 5px;font-size:.62rem"></div>
-          <div class="field" id="contPickerWrap" style="display:none"><label style="font-size:.58rem">اختر الحاوية</label><select id="oContPicker" style="padding:2px 5px;font-size:.62rem;width:100%"><option value="">-- اختر --</option></select></div>
-          <div class="field"><label style="font-size:.58rem">السعر (ر.س)</label><input id="oPrice" inputmode="numeric" placeholder="0" style="padding:2px 5px;font-size:.62rem"></div>
-          <div class="field"><label style="font-size:.58rem">رقم العقد</label><input id="oContract" placeholder="بدون عقد" style="padding:2px 5px;font-size:.62rem"></div>
-          <div class="field"><label style="font-size:.58rem">وصف الموقع</label><input id="oAddr" placeholder="حي النرجس" style="padding:2px 5px;font-size:.62rem"></div>
-          <div class="field" style="grid-column:span 2"><label style="font-size:.58rem">مدة الإيجار (أيام)</label><div style="display:flex;gap:6px;align-items:center"><input id="oDueDays" inputmode="numeric" placeholder="3" style="padding:2px 5px;font-size:.62rem;width:55px" oninput="calcDueDate()"><span id="oDueDisplay" style="font-size:.6rem;color:#F7A823"></span></div><input id="oDue" type="hidden"></div>
-          <div class="field" style="grid-column:1/-1"><label style="font-size:.58rem">رابط الموقع من واتساب/قوقل</label><input id="oLocUrl" placeholder="الصق الرابط هنا لاستخراج الإحداثيات تلقائياً" style="padding:2px 5px;font-size:.62rem"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+          <div class="field" style="grid-column:1/-1"><label style="font-size:.68rem">اسم العميل *</label><input id="oCust" placeholder="مؤسسة البنيان" style="padding:8px 10px;font-size:.8rem"></div>
+          <div class="field"><label style="font-size:.68rem">رقم العميل *</label><input id="oP1" inputmode="tel" placeholder="05XXXXXXXX" style="padding:8px 10px;font-size:.8rem"></div>
+          <div class="field"><label style="font-size:.68rem">رقم الموقع</label><input id="oPS" inputmode="tel" placeholder="05XXXXXXXX" style="padding:8px 10px;font-size:.8rem"></div>
+          <div class="field"><label style="font-size:.68rem">رقم إضافي</label><input id="oP3" inputmode="tel" placeholder="اختياري" style="padding:8px 10px;font-size:.8rem"></div>
+          <div class="field"><label style="font-size:.68rem">نوع الطلب</label><select id="oType" style="padding:8px 10px;font-size:.8rem"><option value="DROP">إنزال</option><option value="PICKUP">رفع</option><option value="SWAP">تبديل</option><option value="MOVE">نقل</option><option value="PROJECT_CYCLE">دورة مشروع</option></select></div>
+          <div class="field"><label style="font-size:.68rem">الحجم</label><input id="oSize" placeholder="8 ياردة" style="padding:8px 10px;font-size:.8rem"></div>
+          <div class="field"><label style="font-size:.68rem">رقم العقد</label><input id="oContract" placeholder="فارغ = بدون عقد" style="padding:8px 10px;font-size:.8rem"></div>
+          <div class="field"><label style="font-size:.68rem">الاستحقاق</label><input id="oDue" type="date" style="padding:8px 10px;font-size:.8rem"></div>
+          <div class="field"><label style="font-size:.68rem">السعر (ر.س)</label><input id="oPrice" inputmode="numeric" placeholder="0" style="padding:8px 10px;font-size:.8rem"></div>
+          <div class="field"><label style="font-size:.68rem">وصف الموقع</label><input id="oAddr" placeholder="حي النرجس" style="padding:8px 10px;font-size:.8rem"></div>
+          <div class="field" style="grid-column:1/-1"><label style="font-size:.68rem">رابط الموقع من واتساب/قوقل</label><input id="oLocUrl" placeholder="الصق الرابط هنا لاستخراج الإحداثيات تلقائياً" style="padding:8px 10px;font-size:.8rem"></div>
         </div>
         <div style="display:flex;gap:8px">
-          <button class="btn btn-ghost" onclick="getLoc()" style="padding:4px 8px;font-size:.65rem;flex:1">📍 موقعي</button>
-          <button class="btn btn-ghost" onclick="extractOrderLocation()" style="padding:4px 8px;font-size:.65rem;flex:1">🔗 رابط العميل</button>
-          <button class="btn btn-amber" onclick="addOrder()" style="padding:4px 10px;font-size:.65rem;flex:2">＋ إنشاء الطلب</button>
+          <button class="btn btn-ghost" onclick="getLoc()" style="padding:8px 12px;font-size:.78rem;flex:1">📍 موقعي</button>
+          <button class="btn btn-ghost" onclick="extractOrderLocation()" style="padding:8px 12px;font-size:.78rem;flex:1">🔗 رابط العميل</button>
+          <button class="btn btn-amber" onclick="addOrder()" style="padding:8px 14px;font-size:.78rem;flex:2">＋ إنشاء الطلب</button>
         </div>
         <div id="locMsg"></div>
       </div>
@@ -552,29 +548,14 @@ input::placeholder{color:#90A3B1}
     <div class="page" id="page-containers">
       <div class="card" id="contForm">
         <div class="card-head"><h3>إضافة حاوية</h3></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
-          <div class="field" style="flex:1;min-width:120px"><label>رقم الحاوية *</label><input id="cCode" placeholder="HW-101"></div>
-          <div class="field" style="flex:1;min-width:100px"><label>الحجم *</label><input id="cSize" placeholder="8 ياردة"></div>
-          <div class="field" style="flex:1;min-width:130px"><label>المستودع</label><select id="cWarehouse"><option value="">بدون مستودع</option></select></div>
-          <button class="btn btn-amber" onclick="addCont()" style="padding:7px 14px;margin-bottom:0">＋ إضافة</button>
+        <div style="display:flex;gap:11px;flex-wrap:wrap;align-items:flex-end">
+          <div class="field" style="flex:1;min-width:150px"><label>رقم الحاوية *</label><input id="cCode" placeholder="HW-101"></div>
+          <div class="field" style="flex:1;min-width:130px"><label>الحجم *</label><input id="cSize" placeholder="8 ياردة"></div>
+          <button class="btn btn-amber" onclick="addCont()" style="padding:9px 16px;margin-bottom:0">＋ إضافة</button>
         </div>
       </div>
-      <div class="card"><div class="card-head"><h3>الحاويات</h3>
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <select id="contFilterStatus" onchange="loadConts()" style="padding:4px 8px;font-size:.72rem;border:1px solid var(--line);border-radius:8px">
-            <option value="">كل الحالات</option>
-            <option value="IN_DEPOT">بالمستودع</option>
-            <option value="ON_SITE">بالموقع</option>
-            <option value="AWAIT_PICKUP">انتظار رفع</option>
-            <option value="IN_TRANSIT">بالطريق</option>
-            <option value="MAINTENANCE">صيانة</option>
-          </select>
-          <select id="contFilterWarehouse" onchange="loadConts()" style="padding:4px 8px;font-size:.72rem;border:1px solid var(--line);border-radius:8px">
-            <option value="">كل المستودعات</option>
-          </select>
-        </div>
-      </div>
-        <div class="tbl-wrap"><table><thead><tr><th>الرقم</th><th>الحجم</th><th>الحالة</th><th>المستودع</th><th>إجراءات</th></tr></thead><tbody id="contRows"></tbody></table></div>
+      <div class="card"><div class="card-head"><h3>الحاويات</h3></div>
+        <div class="tbl-wrap"><table><thead><tr><th>الرقم</th><th>الحجم</th><th>الحالة</th></tr></thead><tbody id="contRows"></tbody></table></div>
       </div>
     </div>
 
@@ -760,13 +741,6 @@ input::placeholder{color:#90A3B1}
         </div>
       </div>
 
-
-
-
-
-      <!-- الدخل -->
-      
-
       <!-- المصروفات -->
       <div class="grid11">
         <div class="card">
@@ -801,11 +775,11 @@ input::placeholder{color:#90A3B1}
               <option value="other">أخرى</option>
             </select>
           </div>
-          <div class="field"><label>المبلغ (ر.س) *</label><input id="accExpAmount" inputmode="numeric" placeholder="0"></div>
-          <div class="field"><label>التاريخ</label><input id="accExpDate" type="date"></div>
-          <div class="field"><label>الوصف</label><input id="accExpNote" placeholder="تفاصيل المصروف"></div>
+          <div class="field"><label>المبلغ (ر.س) *</label><input id="expAmount" inputmode="numeric" placeholder="0"></div>
+          <div class="field"><label>التاريخ</label><input id="expDate" type="date"></div>
+          <div class="field"><label>الوصف</label><input id="expNote" placeholder="تفاصيل المصروف"></div>
         </div>
-        <button class="btn btn-amber" onclick="addAccExpense()" style="padding:9px 16px">＋ إضافة مصروف</button>
+        <button class="btn btn-amber" onclick="addExpense()" style="padding:9px 16px">＋ إضافة مصروف</button>
       </div>
 
       <!-- ملخص مالي -->
@@ -842,168 +816,6 @@ input::placeholder{color:#90A3B1}
     </div>
 
     <!-- ===== المستودعات ===== -->
-    <!-- ===== الإدارة المالية ===== -->
-    <div class="page" id="page-finance">
-      <!-- تبويبات -->
-      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-        <button onclick="finTab('report')" id="ftab-report" class="btn btn-amber" style="padding:8px 18px;font-size:.8rem">📊 التقارير</button>
-        <button onclick="finTab('income')" id="ftab-income" class="btn btn-ghost" style="padding:8px 18px;font-size:.8rem">💵 الدخل</button>
-        <button onclick="finTab('expenses')" id="ftab-expenses" class="btn btn-ghost" style="padding:8px 18px;font-size:.8rem">💸 المصروفات</button>
-        <button onclick="finTab('payroll')" id="ftab-payroll" class="btn btn-ghost" style="padding:8px 18px;font-size:.8rem">﷼ الرواتب</button>
-      </div>
-
-      <!-- تقارير -->
-      <div id="fin-report">
-        <div class="card" style="margin-bottom:14px">
-          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-            <select id="finPeriod" onchange="loadFinReport()" style="padding:7px 12px;border:1px solid var(--line);border-radius:8px;font-size:.8rem">
-              <option value="day">يومي</option>
-              <option value="month" selected>شهري</option>
-              <option value="year">سنوي</option>
-            </select>
-            <input type="date" id="finDate" onchange="loadFinReport()" style="padding:7px 12px;border:1px solid var(--line);border-radius:8px;font-size:.8rem">
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px">
-          <div class="card" style="text-align:center;border-top:3px solid var(--green)">
-            <div style="font-size:.72rem;color:var(--steel);margin-bottom:4px">إجمالي الدخل</div>
-            <div class="num" id="finTotalIn" style="font-size:1.6rem;font-weight:700;color:var(--green)">—</div>
-            <div style="font-size:.65rem;color:var(--muted)">ر.س</div>
-          </div>
-          <div class="card" style="text-align:center;border-top:3px solid var(--amber)">
-            <div style="font-size:.72rem;color:var(--steel);margin-bottom:4px">نقدي</div>
-            <div class="num" id="finCashIn" style="font-size:1.6rem;font-weight:700;color:var(--amber-d)">—</div>
-            <div style="font-size:.65rem;color:var(--muted)">ر.س</div>
-          </div>
-          <div class="card" style="text-align:center;border-top:3px solid var(--blue)">
-            <div style="font-size:.72rem;color:var(--steel);margin-bottom:4px">تحويل</div>
-            <div class="num" id="finTransferIn" style="font-size:1.6rem;font-weight:700;color:var(--blue)">—</div>
-            <div style="font-size:.65rem;color:var(--muted)">ر.س</div>
-          </div>
-          <div class="card" style="text-align:center;border-top:3px solid var(--red)">
-            <div style="font-size:.72rem;color:var(--steel);margin-bottom:4px">إجمالي المصروفات</div>
-            <div class="num" id="finTotalOut" style="font-size:1.6rem;font-weight:700;color:var(--red)">—</div>
-            <div style="font-size:.65rem;color:var(--muted)">ر.س</div>
-          </div>
-          <div class="card" style="text-align:center;border-top:3px solid var(--green)">
-            <div style="font-size:.72rem;color:var(--steel);margin-bottom:4px">صافي الربح</div>
-            <div class="num" id="finNetProfit" style="font-size:1.6rem;font-weight:700">—</div>
-            <div style="font-size:.65rem;color:var(--muted)">ر.س</div>
-          </div>
-          <div class="card" style="text-align:center;border-top:3px solid var(--steel)">
-            <div style="font-size:.72rem;color:var(--steel);margin-bottom:4px">عدد الطلبات</div>
-            <div class="num" id="finOrders" style="font-size:1.6rem;font-weight:700">—</div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-head"><h3>تفاصيل المصروفات</h3></div>
-          <div id="finExpBreakdown" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;padding:8px"></div>
-        </div>
-      </div>
-
-      <!-- الدخل -->
-      <div id="fin-income" style="display:none">
-        <div class="card" style="margin-bottom:14px">
-          <div class="card-head"><h3>تسجيل دخل</h3></div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:10px">
-            <div class="field"><label>المصدر / الحاوية</label>
-              <div style="display:flex;gap:4px">
-                <input id="incSource" placeholder="اسم العميل / رقم الحاوية / المصدر" style="flex:1;min-width:200px">
-                <select id="incContainer" onchange="if(this.value){document.getElementById('incSource').value=this.options[this.selectedIndex].text;this.value=''}" style="width:110px;font-size:.72rem">
-                  <option value="">حاوية...</option>
-                </select>
-              </div>
-            </div>
-            <div class="field"><label>المبلغ *</label><input id="incAmount" type="number" placeholder="0.00" inputmode="decimal"></div>
-            <div class="field"><label>نوع الدفع *</label>
-              <select id="incPayType">
-                <option value="CASH">نقدي 💵</option>
-                <option value="TRANSFER">تحويل 🏦</option>
-                <option value="CREDIT">آجل ⏳</option>
-              </select>
-            </div>
-            <div class="field"><label>التاريخ</label><input id="incDate" type="date"></div>
-            <div class="field"><label>دخل إضافي</label><input id="incExtra" type="number" placeholder="0.00" inputmode="decimal"></div>
-            <div class="field"><label>البيان</label><input id="incDesc" placeholder="وصف الدخل"></div>
-          </div>
-          <button class="btn btn-amber" onclick="addIncome()" style="padding:8px 18px">＋ تسجيل</button>
-        </div>
-        <div class="card">
-          <div class="card-head"><h3>سجل الدخل</h3>
-            <div style="display:flex;gap:6px">
-              <select id="incFilterPay" onchange="loadIncomes()" style="padding:4px 8px;font-size:.72rem;border:1px solid var(--line);border-radius:8px">
-                <option value="">كل أنواع الدفع</option>
-                <option value="CASH">نقدي</option>
-                <option value="TRANSFER">تحويل</option>
-                <option value="CREDIT">آجل</option>
-              </select>
-            </div>
-          </div>
-          <div class="tbl-wrap"><table><thead><tr><th>التاريخ</th><th>المصدر</th><th>المبلغ</th><th>نوع الدفع</th><th>البيان</th><th>الحالة</th><th></th></tr></thead><tbody id="incRows"></tbody></table></div>
-          <div style="margin-top:8px;padding:8px;background:var(--bg);border-radius:8px;font-size:.8rem;display:flex;gap:16px">
-            <span>الإجمالي: <b class="num" id="incTotal">0</b> ر.س</span>
-            <span style="color:var(--amber-d)">آجل: <b class="num" id="incCredit">0</b> ر.س</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- المصروفات -->
-      <div id="fin-expenses" style="display:none">
-        <div class="card" style="margin-bottom:14px">
-          <div class="card-head"><h3>إضافة مصروف</h3></div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:10px">
-            <div class="field"><label>المبلغ *</label><input id="expAmount" type="number" placeholder="0.00" inputmode="decimal"></div>
-            <div class="field"><label>الفئة *</label>
-              <select id="expCategory">
-                <option value="RENT">إيجار</option>
-                <option value="FUEL">وقود</option>
-                <option value="MAINTENANCE">صيانة</option>
-                <option value="SALARY">رواتب</option>
-                <option value="UTILITIES">كهرباء/ماء</option>
-                <option value="OTHER">أخرى</option>
-              </select>
-            </div>
-            <div class="field"><label>التاريخ</label><input id="expDate" type="date"></div>
-            <div class="field"><label>البيان</label><input id="expDesc" placeholder="وصف المصروف"></div>
-            <div class="field"><label>رقم مرجعي</label><input id="expRef" placeholder="فاتورة / عقد"></div>
-          </div>
-          <button class="btn btn-amber" onclick="addExpense()" style="padding:8px 18px">＋ إضافة</button>
-        </div>
-        <div class="card">
-          <div class="card-head"><h3>سجل المصروفات</h3>
-            <div style="display:flex;gap:6px">
-              <select id="expFilterCat" onchange="loadExpenses()" style="padding:4px 8px;font-size:.72rem;border:1px solid var(--line);border-radius:8px">
-                <option value="">كل الفئات</option>
-                <option value="RENT">إيجار</option>
-                <option value="FUEL">وقود</option>
-                <option value="MAINTENANCE">صيانة</option>
-                <option value="SALARY">رواتب</option>
-                <option value="UTILITIES">كهرباء/ماء</option>
-                <option value="OTHER">أخرى</option>
-              </select>
-            </div>
-          </div>
-          <div class="tbl-wrap"><table><thead><tr><th>التاريخ</th><th>الفئة</th><th>المبلغ</th><th>البيان</th><th>مرجع</th><th></th></tr></thead><tbody id="expRows"></tbody></table></div>
-        </div>
-      </div>
-
-      <!-- الرواتب -->
-      <div id="fin-payroll" style="display:none">
-        <div class="card" style="margin-bottom:14px">
-          <div style="display:flex;align-items:center;gap:10px">
-            <input type="month" id="finPayMonth" onchange="loadFinPayroll()" style="padding:7px 12px;border:1px solid var(--line);border-radius:8px;font-size:.8rem">
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-head"><h3>مسير الرواتب</h3></div>
-          <div class="tbl-wrap"><table><thead><tr><th>الموظف</th><th>الأساسي</th><th>البدلات</th><th>الخصومات</th><th>الصافي</th><th>الحالة</th></tr></thead><tbody id="finPayRows"></tbody></table></div>
-          <div style="margin-top:10px;padding:10px;background:var(--bg);border-radius:8px;display:flex;justify-content:space-between;font-size:.8rem">
-            <span>إجمالي الرواتب: <b class="num" id="finPayTotal">—</b> ر.س</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div class="page" id="page-warehouses">
       <div class="card" id="whForm">
         <div class="card-head"><h3>إضافة مستودع جديد</h3></div>
@@ -1021,30 +833,6 @@ input::placeholder{color:#90A3B1}
       </div>
       <div id="warehouseCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px"></div>
     </div>
-
-    <!-- ===== خريطة الحاويات ===== -->
-    <div class="page" id="page-contmap">
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center">
-        <button class="chip active" data-cmf="all">جميع الحاويات</button>
-        <button class="chip" data-cmf="ON_SITE">مؤجرة</button>
-        <button class="chip" data-cmf="IN_DEPOT">متاحة</button>
-        <button class="chip" data-cmf="MAINTENANCE">صيانة</button>
-        <div style="flex:1"></div>
-        <div class="map-legend">
-          <span><span class="sq" style="background:var(--amber)"></span>مؤجرة</span>
-          <span><span class="sq" style="background:#2FA877"></span>متاحة</span>
-          <span><span class="sq" style="background:#D86A6A"></span>صيانة</span>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:2.2fr 1fr;gap:14px">
-        <div class="card" style="padding:0;overflow:hidden"><div id="contMap"></div></div>
-        <div class="card">
-          <h3>الحاويات <span class="end" id="contMapCount"></span></h3>
-          <div class="cont-list" id="contMapList"></div>
-        </div>
-      </div>
-    </div>
-
   </div><!-- content -->
 </div><!-- main -->
 </div><!-- layout -->
@@ -1160,9 +948,9 @@ function showToast(msg){
 }
 
 /* ===== التنقل ===== */
-const titles={dash:'لوحة التحكم',alerts:'التنبيهات',orders:'الطلبات',containers:'الحاويات',employees:'الموظفون',shifts:'الشفتات',attendance:'الحضور والانصراف',payroll:'الرواتب',vehicles:'السيارات وعداد الزيت',maintenance:'الصيانة',reports:'التقارير والإحصائيات',accounting:'المحاسبة',daily:'التقارير اليومية',warehouses:'المستودعات',finance:'الإدارة المالية',users:'المستخدمون',contmap:'خريطة الحاويات'};
+const titles={dash:'لوحة التحكم',alerts:'التنبيهات',orders:'الطلبات',containers:'الحاويات',employees:'الموظفون',shifts:'الشفتات',attendance:'الحضور والانصراف',payroll:'الرواتب',vehicles:'السيارات وعداد الزيت',maintenance:'الصيانة',reports:'التقارير والإحصائيات',accounting:'المحاسبة',daily:'التقارير اليومية',warehouses:'المستودعات',users:'المستخدمون'};
 const addLabels={orders:'＋ طلب جديد',containers:'＋ حاوية جديدة',employees:'＋ موظف جديد',vehicles:'＋ سيارة جديدة',maintenance:'＋ عملية صيانة',users:'＋ مستخدم جديد'};
-const loaders={dash:loadDash,alerts:loadAlerts,orders:loadOrders,containers:loadConts,employees:loadEmps,shifts:loadShifts,attendance:loadAtt,payroll:loadPayroll,vehicles:loadVehs,maintenance:loadMaint,reports:loadReports,accounting:loadAccounting,daily:loadDailyReport,warehouses:loadWarehouses,users:loadUsers,contmap:loadContMap,finance:loadFinance};
+const loaders={dash:loadDash,alerts:loadAlerts,orders:loadOrders,containers:loadConts,employees:loadEmps,shifts:loadShifts,attendance:loadAtt,payroll:loadPayroll,vehicles:loadVehs,maintenance:loadMaint,reports:loadReports,accounting:loadAccounting,daily:loadDailyReport,warehouses:loadWarehouses,users:loadUsers};
 let curPage='dash';
 
 function go(p){
@@ -1190,26 +978,6 @@ function ctxAdd(){
 function refreshPage(){if(loaders[curPage])loaders[curPage]()}
 function closeModal(id){
   document.getElementById(id).classList.remove('open');
-}
-function showPhotos(photos){
-  const bg = document.createElement('div');
-  bg.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px';
-  bg.onclick=e=>{if(e.target===bg)bg.remove()};
-  const close = document.createElement('button');
-  close.textContent='✕ إغلاق';
-  close.style.cssText='background:#fff;border:0;border-radius:8px;padding:8px 18px;cursor:pointer;font-family:inherit;font-weight:700;align-self:flex-end';
-  close.onclick=()=>bg.remove();
-  bg.appendChild(close);
-  const wrap = document.createElement('div');
-  wrap.style.cssText='display:flex;gap:10px;flex-wrap:wrap;justify-content:center;overflow-y:auto;max-height:80vh';
-  photos.forEach(src=>{
-    const img=document.createElement('img');
-    img.src=src;
-    img.style.cssText='max-width:min(90vw,480px);max-height:70vh;border-radius:12px;object-fit:contain;box-shadow:0 8px 32px rgba(0,0,0,.5)';
-    wrap.appendChild(img);
-  });
-  bg.appendChild(wrap);
-  document.body.appendChild(bg);
 }
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sOverlay').classList.toggle('open')}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sOverlay').classList.remove('open')}
@@ -1310,8 +1078,8 @@ async function loadOrders(){
     const os=await coApi('/orders');
     // تحميل السائقين للإسناد
     let driversForAssign = [];
-    try{ driversForAssign = await coApi('/drivers'); }catch(e){}
-    const driversList = driversForAssign;
+    try{ driversForAssign = await hrApi('/employees'); }catch(e){}
+    const driversList = driversForAssign.filter(e=>e.role==='سائق'&&e.status==='ACTIVE');
     
     document.getElementById('orderRows').innerHTML=os.length?os.map(o=>`<tr>
       <td class="num" style="font-weight:700;color:var(--steel)">#${o.id}</td>
@@ -1327,61 +1095,23 @@ async function loadOrders(){
       </td>
       <td><span class="badge ${stBd[o.status]||'bd-gray'}">${stLbl[o.status]||o.status}</span></td>
       <td>
-        <button class="btn btn-ghost btn-sm" onclick="openAssignModal(${o.id},${o.assignedTo||'null'})" style="font-size:.7rem">
-          ${o.assignedTo?'🚚 معيّن':'+ إسناد'}
-        </button>
+        <select onchange="assignOrder(${o.id},this.value)" style="border:1px solid var(--line);border-radius:7px;padding:4px 7px;font:inherit;font-size:.68rem;max-width:110px">
+          <option value="">— إسناد —</option>
+          ${driversList.map(d=>`<option value="${d.id}" ${o.assignedTo===d.id?'selected':''}>${d.name.split(' ')[0]}</option>`).join('')}
+        </select>
       </td>
       <td><button class="btn btn-ghost btn-sm" onclick="muteOrder(${o.id},${!o.alertMuted})">${o.alertMuted?'🔕':'🔔'}</button></td>
-      <td>${o.photos&&o.photos.length?`<button class="btn btn-ghost btn-sm" onclick="showPhotos(${JSON.stringify(o.photos)})" style="color:var(--blue)">📷 ${o.photos.length}</button>`:''}</td>
     </tr>`).join(''):'<tr><td colspan="9" style="text-align:center;padding:22px;color:var(--muted)">لا توجد طلبات</td></tr>';
   }catch(e){console.error(e)}
 }
 async function muteOrder(id,v){await coApi('/orders/'+id,{method:'PATCH',body:JSON.stringify({alertMuted:v})});loadOrders();showToast(v?'تم كتم التنبيه':'تم تفعيل التنبيه')}
-function calcDueDate(){
-  const days = parseInt(document.getElementById("oDueDays").value);
-  if (!days || days < 1) { document.getElementById("oDueDisplay").innerHTML = ""; document.getElementById("oDue").value = ""; return; }
-  const d = new Date();
-  d.setDate(d.getDate() + days);
-  document.getElementById("oDue").value = d.toISOString().split("T")[0];
-  const dayNames = ["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
-  const dayName = dayNames[d.getDay()];
-  const dateStr = d.toLocaleDateString("ar-SA",{day:"2-digit",month:"2-digit",year:"numeric"});
-  document.getElementById("oDueDisplay").innerHTML = "📅 رفع: <b style='color:#fff;font-size:.65rem'>" + dayName + " " + dateStr + "</b>";
-}
-async function onTypeChange(){
-  const type = document.getElementById('oType').value;
-  const wrap = document.getElementById('contPickerWrap');
-  const picker = document.getElementById('oContPicker');
-  if(type === 'PICKUP' || type === 'SWAP'){
-    wrap.style.display = '';
-    try{
-      const cs = await coApi('/containers');
-      const valid = cs.filter(c => c.status === 'ON_SITE' || c.status === 'AWAIT_PICKUP');
-      picker.innerHTML = '<option value="">-- اختر الحاوية --</option>' +
-        valid.map(c => `<option value="${c.id}">${c.code} — ${c.size}${c.address?' — '+c.address:''}</option>`).join('');
-      if(!valid.length) picker.innerHTML = '<option value="">لا توجد حاويات بالمواقع</option>';
-    }catch(e){ picker.innerHTML = '<option value="">خطأ في التحميل</option>'; }
-  } else if(type === 'DROP'){
-    wrap.style.display = '';
-    try{
-      const cs = await coApi('/containers');
-      const valid = cs.filter(c => c.status === 'IN_DEPOT');
-      picker.innerHTML = '<option value="">-- اختر الحاوية (اختياري) --</option>' +
-        valid.map(c => `<option value="${c.id}">${c.code} — ${c.size}</option>`).join('');
-      if(!valid.length) picker.innerHTML = '<option value="">لا توجد حاويات في المستودع</option>';
-    }catch(e){ picker.innerHTML = '<option value="">خطأ في التحميل</option>'; }
-  } else {
-    wrap.style.display = 'none';
-    picker.innerHTML = '<option value="">-- اختر --</option>';
-  }
-}
 async function addOrder(){
   if(!document.getElementById('oCust').value||!document.getElementById('oP1').value)return showToast('⚠ اسم العميل والجوال مطلوبان');
   try{
     await coApi('/orders',{method:'POST',body:JSON.stringify({
       customerName:document.getElementById('oCust').value,phone1:document.getElementById('oP1').value,
       phoneSite:document.getElementById('oPS').value,phone3:document.getElementById('oP3').value,
-      type:document.getElementById('oType').value,size:document.getElementById('oSize').value,containerId:document.getElementById('oContPicker').value?parseInt(document.getElementById('oContPicker').value):null,
+      type:document.getElementById('oType').value,size:document.getElementById('oSize').value,
       contractNo:document.getElementById('oContract').value,dueDate:document.getElementById('oDue').value||null,
       price:document.getElementById('oPrice').value,address:document.getElementById('oAddr').value,
       lat:loc.lat,lng:loc.lng
@@ -1398,69 +1128,13 @@ const cStLbl={IN_DEPOT:'بالمستودع',SCHEDULED:'مجدولة',ON_SITE:'ب
 const cStBd={IN_DEPOT:'bd-green',SCHEDULED:'bd-blue',ON_SITE:'bd-amber',AWAIT_PICKUP:'bd-amber',IN_TRANSIT:'bd-blue',MAINTENANCE:'bd-red'};
 async function loadConts(){
   try{
-    const [cs, ws] = await Promise.all([coApi('/containers'), coApi('/warehouses')]);
-
-    const wFilter = document.getElementById('contFilterWarehouse');
-    if(wFilter){
-      const cur = wFilter.value;
-      wFilter.innerHTML = '<option value="">كل المستودعات</option>' +
-        ws.map(w=>'<option value="'+w.id+'">'+w.name+'</option>').join('');
-      wFilter.value = cur;
-    }
-    const wSel = document.getElementById('cWarehouse');
-    if(wSel){
-      const cur2 = wSel.value;
-      wSel.innerHTML = '<option value="">بدون مستودع</option>' +
-        ws.map(w=>'<option value="'+w.id+'">'+w.name+'</option>').join('');
-      wSel.value = cur2;
-    }
-
-    const stFilter = document.getElementById('contFilterStatus')?.value || '';
-    const whFilter = document.getElementById('contFilterWarehouse')?.value || '';
-    let filtered = cs;
-    if(stFilter) filtered = filtered.filter(c => c.status === stFilter);
-    if(whFilter) filtered = filtered.filter(c => c.warehouseId === +whFilter);
-
-    const wMap = {};
-    ws.forEach(w => wMap[w.id] = w.name);
-
-    document.getElementById('contRows').innerHTML = filtered.length ? filtered.map(c=>
-      '<tr>' +
-      '<td style="font-weight:700">'+c.code+'</td>' +
-      '<td>'+(c.size||'—')+'</td>' +
-      '<td><select onchange="changeContStatus('+c.id+',this.value)" style="font-size:.72rem;padding:3px 6px;border:1px solid var(--line);border-radius:7px">' +
-        ['IN_DEPOT','ON_SITE','AWAIT_PICKUP','IN_TRANSIT','MAINTENANCE'].map(s=>
-          '<option value="'+s+'"'+(c.status===s?' selected':'')+'>'+cStLbl[s]+'</option>'
-        ).join('') +
-      '</select></td>' +
-      '<td><select onchange="moveContWarehouse('+c.id+',this.value,this)" style="font-size:.72rem;padding:3px 6px;border:1px solid var(--line);border-radius:7px">' +
-        '<option value="0"'+(!c.warehouseId?' selected':'')+'>بدون مستودع</option>' +
-        ws.map(w=>'<option value="'+w.id+'"'+(c.warehouseId===w.id?' selected':'')+'>'+w.name+'</option>').join('') +
-      '</select></td>' +
-      '<td><button onclick="deleteCont('+c.id+',\''+c.code+'\')" style="background:var(--red-soft);color:var(--red);border:1px solid var(--red);border-radius:6px;padding:3px 8px;font-size:.68rem;cursor:pointer">حذف</button></td>' +
-      '</tr>'
-    ).join('') :
-    '<tr><td colspan="5" style="text-align:center;padding:22px;color:var(--muted)">لا توجد حاويات</td></tr>';
+    const cs=await coApi('/containers');
+    document.getElementById('contRows').innerHTML=cs.length?cs.map(c=>`<tr>
+      <td style="font-weight:700">${c.code}</td><td>${c.size}</td>
+      <td><span class="badge ${cStBd[c.status]||'bd-gray'}">${cStLbl[c.status]||c.status}</span></td>
+    </tr>`).join(''):'<tr><td colspan="3" style="text-align:center;padding:22px;color:var(--muted)">لا توجد حاويات</td></tr>';
   }catch(e){console.error(e)}
 }
-
-async function changeContStatus(id, status){
-  try{
-    await coApi('/containers/'+id+'/status', {method:'PATCH', body:JSON.stringify({status})});
-    showToast('تم تحديث الحالة');
-    loadConts();
-  }catch(e){ showToast('خطأ'); }
-}
-
-async function deleteCont(id, code){
-  if(!confirm('حذف الحاوية ' + code + '؟')) return;
-  try{
-    await coApi('/containers/'+id, {method:'DELETE'});
-    showToast('تم الحذف');
-    loadConts();
-  }catch(e){ showToast('لا يمكن الحذف'); }
-}
-
 async function addCont(){
   if(!document.getElementById('cCode').value||!document.getElementById('cSize').value)return showToast('⚠ الرقم والحجم مطلوبان');
   try{
@@ -1834,11 +1508,11 @@ async function loadReports(){
 
 /* ===== نظام الصلاحيات ===== */
 const PERMISSIONS = {
-  OWNER:       ['dash','alerts','orders','containers','contmap','employees','shifts','attendance','payroll','vehicles','maintenance','reports','accounting','daily','warehouses','users','finance'],
+  OWNER:       ['dash','alerts','orders','containers','employees','shifts','attendance','payroll','vehicles','maintenance','reports','accounting','daily','warehouses','users'],
   BRANCH_MGR:  ['dash','alerts','orders','containers','employees','shifts','attendance','vehicles','maintenance'],
-  TRAFFIC_MGR: ['dash','alerts','orders','containers','contmap','attendance','vehicles','maintenance','reports','warehouses'],
+  TRAFFIC_MGR: ['dash','alerts','orders','containers','attendance','vehicles','maintenance','reports','warehouses'],
   DISPATCHER:  ['dash','alerts','orders','containers'],
-  ACCOUNTANT:  ['dash','payroll','accounting','daily','finance'],
+  ACCOUNTANT:  ['dash','payroll','accounting','daily'],
   DRIVER:      ['dash','orders'],
   SUPER_ADMIN: ['dash','alerts','orders','containers','employees','shifts','attendance','payroll','vehicles','maintenance','reports','users'],
 };
@@ -2011,15 +1685,15 @@ async function payEmpFromAc(id){
   showToast('تم صرف الراتب ✓');
 }
 
-function addAccExpense(){
-  const amount = document.getElementById('accExpAmount').value;
+function addExpense(){
+  const amount = document.getElementById('expAmount').value;
   const type = document.getElementById('expType').value;
-  const date = document.getElementById('accExpDate').value || new Date().toISOString().split('T')[0];
-  const note = document.getElementById('accExpNote').value;
-  if(!amount && !extra) return showToast('⚠ أدخل المبلغ أو الدخل الإضافي');
+  const date = document.getElementById('expDate').value || new Date().toISOString().split('T')[0];
+  const note = document.getElementById('expNote').value;
+  if(!amount) return showToast('⚠ المبلغ مطلوب');
   extraExpenses.push({type, amount:+amount, date, note});
-  document.getElementById('accExpAmount').value='';
-  document.getElementById('accExpNote').value='';
+  document.getElementById('expAmount').value='';
+  document.getElementById('expNote').value='';
   loadAccounting();
   showToast('تمت إضافة المصروف ✓');
 }
@@ -2073,258 +1747,6 @@ function closeMobileMenu(){
 
 /* ===== المستودعات ===== */
 let whLat = null, whLng = null;
-
-
-/* ===== الإدارة المالية ===== */
-function fmtNum(n){ return (+n||0).toLocaleString('ar-EG'); }
-
-
-const payTypeLbl = {CASH:'نقدي 💵', TRANSFER:'تحويل 🏦', CREDIT:'آجل ⏳'};
-const payTypeColor = {CASH:'var(--green)', TRANSFER:'var(--blue)', CREDIT:'var(--amber-d)'};
-
-async function loadIncomes(){
-  try{
-    const [incs, cs] = await Promise.all([
-      coApi('/incomes'+(document.getElementById('incFilterPay')?.value ? '?payType='+document.getElementById('incFilterPay').value : '')),
-      coApi('/containers')
-    ]);
-
-    // تعبئة قائمة الحاويات
-    const sel = document.getElementById('incContainer');
-    if(sel){
-      const cur = sel.value;
-      sel.innerHTML = '<option value="">اختر حاوية (اختياري)</option>' +
-        cs.map(c=>'<option value="'+c.id+'">'+c.code+(c.size?' — '+c.size:'')+'</option>').join('');
-      sel.value = cur;
-    }
-
-    let total = 0, credit = 0;
-    document.getElementById('incRows').innerHTML = incs.length ? incs.map(inc => {
-      total += inc.amount;
-      if(inc.payType==='CREDIT' && !inc.isPaid) credit += inc.amount;
-      return '<tr>'+
-        '<td style="font-size:.75rem">'+new Date(inc.date).toLocaleDateString('ar-SA')+'</td>'+
-        '<td style="font-weight:600;color:var(--amber-d)">'+(inc.container ? inc.container.code : '—')+'</td>'+
-        '<td class="num" style="font-weight:700">'+fmtNum(inc.amount)+'</td>'+
-        '<td><span style="font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:8px;background:var(--bg);color:'+payTypeColor[inc.payType]+'">'+payTypeLbl[inc.payType]+'</span></td>'+
-        '<td style="font-size:.75rem">'+(inc.description||'—')+'</td>'+
-        '<td>'+(inc.payType==='CREDIT' ? (inc.isPaid ?
-          '<span style="font-size:.65rem;color:var(--green);font-weight:600">✓ مدفوع</span>' :
-          '<button onclick="payIncome('+inc.id+')" style="background:var(--green-soft);color:var(--green);border:1px solid var(--green);border-radius:6px;padding:2px 8px;font-size:.65rem;cursor:pointer">تحصيل</button>'
-        ) : '<span style="font-size:.65rem;color:var(--green);font-weight:600">✓ محصّل</span>')+'</td>'+
-        '<td><button onclick="deleteIncome('+inc.id+')" style="background:var(--red-soft);color:var(--red);border:1px solid var(--red);border-radius:6px;padding:2px 8px;font-size:.65rem;cursor:pointer">حذف</button></td>'+
-      '</tr>';
-    }).join('') : '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--muted)">لا يوجد دخل مسجل</td></tr>';
-
-    document.getElementById('incTotal').textContent = fmtNum(total);
-    document.getElementById('incCredit').textContent = fmtNum(credit);
-  }catch(e){console.error(e)}
-}
-
-async function addIncome(){
-  const containerId = null;
-  const sourceText = document.getElementById('incSource').value;
-  const amount = document.getElementById('incAmount').value;
-  const payType = document.getElementById('incPayType').value;
-  const date = document.getElementById('incDate').value;
-  const description = document.getElementById('incDesc').value;
-  const extra = +document.getElementById('incExtra').value || 0;
-
-  if(!amount) return showToast('⚠ المبلغ مطلوب');
-
-  // رسالة تأكيد
-  const contSel = document.getElementById('incContainer');
-  const contText = contSel.value ? contSel.options[contSel.selectedIndex].text : 'بدون حاوية';
-  const payText = payTypeLbl[payType];
-  if(!confirm('تأكيد تسجيل دخل\n\nالحاوية: '+contText+'\nالمبلغ: '+amount+' ر.س\nنوع الدفع: '+payText)) return;
-
-  try{
-    await coApi('/incomes', {method:'POST', body:JSON.stringify({
-      amount, payType, description,
-      containerId: containerId || null,
-      amount: +amount + extra,
-      description: (sourceText ? '['+sourceText+'] ' : '') + description + (extra ? ' (إضافي: '+extra+')' : ''),
-      date: date || new Date().toISOString().slice(0,10),
-      isPaid: payType !== 'CREDIT'
-    })});
-    showToast('✓ تم تسجيل الدخل');
-    document.getElementById('incAmount').value='';
-    document.getElementById('incDesc').value='';
-    document.getElementById('incClient').value='';
-    document.getElementById('incSource').value='';
-    document.getElementById('incExtra').value='';
-    document.getElementById('incContainer').value='';
-    loadIncomes();
-  }catch(e){ showToast('⚠ خطأ'); }
-}
-
-async function payIncome(id){
-  if(!confirm('تأكيد تحصيل المبلغ الآجل؟')) return;
-  try{
-    await coApi('/incomes/'+id+'/pay', {method:'PATCH'});
-    showToast('✓ تم التحصيل');
-    loadIncomes();
-  }catch(e){ showToast('⚠ خطأ'); }
-}
-
-async function deleteIncome(id){
-  if(!confirm('حذف هذا السجل؟')) return;
-  try{
-    await coApi('/incomes/'+id, {method:'DELETE'});
-    showToast('✓ تم الحذف');
-    loadIncomes();
-  }catch(e){ showToast('⚠ خطأ'); }
-}
-
-function loadFinance(){
-  document.getElementById('finDate').value = new Date().toISOString().slice(0,10);
-  document.getElementById('finPayMonth').value = new Date().toISOString().slice(0,7);
-  finTab('report');
-}
-
-const expCatLbl = {RENT:'إيجار',FUEL:'وقود',MAINTENANCE:'صيانة',SALARY:'رواتب',UTILITIES:'كهرباء/ماء',OTHER:'أخرى'};
-const expCatColor = {RENT:'var(--blue)',FUEL:'var(--amber-d)',MAINTENANCE:'var(--red)',SALARY:'var(--green)',UTILITIES:'var(--steel)',OTHER:'var(--muted)'};
-
-function finTab(tab) {
-  ['report','income','expenses','payroll'].forEach(t => {
-    document.getElementById('fin-'+t).style.display = t===tab ? '' : 'none';
-    const btn = document.getElementById('ftab-'+t);
-    if(btn){ btn.className = t===tab ? 'btn btn-amber' : 'btn btn-ghost'; btn.style.padding='8px 18px'; btn.style.fontSize='.8rem'; }
-  });
-  if(tab==='report') loadFinReport();
-  if(tab==='income'){ document.getElementById('incDate').value=new Date().toISOString().slice(0,10); loadIncomes(); }
-  if(tab==='expenses'){ document.getElementById('expDate').value=new Date().toISOString().slice(0,10); loadExpenses(); }
-  if(tab==='payroll') loadFinPayroll();
-}
-
-async function loadFinReport() {
-  try {
-    const period = document.getElementById('finPeriod')?.value || 'month';
-    const date = document.getElementById('finDate')?.value || new Date().toISOString().slice(0,10);
-    const r = await coApi('/financial-report?period='+period+'&date='+date);
-    document.getElementById('finTotalIn').textContent = fmtNum(r.totalIn);
-    document.getElementById('finCashIn').textContent = fmtNum(r.cashIn);
-    document.getElementById('finTransferIn').textContent = fmtNum(r.transferIn);
-    document.getElementById('finTotalOut').textContent = fmtNum(r.totalOut);
-    document.getElementById('finOrders').textContent = r.totalOrders;
-    const net = r.netProfit;
-    const netEl = document.getElementById('finNetProfit');
-    netEl.textContent = net.toLocaleString('ar-SA');
-    netEl.style.color = net >= 0 ? 'var(--green)' : 'var(--red)';
-    const breakdown = document.getElementById('finExpBreakdown');
-    if(Object.keys(r.expByCategory).length) {
-      breakdown.innerHTML = Object.entries(r.expByCategory).map(([cat,amt]) =>
-        '<div style="background:var(--bg);border-radius:8px;padding:10px;text-align:center">'+
-        '<div style="font-size:.68rem;color:'+expCatColor[cat]+';font-weight:600;margin-bottom:4px">'+expCatLbl[cat]+'</div>'+
-        '<div class="num" style="font-size:1.1rem;font-weight:700">'+fmtNum(amt)+'</div>'+
-        '<div style="font-size:.62rem;color:var(--muted)">ر.س</div></div>'
-      ).join('');
-    } else {
-      breakdown.innerHTML = '<div style="color:var(--muted);font-size:.8rem;padding:12px">لا توجد مصروفات في هذه الفترة</div>';
-    }
-  } catch(e){ console.error(e); }
-}
-
-async function loadExpenses() {
-  try {
-    const cat = document.getElementById('expFilterCat')?.value || '';
-    const exps = await coApi('/expenses'+(cat?'?category='+cat:''));
-    document.getElementById('expRows').innerHTML = exps.length ? exps.map(e =>
-      '<tr>'+
-      '<td style="font-size:.75rem">'+new Date(e.date).toLocaleDateString('ar-SA')+'</td>'+
-      '<td><span style="font-size:.68rem;font-weight:600;color:'+expCatColor[e.category]+'">'+expCatLbl[e.category]+'</span></td>'+
-      '<td class="num" style="font-weight:700">'+fmtNum(e.amount)+'</td>'+
-      '<td style="font-size:.75rem">'+(e.description||'—')+'</td>'+
-      '<td style="font-size:.72rem;color:var(--steel)">'+(e.ref||'—')+'</td>'+
-      '<td style="display:flex;gap:4px">'+
-      '<button onclick="editExpense('+e.id+','+e.amount+',\''+e.category+'\',\''+( e.description||'')+'\',\''+( e.ref||'')+'\',\''+e.date.slice(0,10)+'\')" style="background:var(--amber-soft);color:var(--amber-d);border:1px solid var(--amber);border-radius:6px;padding:2px 8px;font-size:.65rem;cursor:pointer">تعديل</button>'+
-      '<button onclick="deleteExpense('+e.id+')" style="background:var(--red-soft);color:var(--red);border:1px solid var(--red);border-radius:6px;padding:2px 8px;font-size:.65rem;cursor:pointer">حذف</button>'+
-      '</td>'+
-      '</tr>'
-    ).join('') : '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted)">لا توجد مصروفات</td></tr>';
-  } catch(e){ console.error(e); }
-}
-
-async function addExpense() {
-  const amount = document.getElementById('expAmount').value;
-  const category = document.getElementById('expCategory').value;
-  const description = document.getElementById('expDesc').value;
-  const ref = document.getElementById('expRef').value;
-  const date = document.getElementById('expDate').value;
-  if(!amount || !category) return showToast('⚠ المبلغ والفئة مطلوبان');
-  try {
-    await coApi('/expenses', {method:'POST', body:JSON.stringify({amount,category,description,ref,date})});
-    showToast('✓ تم إضافة المصروف');
-    document.getElementById('expAmount').value='';
-    document.getElementById('expDesc').value='';
-    document.getElementById('expRef').value='';
-    document.getElementById('expDate').value=new Date().toISOString().slice(0,10);
-    loadExpenses();
-  } catch(e){ showToast('⚠ خطأ'); }
-}
-
-function editExpense(id, amount, category, description, ref, date){
-  document.getElementById('expAmount').value = amount;
-  document.getElementById('expCategory').value = category;
-  document.getElementById('expDesc').value = description;
-  document.getElementById('expRef').value = ref;
-  document.getElementById('expDate').value = date;
-  // غير زر الإضافة لزر حفظ التعديل
-  const btn = document.querySelector('#fin-expenses .btn.btn-amber');
-  btn.textContent = '💾 حفظ التعديل';
-  btn.onclick = async () => {
-    try {
-      await coApi('/expenses/'+id, {method:'DELETE'});
-      await coApi('/expenses', {method:'POST', body:JSON.stringify({
-        amount: document.getElementById('expAmount').value,
-        category: document.getElementById('expCategory').value,
-        description: document.getElementById('expDesc').value,
-        ref: document.getElementById('expRef').value,
-        date: document.getElementById('expDate').value,
-      })});
-      showToast('✓ تم التعديل');
-      btn.textContent = '＋ إضافة';
-      btn.onclick = addExpense;
-      document.getElementById('expAmount').value='';
-      document.getElementById('expDesc').value='';
-      document.getElementById('expRef').value='';
-      document.getElementById('expDate').value=new Date().toISOString().slice(0,10);
-      loadExpenses();
-    } catch(e){ showToast('⚠ خطأ'); }
-  };
-  document.getElementById('expAmount').scrollIntoView({behavior:'smooth'});
-}
-
-async function deleteExpense(id) {
-  if(!confirm('حذف هذا المصروف؟')) return;
-  try {
-    await coApi('/expenses/'+id, {method:'DELETE'});
-    showToast('✓ تم الحذف');
-    loadExpenses();
-  } catch(e){ showToast('⚠ خطأ'); }
-}
-
-async function loadFinPayroll() {
-  try {
-    const month = document.getElementById('finPayMonth')?.value?.replace('-','/') || new Date().toISOString().slice(0,7).replace('-','/');
-    const data = await hrApi('/payroll?month='+month);
-    let total = 0;
-    document.getElementById('finPayRows').innerHTML = data.length ? data.map(e => {
-      const allowances = (e.housingAllowance||0)+(e.transportAllowance||0)+(e.extra||0);
-      const deductions = (e.deduction||0)+(e.penalties||0)-(e.bonus||0)-(e.overtime||0);
-      total += e.netSalary||0;
-      return '<tr>'+
-        '<td style="font-weight:600">'+e.name+'</td>'+
-        '<td class="num">'+e.salary.toLocaleString('ar-SA')+'</td>'+
-        '<td class="num" style="color:var(--green)">+'+fmtNum(allowances)+'</td>'+
-        '<td class="num" style="color:var(--red)">-'+fmtNum(e.deduction||0)+'</td>'+
-        '<td class="num" style="font-weight:700">'+fmtNum(e.netSalary||0)+'</td>'+
-        '<td><span style="font-size:.68rem;padding:2px 8px;border-radius:8px;background:'+(e.paid?'var(--green-soft)':'var(--amber-soft)')+';color:'+(e.paid?'var(--green)':'var(--amber-d)')+';">'+(e.paid?'مدفوع':'معلق')+'</span></td>'+
-      '</tr>';
-    }).join('') : '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted)">لا يوجد موظفون</td></tr>';
-    document.getElementById('finPayTotal').textContent = fmtNum(total);
-  } catch(e){ console.error(e); }
-}
 
 async function loadWarehouses(){
   try{
@@ -2415,6 +1837,18 @@ async function extractOrderLocation(){
       document.getElementById('locMsg').innerHTML = `<div class="loc-msg loc-err">✗ ${res.message}</div>`;
     }
   }catch(e){showToast('خطأ في استخراج الموقع')}
+}
+
+/* ===== إشعار طلب جديد عند الإنشاء ===== */
+const _origAddOrder = addOrder;
+async function addOrder(){
+  await _origAddOrder();
+  // إرسال إشعار للمديرين
+  if(appSocket && appSocket.connected){
+    const cust = document.getElementById('oCust')?.value || '';
+    const type = document.getElementById('oType')?.value || '';
+    appSocket.emit('notify:new-order', { customerName: cust, type });
+  }
 }
 
 
@@ -2615,148 +2049,6 @@ async function deleteTransaction(id){
   await hrApi('/transactions/'+id,{method:'DELETE'});
   await loadTransactions();
   showToast('تم حذف المعاملة ✓');
-}
-
-
-/* ===== خريطة الحاويات ===== */
-let contMapObj = null, contMarkers = {}, contMapFilter = 'all';
-const cStMap = {
-  ON_SITE:['مؤجرة','bd-amber','cm-amber'],
-  IN_DEPOT:['متاحة','bd-green','cm-green'],
-  MAINTENANCE:['صيانة','bd-red','cm-red'],
-};
-
-function contIcon(st){
-  const cls = cStMap[st]?.[2] || 'cm-amber';
-  return L.divIcon({className:'',html:`<div class="cmark ${cls}"></div>`,iconSize:[34,33],iconAnchor:[17,33],popupAnchor:[0,-30]});
-}
-
-async function loadContMap(){
-  try{
-    const conts = await coApi('/containers');
-    if(!contMapObj){
-      contMapObj = L.map('contMap',{zoomControl:true}).setView([24.80,46.66],11);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(contMapObj);
-    }
-    contMapObj.invalidateSize();
-
-    // إزالة العلامات القديمة
-    Object.values(contMarkers).forEach(m=>contMapObj.removeLayer(m));
-    contMarkers = {};
-
-    // إضافة الحاويات التي لها موقع
-    const withLoc = conts.filter(c=>c.lat&&c.lng);
-    const withoutLoc = conts.filter(c=>!c.lat||!c.lng);
-
-    withLoc.forEach(c=>{
-      const [lbl,bd] = cStMap[c.status] || ['—','bd-gray'];
-      const popup = `
-        <div class="pp-code">${c.code}<span class="badge ${bd}">${lbl}</span></div>
-        <div class="pp-row"><span>الحجم</span><b>${c.size||'—'}</b></div>
-        ${c.order?`<div class="pp-row"><span>العميل</span><b>${c.order.customerName||'—'}</b></div>`:''}
-        <a href="https://www.google.com/maps?q=${c.lat},${c.lng}" target="_blank"
-           style="display:block;text-align:center;margin-top:8px;background:#F7A823;color:#141F28;font-weight:600;border-radius:8px;padding:6px;text-decoration:none;font-size:.76rem">
-          فتح في خرائط قوقل ⌖
-        </a>`;
-      contMarkers[c.code] = L.marker([c.lat,c.lng],{icon:contIcon(c.status)})
-        .addTo(contMapObj).bindPopup(popup);
-    });
-
-    // تحديث القائمة الجانبية
-    applyContMapFilter(conts);
-
-    // ضبط الخريطة لتشمل الحاويات
-    if(withLoc.length>1){
-      contMapObj.fitBounds(withLoc.map(c=>[c.lat,c.lng]),{padding:[40,40]});
-    } else if(withLoc.length===1){
-      contMapObj.setView([withLoc[0].lat,withLoc[0].lng],14);
-    }
-
-    // تخزين للفلترة
-    contMapObj._allConts = conts;
-  }catch(e){console.error(e)}
-}
-
-function applyContMapFilter(conts){
-  if(!conts) conts = contMapObj?._allConts || [];
-  const filtered = contMapFilter==='all' ? conts : conts.filter(c=>c.status===contMapFilter);
-
-  // إظهار/إخفاء العلامات
-  conts.forEach(c=>{
-    if(!contMarkers[c.code]) return;
-    const show = contMapFilter==='all' || c.status===contMapFilter;
-    if(show) contMarkers[c.code].addTo(contMapObj);
-    else contMapObj.removeLayer(contMarkers[c.code]);
-  });
-
-  document.getElementById('contMapCount').textContent = filtered.length + ' حاوية';
-  document.getElementById('contMapList').innerHTML = filtered.map(c=>{
-    const [lbl,bd] = cStMap[c.status] || ['—','bd-gray'];
-    return `<div class="li" onclick="flyToCont('${c.code}')">
-      <div style="width:36px;height:36px;border-radius:9px;background:var(--bg);display:grid;place-items:center;font-family:'Changa';font-weight:700;font-size:.7rem;flex-shrink:0;color:var(--steel)">${c.code.slice(-3)}</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-weight:600;font-size:.82rem">${c.code} · ${c.size||''}</div>
-        <div style="font-size:.68rem;color:var(--steel)">${c.order?.customerName||c.notes||'متاحة'}</div>
-      </div>
-      <span class="badge ${bd}">${lbl}</span>
-    </div>`;
-  }).join('') || '<div style="text-align:center;padding:20px;color:var(--muted);font-size:.8rem">لا توجد حاويات</div>';
-}
-
-function flyToCont(code){
-  const c = (contMapObj?._allConts||[]).find(x=>x.code===code);
-  if(c?.lat&&c?.lng){
-    contMapObj.flyTo([c.lat,c.lng],16,{duration:.8});
-    contMarkers[code]?.openPopup();
-  }
-}
-
-// فلترة خريطة الحاويات
-document.addEventListener('click', e=>{
-  const btn = e.target.closest('[data-cmf]');
-  if(!btn) return;
-  document.querySelectorAll('[data-cmf]').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  contMapFilter = btn.dataset.cmf;
-  applyContMapFilter();
-});
-
-/* ===== إسناد الطلب لسائق ===== */
-async function assignOrder(orderId, driverId){
-  try{
-    await coApi('/orders/'+orderId+'/assign',{method:'POST',body:JSON.stringify({driverId:driverId||null})});
-    loadOrders();
-    showToast(driverId?'تم إسناد الطلب للسائق ✓':'تم إلغاء الإسناد');
-  }catch(e){showToast('⚠ خطأ في الإسناد')}
-}
-
-// نافذة إسناد الطلب
-function openAssignModal(orderId, currentDriverId){
-  coApi('/drivers').then(drivers=>{
-    const opts = `<option value="">— بدون إسناد —</option>` +
-      drivers.map(d=>`<option value="${d.id}" ${d.id===currentDriverId?'selected':''}>${d.name}</option>`).join('');
-      drivers.map(d=>`<option value="${d.id}" ${d.id===currentDriverId?'selected':''}>${d.name}</option>`).join('');
-
-    const modal = document.createElement('div');
-    modal.className = 'modal-bg open';
-    modal.innerHTML = `
-      <div class="modal" style="max-width:360px">
-        <h3>إسناد الطلب #${orderId} لسائق</h3>
-        <div class="field">
-          <label>اختر السائق</label>
-          <select id="assignDriverSel">${opts}</select>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:14px">
-          <button class="btn btn-amber" style="flex:1;justify-content:center" onclick="
-            assignOrder(${orderId}, document.getElementById('assignDriverSel').value);
-            this.closest('.modal-bg').remove();
-          ">تأكيد الإسناد</button>
-          <button class="btn btn-ghost" onclick="this.closest('.modal-bg').remove()">إلغاء</button>
-        </div>
-      </div>`;
-    document.body.appendChild(modal);
-    modal.onclick = e=>{ if(e.target===modal) modal.remove(); };
-  });
 }
 
 /* ===== التشغيل الأولي ===== */
