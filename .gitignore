@@ -2,3 +2,33 @@
 node_modules/
 .env
 node_modules/
+
+# Dependencies and secrets
+node_modules/
+.env
+.env.*
+!.env.example
+
+# Logs and runtime files
+*.log
+logs/
+tmp/
+uploads/
+
+# Backups and temporary files
+*.bak
+*.bak-*
+*.before-*
+*.before_*
+*.with-*
+*.backup-*
+result.txt
+result.tx
+
+# Accidental shell leftovers
+SEEDEOF
+if
+
+# Seed/demo data
+src/seed-demo.js
+src/seed-demo-2.js

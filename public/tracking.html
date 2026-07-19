@@ -256,6 +256,10 @@ function switchTab(tab) {
 
 /* ===== الخريطة ===== */
 const map = L.map('trackMap', { zoomControl: true }).setView([24.7136, 46.6753], 11);
+map.on('dragstart zoomstart', () => {
+  userMapLocked = true;
+});
+
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19, attribution: '© OpenStreetMap'
 }).addTo(map);
@@ -264,6 +268,7 @@ map.getContainer().style.filter = 'brightness(0.85) contrast(1.1)';
 const markers = {};
 const startMarkers = {};
 const destMarkers = {};
+const routeLines = {};
 const paths = {};
 const pathPoints = {};
 const drivers = {};
@@ -344,7 +349,9 @@ async function updateDriver(d) {
   }
   const drivers_prev = drivers[d.driverId];
   drivers[d.driverId] = { ...(drivers_prev||{}), ...d, online: true };
-  const isMoving = !!d.orderId;
+  const driverIdNum = Number(d.driverId);
+  const orderIdNum = d.orderId ? Number(d.orderId) : null;
+  const isMoving = !!orderIdNum;
 
   if (!startMarkers[d.driverId]) {
     startMarkers[d.driverId] = L.marker([d.lat, d.lng], {
@@ -352,11 +359,17 @@ async function updateDriver(d) {
     }).addTo(map).bindTooltip(`نقطة انطلاق ${d.name}`, {permanent: false, direction: 'top'});
   }
 
-  if (d.orderId && !destMarkers[d.driverId]) {
+  if (!destMarkers[d.driverId]) {
     try {
       const res = await fetch(`/api/co/orders`, { headers: { 'Authorization': 'Bearer ' + T } });
       const orders = await res.json();
-      const order = orders.find(o => o.id === d.orderId || o.assignedTo === d.driverId);
+      const order = orders.find(o =>
+        ['RECEIVED','EN_ROUTE'].includes(o.status) &&
+        (
+          (orderIdNum && Number(o.id) === orderIdNum) ||
+          Number(o.assignedTo) === driverIdNum
+        )
+      );
       if (order && order.lat && order.lng) {
         destMarkers[d.driverId] = L.marker([order.lat, order.lng], {
           icon: makeDestIcon(order.id, order.customerName), zIndexOffset: -50,
@@ -370,19 +383,18 @@ async function updateDriver(d) {
               فتح الوجهة في خرائط
             </a>
           </div>`);
-        if (startMarkers[d.driverId]) {
-          const s = startMarkers[d.driverId].getLatLng();
-          L.polyline([[s.lat, s.lng],[order.lat, order.lng]], {
-            color: '#4A6375', weight: 2, opacity: 0.4, dashArray: '8,6',
-          }).addTo(map);
-        }
+        routeLines[d.driverId] = L.polyline([[d.lat, d.lng],[order.lat, order.lng]], {
+          color: '#F7A823', weight: 3, opacity: 0.7, dashArray: '8,5',
+        }).addTo(map);
       }
     } catch(e) {}
   }
 
-  if (!d.orderId && destMarkers[d.driverId]) {
-    map.removeLayer(destMarkers[d.driverId]);
-    delete destMarkers[d.driverId];
+  // لا نحذف وجهة العميل لمجرد أن السائق لم يرسل orderId
+  // لأن الوجهة تؤخذ من الطلب المسند assignedTo
+  if (routeLines[d.driverId] && destMarkers[d.driverId]) {
+    const dest = destMarkers[d.driverId].getLatLng();
+    routeLines[d.driverId].setLatLngs([[d.lat, d.lng],[dest.lat, dest.lng]]);
   }
 
   if (!pathPoints[d.driverId]) pathPoints[d.driverId] = [];
@@ -407,7 +419,7 @@ async function updateDriver(d) {
   }
 
   if (selectedDriver === d.driverId) {
-    map.panTo([d.lat, d.lng], { animate: true, duration: 0.5 });
+    if (!userMapLocked) map.panTo([d.lat, d.lng], { animate: true, duration: 0.5 });
     updateInfoCard(d);
   }
 
@@ -633,8 +645,10 @@ socket.on('disconnect', () => {
 socket.on('tracking:snapshot', (locations) => {
   const withLoc = locations.filter(d => d.lat && d.lng);
   locations.forEach(d => updateDriver(d));
-  if (withLoc.length > 1) map.fitBounds(withLoc.map(d => [d.lat, d.lng]), {padding:[60,60]});
-  else if (withLoc.length === 1) map.setView([withLoc[0].lat, withLoc[0].lng], 14);
+  if (!userMapLocked) {
+    if (withLoc.length > 1) map.fitBounds(withLoc.map(d => [d.lat, d.lng]), {padding:[60,60]});
+    else if (withLoc.length === 1) map.setView([withLoc[0].lat, withLoc[0].lng], 14);
+  }
 });
 
 socket.on('driver:moved', (d) => {

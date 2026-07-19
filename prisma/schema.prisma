@@ -117,6 +117,7 @@ enum OrderType {
 enum OrderStatus {
   NEW       // جديد
   ASSIGNED  // مسند لسائق
+  RECEIVED  // السائق استلم الطلب
   EN_ROUTE  // السائق في الطريق
   DONE      // منفذ
   CANCELLED // ملغي

@@ -1,0 +1,478 @@
+/* ترتيب وتصغير آمن */
+.main{
+  max-width:1320px !important;
+  padding:20px clamp(14px,3vw,34px) 96px !important;
+}
+
+.content{
+  padding:22px 26px 60px !important;
+}
+
+.kpis{
+  grid-template-columns:repeat(4,1fr) !important;
+  gap:14px !important;
+  margin-bottom:18px !important;
+}
+
+.kpi{
+  padding:17px !important;
+  border-radius:14px !important;
+}
+
+.kpi .lbl{
+  font-size:.76rem !important;
+}
+
+.kpi .val{
+  font-size:1.8rem !important;
+}
+
+.grid2,
+.grid11{
+  gap:14px !important;
+  margin-bottom:18px !important;
+}
+
+.card{
+  padding:18px !important;
+  border-radius:14px !important;
+}
+
+.card h3{
+  font-size:.98rem !important;
+  margin-bottom:14px !important;
+}
+
+.chart-box{
+  height:250px !important;
+}
+
+table{
+  font-size:.8rem !important;
+}
+
+th,
+td{
+  padding:9px 11px !important;
+  vertical-align:middle !important;
+}
+
+.btn,
+.btn-sm{
+  white-space:nowrap !important;
+}
+
+.num{
+  font-family:Arial,sans-serif !important;
+  direction:ltr;
+  unicode-bidi:plaintext;
+}
+
+/* محاذاة الجداول والأسماء والأرقام */
+table{
+  table-layout: fixed;
+}
+
+table th,
+table td{
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+.cell-emp{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:10px !important;
+  width:100% !important;
+}
+
+.cell-emp > div{
+  min-width:160px !important;
+  text-align:center !important;
+}
+
+.cell-emp b,
+.cell-emp .s{
+  display:block !important;
+  text-align:center !important;
+}
+
+.emp-av,
+.emp-avatar,
+.avatar{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  line-height:1 !important;
+  padding:0 !important;
+  text-align:center !important;
+}
+
+.num,
+.val{
+  text-align:center !important;
+  direction:ltr !important;
+  unicode-bidi:isolate !important;
+}
+
+td .badge,
+th .badge{
+  margin:auto !important;
+}
+
+td select,
+td input{
+  text-align:center !important;
+  margin:auto !important;
+}
+
+.t-actions,
+.att-actions{
+  justify-content:center !important;
+  align-items:center !important;
+}
+
+/* إصلاح محاذاة أسماء الموظفين في الشفتات والحضور */
+#shiftRows .cell-emp,
+#attRows .cell-emp{
+  display:grid !important;
+  grid-template-columns:42px 190px !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:10px !important;
+}
+
+#shiftRows .cell-emp .emp-av,
+#attRows .cell-emp .emp-av{
+  width:34px !important;
+  height:34px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  line-height:1 !important;
+  padding:0 !important;
+  margin:0 auto !important;
+}
+
+#shiftRows .cell-emp b,
+#attRows .cell-emp b{
+  display:block !important;
+  width:190px !important;
+  text-align:right !important;
+  white-space:nowrap !important;
+}
+
+#shiftRows td,
+#attRows td{
+  text-align:center !important;
+  vertical-align:middle !important;
+}
+
+#shiftRows select{
+  width:90px !important;
+  text-align:center !important;
+  margin:auto !important;
+}
+
+/* إصلاح نهائي لمحاذاة أسماء الموظفين داخل الجداول */
+.tbl-wrap table{
+  table-layout: fixed !important;
+  width: 100% !important;
+}
+
+.tbl-wrap th,
+.tbl-wrap td{
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+.cell-emp{
+  display: grid !important;
+  grid-template-columns: 38px 1fr !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  width: 220px !important;
+  margin: auto !important;
+}
+
+.cell-emp .emp-av{
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  min-height: 34px !important;
+  border-radius: 9px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.cell-emp > div{
+  width: 165px !important;
+  text-align: right !important;
+}
+
+.cell-emp b{
+  display: block !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+}
+
+.cell-emp .s{
+  display: block !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+}
+
+.num{
+  text-align:center !important;
+  direction:ltr !important;
+  unicode-bidi:isolate !important;
+}
+
+/* إصلاح نهائي لمحاذاة أسماء الموظفين داخل الجداول */
+.tbl-wrap table{
+  table-layout: fixed !important;
+  width: 100% !important;
+}
+
+.tbl-wrap th,
+.tbl-wrap td{
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+.cell-emp{
+  display: grid !important;
+  grid-template-columns: 38px 1fr !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  width: 220px !important;
+  margin: auto !important;
+}
+
+.cell-emp .emp-av{
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  min-height: 34px !important;
+  border-radius: 9px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.cell-emp > div{
+  width: 165px !important;
+  text-align: right !important;
+}
+
+.cell-emp b{
+  display: block !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+}
+
+.cell-emp .s{
+  display: block !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+}
+
+.num{
+  text-align:center !important;
+  direction:ltr !important;
+  unicode-bidi:isolate !important;
+}
+
+/* إصلاح نهائي لمحاذاة أسماء الموظفين داخل الجداول */
+.tbl-wrap table{
+  table-layout: fixed !important;
+  width: 100% !important;
+}
+
+.tbl-wrap th,
+.tbl-wrap td{
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+.cell-emp{
+  display: grid !important;
+  grid-template-columns: 38px 1fr !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  width: 220px !important;
+  margin: auto !important;
+}
+
+.cell-emp .emp-av{
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  min-height: 34px !important;
+  border-radius: 9px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.cell-emp > div{
+  width: 165px !important;
+  text-align: right !important;
+}
+
+.cell-emp b{
+  display: block !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+}
+
+.cell-emp .s{
+  display: block !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+}
+
+.num{
+  text-align:center !important;
+  direction:ltr !important;
+  unicode-bidi:isolate !important;
+}
+
+/* توافق iPhone و Android ومنع السحب يمين/يسار */
+html,
+body{
+  width:100% !important;
+  max-width:100% !important;
+  overflow-x:hidden !important;
+  touch-action:pan-y !important;
+}
+
+*{
+  box-sizing:border-box !important;
+}
+
+.main,
+.page,
+.card,
+.kpis,
+.grid2,
+.grid11,
+.tbl-wrap{
+  max-width:100% !important;
+  overflow-x:hidden !important;
+}
+
+img,
+canvas,
+table{
+  max-width:100% !important;
+}
+
+/* الجداول على الجوال: التمرير داخل الجدول فقط وليس الصفحة كلها */
+.tbl-wrap{
+  width:100% !important;
+  overflow-x:auto !important;
+  -webkit-overflow-scrolling:touch !important;
+}
+
+.tbl-wrap table{
+  min-width:720px;
+}
+
+/* حقول الإدخال لا تكبر الصفحة */
+input,
+select,
+textarea,
+button{
+  max-width:100% !important;
+}
+
+/* iPhone يمنع تكبير الصفحة عند التركيز على input */
+input,
+select,
+textarea{
+  font-size:16px !important;
+}
+
+/* الجوال */
+@media (max-width: 768px){
+  .main{
+    margin-inline-start:0 !important;
+    width:100% !important;
+    max-width:100% !important;
+    padding:14px 10px 90px !important;
+  }
+
+  .page{
+    width:100% !important;
+  }
+
+  .kpis{
+    display:grid !important;
+    grid-template-columns:repeat(2, minmax(0,1fr)) !important;
+    gap:10px !important;
+  }
+
+  .grid2,
+  .grid11{
+    display:grid !important;
+    grid-template-columns:1fr !important;
+    gap:10px !important;
+  }
+
+  .card{
+    width:100% !important;
+    padding:12px !important;
+    border-radius:14px !important;
+  }
+
+  .form-grid{
+    display:grid !important;
+    grid-template-columns:1fr !important;
+    gap:10px !important;
+  }
+
+  .kpi{
+    min-width:0 !important;
+    padding:12px !important;
+  }
+
+  .kpi .val{
+    font-size:1.35rem !important;
+  }
+
+  .sidebar{
+    transform:translateX(100%);
+  }
+
+  .sidebar.open{
+    transform:translateX(0);
+  }
+}
+
+/* شاشات صغيرة جدًا */
+@media (max-width: 420px){
+  .kpis{
+    grid-template-columns:1fr !important;
+  }
+
+  .btn,
+  .btn-sm{
+    padding:8px 10px !important;
+    font-size:.75rem !important;
+  }
+}

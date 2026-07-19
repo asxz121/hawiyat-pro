@@ -56,14 +56,13 @@ router.get('/orders', async (req, res) => {
 });
 
 router.post('/orders', requireRole('OWNER', 'BRANCH_MGR', 'TRAFFIC_MGR', 'DISPATCHER'), async (req, res) => {
-  const { customerName, phone1, type, size, phoneSite, phone3, lat, lng, locationUrl, address, contractNo, dueDate, price, notes, containerId } = req.body;
+  const { customerName, phone1, type, size, phoneSite, phone3, lat, lng, address, contractNo, dueDate, price, notes, containerId } = req.body;
   if (!customerName || !phone1) return res.status(400).json({ error: 'اسم العميل ورقمه مطلوبان' });
   const order = await prisma.order.create({
     data: {
       ...scope(req), customerName, phone1,
       type: type || 'DROP', size, phoneSite, phone3,
       lat: lat ? +lat : null, lng: lng ? +lng : null,
-      locationUrl: locationUrl || null,
       address, contractNo: contractNo || null,
       dueDate: dueDate ? new Date(dueDate) : null,
       price: price ? +price : null, notes,
@@ -112,6 +111,14 @@ router.post('/alerts/:id/ack', async (req, res) => {
 });
 
 // ===== مستخدمو الشركة =====
+router.get('/drivers', requireRole('OWNER', 'BRANCH_MGR', 'TRAFFIC_MGR', 'DISPATCHER'), async (req, res) => {
+  res.json(await prisma.user.findMany({
+    where: { ...scope(req), role: 'DRIVER', active: true },
+    select: { id: true, name: true, phone: true, role: true, active: true },
+    orderBy: { id: 'asc' },
+  }));
+});
+
 router.get('/users', requireRole('OWNER', 'BRANCH_MGR'), async (req, res) => {
   res.json(await prisma.user.findMany({
     where: scope(req),
@@ -184,7 +191,7 @@ router.get('/driver/orders', requireRole('DRIVER'), async (req, res) => {
     where: {
       companyId: req.user.companyId,
       assignedTo: req.user.id,
-      status: { in: ['ASSIGNED', 'EN_ROUTE', 'NEW'] },
+      status: { in: ['ASSIGNED', 'RECEIVED', 'EN_ROUTE', 'NEW'] },
     },
     include: { container: true },
     orderBy: { createdAt: 'desc' },
@@ -201,9 +208,19 @@ router.post('/driver/orders/:id/action', requireRole('DRIVER'), async (req, res)
   if (!o) return res.status(404).json({ error: 'الطلب غير موجود أو ليس مسنداً لك' });
 
   let newStatus = o.status;
-  if (action === 'enroute') newStatus = 'EN_ROUTE';
-  else if (action === 'done') newStatus = 'DONE';
-  else return res.status(400).json({ error: 'إجراء غير صحيح' });
+
+  if (action === 'receive') {
+    if (o.status !== 'ASSIGNED') return res.status(400).json({ error: 'يجب أن يكون الطلب مسنداً أولاً' });
+    newStatus = 'RECEIVED';
+  } else if (action === 'enroute') {
+    if (o.status !== 'RECEIVED') return res.status(400).json({ error: 'يجب استلام الطلب أولاً قبل التوجه' });
+    newStatus = 'EN_ROUTE';
+  } else if (action === 'done') {
+    if (o.status !== 'EN_ROUTE') return res.status(400).json({ error: 'يجب بدء التوجه قبل التنفيذ' });
+    newStatus = 'DONE';
+  } else {
+    return res.status(400).json({ error: 'إجراء غير صحيح' });
+  }
 
   // حفظ الصور
   let savedPhotos = [];

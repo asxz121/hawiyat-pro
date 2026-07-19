@@ -312,6 +312,7 @@ function renderOrders() {
     const isExp     = expandedCards.has(o.id);
     const stCls     = isDone ? 'st-done' : isEnroute ? 'st-enroute' : 'st-new';
     const s2 = isEnroute || isDone;
+    const isReceived = o.status === 'RECEIVED';
     const s3 = isDone;
     const hasCollected = o.collectedAmount && o.collectedAmount > 0;
 
@@ -331,8 +332,8 @@ function renderOrders() {
       </div>
 
       <div class="progress-mini">
-        <div class="pm-step done"><div class="pm-dot done">✓</div><div class="pm-lbl">استلام</div></div>
-        <div class="pm-step ${s2?'done':isNew?'active':''}"><div class="pm-dot ${s2?'done':isNew?'active':''}">🚚</div><div class="pm-lbl">طريق</div></div>
+        <div class="pm-step ${isReceived||isEnroute||isDone?'done':isNew?'active':''}"><div class="pm-dot ${isReceived||isEnroute||isDone?'done':isNew?'active':''}">✓</div><div class="pm-lbl">استلام</div></div>
+        <div class="pm-step ${s2?'done':isReceived?'active':''}"><div class="pm-dot ${s2?'done':isReceived?'active':''}">🚚</div><div class="pm-lbl">طريق</div></div>
         <div class="pm-step ${s3?'done':''}"><div class="pm-dot ${s3?'done':''}">📦</div><div class="pm-lbl">إنجاز</div></div>
       </div>
 
@@ -363,7 +364,8 @@ function renderOrders() {
       </div>
 
       <div class="card-actions">
-        ${isNew ? `<button class="btn btn-blue" onclick="markEnRoute(${o.id},event)">🚚 بدأت التوجه</button>` : ''}
+        ${isNew ? `<button class="btn btn-amber" onclick="receiveOrder(${o.id},event)">📥 استلام الطلب</button>` : ''}
+        ${isReceived ? `<button class="btn btn-blue" onclick="markEnRoute(${o.id},event)">🚚 بدأت التوجه</button>` : ''}
         ${isEnroute ? `<button class="btn btn-green" onclick="openDoneModal(${o.id},event)">✅ تم التنفيذ</button>` : ''}
         ${(isEnroute || isDone) && !hasCollected ? `<button class="btn btn-amber" onclick="openCollectModal(${o.id},event)">💰 تحصيل مبلغ</button>` : ''}
         <a href="tel:${o.phone1}" class="btn btn-call" onclick="event.stopPropagation()">📞</a>
@@ -402,6 +404,21 @@ function initMap(id, lat, lng, name, addr) {
 }
 
 /* ===== الإجراءات ===== */
+async function receiveOrder(id, e) {
+  if (e) e.stopPropagation();
+  try {
+    await api('/driver/orders/' + id + '/action', {
+      method: 'POST',
+      body: JSON.stringify({ action:'receive' })
+    });
+    currentOrderId = null;
+    showToast('✅ تم استلام الطلب، يمكنك الآن بدء التوجه');
+    loadOrders();
+  } catch(e) {
+    showToast('⚠ لم يتم استلام الطلب');
+  }
+}
+
 async function markEnRoute(id, e) {
   if (e) e.stopPropagation();
   async function go(lat, lng) {

@@ -6,8 +6,16 @@
 <title>حاويات برو — لوحة التحكم الاحترافية</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Changa:wght@600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="/socket.io/socket.io.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js">
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js">
+
+</script>
+<script src="/socket.io/socket.io.js">
+
+</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -61,10 +69,10 @@ button{font-family:inherit}
   font-family:'Changa';font-weight:700;font-size:.9rem;flex-shrink:0;
 }
 .user-info .t{font-size:.78rem;font-weight:600;color:#fff}
-.user-info .s{font-size:.62rem;color:#7A95A8}
+.user-info .s{font-size:.78rem;color:#7A95A8}
 
 .sidebar-body{flex:1;padding:8px 10px;overflow-y:auto}
-.nav-sec{font-size:.58rem;color:#4A6375;letter-spacing:.8px;font-weight:700;padding:10px 8px 4px;text-transform:uppercase}
+.nav-sec{font-size:.68rem;color:#4A6375;letter-spacing:.8px;font-weight:700;padding:10px 8px 4px;text-transform:uppercase}
 .nav-sec{font-size:.64rem;color:#7E93A3;letter-spacing:.5px;padding:14px 12px 6px;font-weight:600}
 .nav-item{
   display:flex;align-items:center;gap:11px;
@@ -76,7 +84,7 @@ button{font-family:inherit}
 .nav-item:hover{background:rgba(255,255,255,.06);color:#fff}
 .nav-item.active{background:var(--amber);color:var(--ink);font-weight:600}
 .nav-item .ico{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
-.nav-badge{margin-inline-start:auto;background:var(--red);color:#fff;font-size:.62rem;font-weight:700;border-radius:20px;padding:1px 7px}
+.nav-badge{margin-inline-start:auto;background:var(--red);color:#fff;font-size:.78rem;font-weight:700;border-radius:20px;padding:1px 7px}
 .nav-item.active .nav-badge{background:var(--ink);color:var(--amber)}
 
 .sidebar-foot{padding:12px 14px;border-top:1px solid rgba(255,255,255,.07)}
@@ -297,125 +305,304 @@ tbody tr:hover{background:#F8FAFB}
   }
   .bottom-nav button .ico{font-size:1.15rem}
   .bottom-nav button.active{color:var(--amber)}
-  #menuBtn{display:grid!important}
+  #menuBtn{display:grid!important}.sidebar{display:flex!important}
 }
 
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 @media print{.sidebar,.bottom-nav,.topbar button,#userAv{display:none!important}.main{margin:0!important;padding:0!important}.topbar{position:static!important}.page{display:block!important}.card,.kpi{box-shadow:none!important;border:1px solid var(--line)}}
 
+
 /* =========================================================
-   COMPACT PROFESSIONAL REFINEMENT — 2026-06-17
-   هذه الطبقة تُكثّف وتُنسّق الشكل فقط (مسافات/مقاسات/ظلال)
-   ولا تغيّر أي معرّف (id) أو دالة JavaScript أو سلوك.
+   SAFE PROFESSIONAL DESIGN PATCH — 2026-06-13
+   ملاحظة: هذا الباتش يغير الشكل فقط ولا يغير أي API أو دوال JavaScript.
    ========================================================= */
 :root{
-  --radius:10px;
-  --shadow:0 1px 2px rgba(20,31,40,.05),0 4px 14px rgba(20,31,40,.06);
-  --shadow-soft:0 2px 10px rgba(20,31,40,.05);
+  --bg:#EEF3F6;
+  --card:#FFFFFF;
+  --line:#D9E4EA;
+  --shadow:0 1px 2px rgba(20,31,40,.05),0 10px 28px rgba(20,31,40,.075);
+  --shadow-soft:0 8px 22px rgba(20,31,40,.055);
 }
-
-/* الشريط الجانبي */
-.sidebar{width:218px;padding:13px 9px}
-.sidebar-head{padding:4px 7px 13px}
-.brand{gap:9px}
-.brand-icon{width:33px;height:28px;border-radius:6px}
-.brand-text h1{font-size:.98rem}
-.brand-text small{font-size:.58rem}
-.user-pill{margin-top:9px;padding:7px 9px;gap:8px}
-.admin-pill{margin-top:11px;padding:8px 10px}
-.user-av,.admin-ico{width:27px;height:27px;font-size:.74rem}
-.user-info .t,.admin-info .t{font-size:.7rem}
-.user-info .s,.admin-info .s{font-size:.57rem}
-.sidebar-body,.sidebar-nav{padding:5px 7px}
-.nav-sec{padding:9px 9px 3px;font-size:.56rem}
-.nav-item{padding:6px 9px;font-size:.78rem;min-height:32px;gap:8px;margin-bottom:1px}
-.nav-item .ico{font-size:.88rem;width:18px}
-.nav-badge{font-size:.58rem;padding:1px 6px}
-.sidebar-foot{padding:9px 11px}
-
-/* المحتوى الرئيسي والشريط العلوي */
-.main{margin-inline-start:218px;padding:14px clamp(12px,2.2vw,24px) 56px;max-width:1220px}
-.topbar{padding:0 2px 7px;margin-bottom:13px;gap:9px}
-.topbar h2{font-size:1.14rem;letter-spacing:-.2px}
-.topbar .sub{font-size:.68rem}
-.top-btn{padding:6px 12px;font-size:.74rem;gap:5px}
-.icon-btn{width:32px;height:32px;font-size:.86rem}
-#menuBtn{width:32px!important;height:32px!important}
-button[aria-label="تحديث"]{width:32px!important;height:32px!important;font-size:.92rem!important}
-#topBtn{padding:7px 13px!important;font-size:.76rem!important}
-#userAv{width:32px!important;height:32px!important;font-size:.8rem!important}
-.content{padding:0 0 36px}
-
-/* بطاقات المؤشرات KPI */
-.kpis{gap:9px;margin-bottom:12px}
-.kpi{padding:11px 12px;border-top-width:3px;min-height:auto}
-.kpi .lbl{font-size:.66rem;margin-bottom:3px;font-weight:600}
-.kpi .val{font-size:1.28rem;letter-spacing:-.3px}
-.kpi .val small{font-size:.68rem}
-.kpi .delta{font-size:.58rem;margin-top:5px;padding:2px 7px}
-
-/* البطاقات العامة */
-.card{padding:13px;margin-bottom:10px}
-.card h3,.card-head h3{font-size:.82rem;margin-bottom:10px;gap:6px}
-.card-head{margin-bottom:10px;gap:6px}
-.card h3::before,.card-head h3::before{width:3px;height:12px}
-.card h3 .end,.card-head .end{font-size:.66rem}
-.grid2,.grid11{gap:10px;margin-bottom:10px}
-.chart-box{height:176px}
-.shift-cards{gap:9px;margin-bottom:12px}
-.shift-card{padding:13px;min-height:auto;border-radius:var(--radius)}
-.shift-card .tt{font-size:.95rem}
-.shift-card .tm{font-size:.7rem;margin:3px 0 9px}
-.shift-card .cnt{font-size:1.5rem}
-.shift-card .cl{font-size:.66rem}
-
-/* الجداول */
-.tbl-wrap{border-radius:9px}
-table{font-size:.74rem}
-th{padding:7px 10px;font-size:.6rem;height:32px}
-td{padding:7px 10px;height:34px}
-
-/* الشارات والأزرار */
-.badge{font-size:.58rem;padding:2px 8px}
-.btn{border-radius:7px}
-.btn-sm{padding:4px 9px;font-size:.64rem}
-.modal-actions .btn{padding:9px}
-
-/* الحقول والنماذج */
-.form-grid{gap:8px;margin-bottom:10px}
-.field label{font-size:.64rem;margin-bottom:3px}
-.field input,.field select{padding:6px 9px;font-size:.76rem;min-height:33px;border-radius:8px}
-
-/* التنبيهات والموظفون */
-.alert-item{padding:10px;border-radius:9px;gap:9px;margin-bottom:7px}
-.alert-ico{width:30px;height:30px;font-size:.82rem;border-radius:8px}
-.alert-body .t{font-size:.78rem}
-.alert-body .s{font-size:.64rem}
-.emp-av,.emp-avatar{width:32px;height:32px;font-size:.8rem}
-
-/* النوافذ المنبثقة */
-.modal{border-radius:13px;padding:16px}
-.modal h3{font-size:.96rem;margin-bottom:11px;padding-bottom:9px}
-
+html{scroll-behavior:smooth;background:var(--bg)}
+body{background:
+  radial-gradient(circle at top left,rgba(247,168,35,.06),transparent 32%),
+  linear-gradient(180deg,#F5F8FA 0%,var(--bg) 220px,var(--bg) 100%);
+}
+.sidebar{
+  width:260px;
+  background:linear-gradient(180deg,#101D26 0%,#13232D 52%,#0F1B23 100%);
+  box-shadow:-1px 0 0 rgba(255,255,255,.04) inset,0 18px 45px rgba(8,18,26,.18);
+}
+.brand-icon{box-shadow:inset 0 -5px 0 rgba(0,0,0,.18),0 10px 22px rgba(247,168,35,.18)}
+.nav-item{min-height:42px;border:1px solid transparent}
+.nav-item.active{box-shadow:0 10px 22px rgba(247,168,35,.22);border-color:rgba(255,255,255,.12)}
+.nav-item:not(.active):hover{border-color:rgba(255,255,255,.05)}
+.main{margin-inline-start:252px;padding-top:24px;max-width:1320px}
+.topbar{
+  background:rgba(238,243,246,.82);
+  backdrop-filter:blur(8px);
+  border-radius:18px;
+  padding:8px 2px 12px;
+}
+.topbar h2{font-size:1.55rem;letter-spacing:-.3px}.topbar .sub{font-size:.78rem;color:#6F8493}
+.top-btn,.btn-amber{box-shadow:0 10px 20px rgba(247,168,35,.26)}
+.icon-btn{background:#fff;box-shadow:var(--shadow-soft)}
+.kpis{gap:16px}.kpi{
+  min-height:96px;
+  border:1px solid rgba(221,229,235,.78);
+  border-top-width:4px;
+  transition:transform .15s ease,box-shadow .15s ease;
+}
+.kpi:hover{transform:translateY(-1px);box-shadow:0 12px 32px rgba(20,31,40,.085)}
+.kpi .lbl{font-weight:600}.kpi .val{letter-spacing:-.4px}.kpi .delta{font-weight:700}
+.card{
+  border:1px solid rgba(221,229,235,.78);
+  box-shadow:var(--shadow);
+}
+.card h3,.card-head h3{letter-spacing:-.1px}.card h3::before,.card-head h3::before{box-shadow:0 0 0 3px rgba(247,168,35,.11)}
+.tbl-wrap{background:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+thead{background:#101D26}th{height:42px;letter-spacing:.1px}td{height:44px}tbody tr{transition:background .12s ease}tbody tr:hover{background:#F5F9FB}
+.badge{font-weight:800}.btn{min-height:31px}.btn-sm{border-radius:9px}
+.field input,.field select{
+  min-height:42px;
+  background:linear-gradient(180deg,#fff,#FBFDFE);
+}
+.field input:hover,.field select:hover{border-color:#C9D7E0}
+.emp-av,.emp-avatar{box-shadow:0 7px 15px rgba(20,31,40,.12)}
+.shift-card{min-height:138px}.chart-box{height:236px}
+.toast{box-shadow:0 14px 38px rgba(11,20,28,.34)}
+.modal{box-shadow:0 24px 70px rgba(5,14,21,.28)}
+/* تحسين صفحات الطلبات والمحاسبة التي تحتوي أزرار أو قوائم كثيرة */
+.card .form-grid + .btn,.card .form-grid + button{margin-top:2px}
+input::placeholder{color:#90A3B1}
+/* خريطة أو مناطق طويلة */
+#map,.map,.leaflet-container{border-radius:14px!important;overflow:hidden;border:1px solid var(--line)}
+/* تصغير محسوب للشاشات المتوسطة حتى لا تضيع المساحة */
 @media(min-width:769px) and (max-width:1280px){
-  .sidebar{width:200px}
-  .main{margin-inline-start:200px;max-width:1060px;padding-inline:14px}
-  .kpi .val{font-size:1.16rem}
-  .nav-item{font-size:.76rem}
+  .main{padding-inline:18px;max-width:1180px}.sidebar{width:236px}.main{margin-inline-start:236px}
+  .nav-item{font-size:.82rem;padding-inline:10px}.topbar h2{font-size:1.35rem}.kpi .val{font-size:1.55rem}
+  table{font-size:.76rem}th,td{padding-inline:10px}.card{padding:16px}
 }
 @media(max-width:768px){
-  .kpis{gap:7px}
-  .kpi{padding:9px;min-height:auto}
-  .kpi .val{font-size:1.08rem}
-  .card{padding:11px}
-  .chart-box{height:164px}
-  .shift-card{padding:12px}
+  body{background:var(--bg)}
+  .sidebar{width:min(292px,86vw);inset-inline-start:0;transform:translateX(105%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-inline-start:0;padding:10px 10px 92px;max-width:1320px}
+  .topbar{margin:-10px -10px 12px;padding:12px 10px;background:rgba(255,255,255,.92);border-bottom:1px solid var(--line)}
+  .topbar h2{font-size:1.12rem}.topbar .sub{font-size:.68rem}.icon-btn{width:36px;height:36px}.top-btn{min-height:36px}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.kpi{min-height:86px;border-radius:13px}.kpi .lbl{font-size:.66rem}.kpi .val{font-size:1.22rem}
+  .card{border-radius:13px;margin-bottom:10px;padding:12px}.chart-box{height:210px}
+  .form-grid{grid-template-columns:1fr}.field input,.field select{min-height:40px}
+  .tbl-wrap{border-radius:12px}table{min-width:680px;font-size:.72rem}th,td{height:40px}
+  .bottom-nav{backdrop-filter:blur(8px)}
+}
+
+
+/* ===== خريطة الحاويات ===== */
+#contMap{height:500px;border-radius:var(--radius);z-index:1}
+.cmark{width:34px;height:26px;border-radius:5px;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.35);position:relative;background-image:repeating-linear-gradient(90deg,transparent 0 5px,rgba(0,0,0,.16) 5px 8px)}
+.cmark::after{content:"";position:absolute;bottom:-7px;right:50%;transform:translateX(50%);border:5px solid transparent;border-top-color:inherit}
+.cm-amber{background-color:var(--amber);border-top-color:var(--amber)}
+.cm-green{background-color:#2FA877;border-top-color:#2FA877}
+.cm-red{background-color:#D86A6A;border-top-color:#D86A6A}
+.leaflet-popup-content-wrapper{border-radius:12px!important;font-family:'IBM Plex Sans Arabic',sans-serif;direction:rtl}
+.leaflet-popup-content{margin:13px 16px;font-size:.8rem;line-height:1.8;min-width:190px}
+.pp-code{font-family:'Changa';font-weight:700;font-size:1rem;display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.pp-row{display:flex;justify-content:space-between;gap:14px;color:var(--ink)}
+.pp-row span:first-child{color:var(--steel)}
+.map-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.74rem;align-items:center}
+.map-legend .sq{width:16px;height:12px;border-radius:3px;display:inline-block;vertical-align:middle;margin-inline-end:5px}
+.cont-list{max-height:500px;overflow-y:auto}
+.cont-list .li{cursor:pointer;border-radius:10px;padding:10px 8px;transition:background .15s;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line)}
+.cont-list .li:hover{background:#F4F7F9}
+.cont-list .li:last-child{border-bottom:none}
+.chip{background:#fff;border:1px solid var(--line);border-radius:20px;padding:7px 15px;font-size:.78rem;cursor:pointer;color:var(--ink-2);transition:all .15s}
+.chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+</style>
+
+<style id="center-all-text-fix">
+/* توسيط النصوص في كامل المشروع */
+.card,
+.kpi,
+.tbl-wrap table th,
+.tbl-wrap table td,
+.badge,
+.btn,
+.input,
+select,
+textarea,
+label,
+.cell,
+.lbl,
+.val,
+.delta {
+  text-align: center !important;
+}
+
+.cell-emp {
+  justify-content: center !important;
+}
+
+.page h1,
+.page h2,
+.page h3,
+.page .section-title {
+  text-align: center !important;
+}
+
+
+/* ===== NAVY PROFESSIONAL COMPACT STYLE ===== */
+input, select, textarea {
+  border: 1px solid #0b2a3a !important;
+  border-radius: 6px !important;
+  color: #0b2230 !important;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #f6a62d !important;
+  outline: none !important;
+}
+
+table thead th {
+  background: #071f2b !important;
+  color: #ffffff !important;
+}
+
+
+
+/* ===== ORDERS FORM PREMIUM NAVY STYLE ===== */
+#orderForm {
+  border: 1px solid #0b2a3a !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  box-shadow: 0 12px 32px rgba(7,31,43,.12) !important;
+}
+
+#orderForm .order-form-title {
+  background: linear-gradient(90deg, #071f2b, #0b2a3a) !important;
+  color: #fff !important;
+  padding: 10px 14px !important;
+  margin: 0 !important;
+  border-bottom: 3px solid #f6a62d !important;
+}
+
+#orderForm .order-form-title h3 {
+  color: #fff !important;
+  font-size: .95rem !important;
+  margin: 0 !important;
+}
+
+#orderForm .field label {
+  color: #0b2a3a !important;
+  font-weight: 900 !important;
+  font-size: .66rem !important;
+  margin-bottom: 4px !important;
+}
+
+#orderForm input,
+#orderForm select,
+#orderForm textarea {
+  border: 1.5px solid #0b2a3a !important;
+  border-radius: 8px !important;
+  padding: 7px 9px !important;
+  font-size: .74rem !important;
+  min-height: 40px !important;font-size:.78rem !important;
+  background: #fff !important;
+  color: #082130 !important;
+}
+
+#orderForm input:focus,
+#orderForm select:focus,
+#orderForm textarea:focus {
+  border-color: #f6a62d !important;
+  box-shadow: 0 0 0 3px rgba(246,166,45,.16) !important;
+}
+
+#orderForm .btn-amber {
+  background: #f6a62d !important;
+  color: #071f2b !important;
+  border: 1px solid #d88a12 !important;
+  border-radius: 8px !important;
+  font-weight: 900 !important;
+  min-height: 40px !important;font-size:.78rem !important;
+}
+
+#orderForm .btn-ghost {
+  border: 1px solid #0b2a3a !important;
+  color: #0b2a3a !important;
+  background: #fff !important;
+  border-radius: 8px !important;
+  font-weight: 800 !important;
+  min-height: 40px !important;font-size:.78rem !important;
+}
+
+
+/* ===== SIMPLE PREMIUM ORDER FORM FIX ===== */
+#orderForm {
+  padding: 14px !important;
+}
+
+#orderForm .order-form-title {
+  margin: -14px -14px 12px -14px !important;
+  height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+#orderForm input,
+#orderForm select {
+  height: 32px !important;
+  font-size: .70rem !important;
+}
+
+#orderForm .btn {
+  height: 40px !important;font-size:.78rem !important;
+}
+
+
+/* ===== ORDER FORM COMPACT BALANCE ===== */
+#orderForm {
+  padding-bottom: 10px !important;
+}
+
+#orderForm > div:nth-child(2) {
+  row-gap: 7px !important;
+}
+
+#orderForm .field {
+  margin-bottom: 0 !important;
+}
+
+#orderForm label {
+  line-height: 1.1 !important;
+  margin-bottom: 3px !important;
+}
+
+#orderForm input,
+#orderForm select {
+  height: 38px !important;
+  min-height: 38px !important;
+}
+
+#orderForm .field[style*="grid-column:span 2"] {
+  margin-top: 0 !important;
+}
+
+#orderForm .field[style*="grid-column:1/-1"] {
+  margin-top: -22px !important;
+}
+
+#orderForm > div:nth-child(3) {
+  margin-top: 6px !important;
 }
 
 </style>
+
+<link rel="stylesheet" href="/pro-ui.css">
 </head>
-<body>
+<body style="visibility:hidden">
 <div class="app">
 
 <!-- ===== الشريط الجانبي ===== -->
@@ -434,7 +621,9 @@ td{padding:7px 10px;height:34px}
     <div class="nav-sec">العمليات</div>
     <button class="nav-item" data-page="alerts"><span class="ico">🔔</span> التنبيهات <span class="nav-badge" id="alertBadge" style="display:none">0</span></button>
     <button class="nav-item" data-page="orders"><span class="ico">📋</span> الطلبات</button>
+    <button class="nav-item" data-page="finance"><span class="ico">💰</span> الإدارة المالية</button>
     <button class="nav-item" data-page="containers"><span class="ico">📦</span> الحاويات</button>
+    <button class="nav-item" data-page="contmap"><span class="ico">⌖</span> خريطة الحاويات</button>
 
     <div class="nav-sec">الموارد البشرية</div>
     <button class="nav-item" data-page="employees"><span class="ico">👥</span> الموظفون</button>
@@ -445,7 +634,7 @@ td{padding:7px 10px;height:34px}
     <div class="nav-sec">الأسطول</div>
     <button class="nav-item" data-page="vehicles"><span class="ico">🚚</span> السيارات وعداد الزيت <span class="nav-badge" id="oilBadge" style="display:none">0</span></button>
     <button class="nav-item" data-page="maintenance"><span class="ico">🔧</span> الصيانة</button>
-    <button class="nav-item" onclick="window.open('/tracking.html','_blank')"><span class="ico">📡</span> تتبع السائقين</button>
+    <button class="nav-item tracking-nav" onclick="window.open('/tracking.html','_blank')"><span class="ico">📡</span> تتبع السائقين</button>
 
     <div class="nav-sec">التحليلات</div>
     <button class="nav-item" data-page="reports"><span class="ico">📊</span> التقارير</button>
@@ -468,7 +657,7 @@ td{padding:7px 10px;height:34px}
       <h2 id="pageTitle">لوحة التحكم</h2>
       <div class="sub" id="pageDate"></div>
     </div>
-    <div class="grow"></div>
+    <button id="menuBtn" onclick="toggleSidebar()" style="display:none;width:40px;height:40px;border-radius:10px;background:#fff;border:1px solid var(--line);place-items:center;cursor:pointer;font-size:1.2rem;flex-shrink:0">☰</button><div class="grow"></div>
     <button onclick="refreshPage()" aria-label="تحديث" style="width:40px;height:40px;border-radius:10px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;cursor:pointer;position:relative;font-size:1rem;flex-shrink:0">↻<span id="notifDot" style="display:none;position:absolute;top:9px;left:10px;width:8px;height:8px;border-radius:50%;background:var(--red);border:2px solid #fff"></span></button>
     <button id="topBtn" onclick="ctxAdd()" style="border:0;cursor:pointer;font-weight:600;font-size:.85rem;padding:10px 17px;border-radius:10px;transition:all .15s;display:inline-flex;align-items:center;gap:8px;background:var(--amber);color:var(--ink);box-shadow:0 3px 10px rgba(247,168,35,.35)">＋ إضافة</button>
     <div id="userAv" style="width:40px;height:40px;border-radius:50%;background:var(--ink2);color:var(--amber);display:grid;place-items:center;font-weight:700;font-family:'Changa';flex-shrink:0">م</div>
@@ -484,6 +673,13 @@ td{padding:7px 10px;height:34px}
         <div class="kpi r"><div class="lbl">زيت مستحق</div><div class="val num" id="dOil">—</div><span class="delta down">تحتاج جدولة</span></div>
         <div class="kpi v"><div class="lbl">طلبات نشطة</div><div class="val num" id="dOrders">—</div><span class="delta flat">قيد التنفيذ</span></div>
       </div>
+      <div class="kpis">
+        <div class="kpi b"><div class="lbl">💰 الدخل الشهري</div><div class="val num" id="dIncome">— <small>ر.س</small></div><span class="delta flat">من الطلبات المحصلة</span></div>
+        <div class="kpi r"><div class="lbl">📉 المصروفات</div><div class="val num" id="dExpenses">— <small>ر.س</small></div><span class="delta flat">رواتب + صيانة</span></div>
+        <div class="kpi g"><div class="lbl">📊 صافي الربح</div><div class="val num" id="dProfit">— <small>ر.س</small></div><span class="delta flat">الدخل ناقص المصروفات</span></div>
+        <div class="kpi v"><div class="lbl">👨‍💼 صافي الرواتب</div><div class="val num" id="dPayroll">— <small>ر.س</small></div><span class="delta flat">مسير الشهر الحالي</span></div>
+      </div>
+
       <div class="grid2">
         <div class="card">
           <div class="card-head"><h3>الحضور خلال الأسبوع</h3><span class="end">حاضر / متأخر / غائب</span></div>
@@ -517,30 +713,31 @@ td{padding:7px 10px;height:34px}
     <!-- ===== الطلبات ===== -->
     <div class="page" id="page-orders">
       <div class="card" id="orderForm">
-        <div class="card-head"><h3>طلب جديد</h3></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-          <div class="field" style="grid-column:1/-1"><label style="font-size:.68rem">اسم العميل *</label><input id="oCust" placeholder="مؤسسة البنيان" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field"><label style="font-size:.68rem">رقم العميل *</label><input id="oP1" inputmode="tel" placeholder="05XXXXXXXX" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field"><label style="font-size:.68rem">رقم الموقع</label><input id="oPS" inputmode="tel" placeholder="05XXXXXXXX" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field"><label style="font-size:.68rem">رقم إضافي</label><input id="oP3" inputmode="tel" placeholder="اختياري" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field"><label style="font-size:.68rem">نوع الطلب</label><select id="oType" style="padding:8px 10px;font-size:.8rem"><option value="DROP">إنزال</option><option value="PICKUP">رفع</option><option value="SWAP">تبديل</option><option value="MOVE">نقل</option><option value="PROJECT_CYCLE">دورة مشروع</option></select></div>
-          <div class="field"><label style="font-size:.68rem">الحجم</label><input id="oSize" placeholder="8 ياردة" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field"><label style="font-size:.68rem">رقم العقد</label><input id="oContract" placeholder="فارغ = بدون عقد" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field"><label style="font-size:.68rem">الاستحقاق</label><input id="oDue" type="date" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field"><label style="font-size:.68rem">السعر (ر.س)</label><input id="oPrice" inputmode="numeric" placeholder="0" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field"><label style="font-size:.68rem">وصف الموقع</label><input id="oAddr" placeholder="حي النرجس" style="padding:8px 10px;font-size:.8rem"></div>
-          <div class="field" style="grid-column:1/-1"><label style="font-size:.68rem">رابط الموقع من واتساب/قوقل</label><input id="oLocUrl" placeholder="الصق الرابط هنا لاستخراج الإحداثيات تلقائياً" style="padding:8px 10px;font-size:.8rem"></div>
+        <div class="card-head order-form-title"><h3>طلب جديد</h3></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px">
+          <div class="field" style="grid-column:span 2"><label style="font-size:.68rem">اسم العميل *</label><input id="oCust" placeholder="مؤسسة البنيان" style="padding:2px 5px;font-size:.78rem"></div>
+          <div class="field"><label style="font-size:.68rem">رقم العميل *</label><input id="oP1" inputmode="tel" placeholder="05XXXXXXXX" style="padding:2px 5px;font-size:.78rem"></div>
+          <div class="field"><label style="font-size:.68rem">رقم الموقع</label><input id="oPS" inputmode="tel" placeholder="05XXXXXXXX" style="padding:2px 5px;font-size:.78rem"></div>
+          <div class="field"><label style="font-size:.68rem">رقم إضافي</label><input id="oP3" inputmode="tel" placeholder="اختياري" style="padding:2px 5px;font-size:.78rem"></div>
+          <div class="field"><label style="font-size:.68rem">نوع الطلب</label><select id="oType" style="padding:2px 5px;font-size:.78rem" onchange="onTypeChange()"><option value="DROP">إنزال</option><option value="PICKUP">رفع</option><option value="SWAP">تبديل</option><option value="MOVE">نقل</option><option value="PROJECT_CYCLE">دورة مشروع</option></select></div>
+          <div class="field"><label style="font-size:.68rem">الحجم</label><input id="oSize" placeholder="8 ياردة" style="padding:2px 5px;font-size:.78rem"></div>
+          <div class="field" id="contPickerWrap" style="display:none"><label style="font-size:.68rem">اختر الحاوية</label><select id="oContPicker" style="padding:2px 5px;font-size:.78rem;width:100%"><option value="">-- اختر --</option></select></div>
+          <div class="field"><label style="font-size:.68rem">السعر (ر.س)</label><input id="oPrice" inputmode="numeric" placeholder="0" style="padding:2px 5px;font-size:.78rem"></div>
+          <div class="field"><label style="font-size:.68rem">رقم العقد</label><input id="oContract" placeholder="بدون عقد" style="padding:2px 5px;font-size:.78rem"></div>
+          <div class="field"><label style="font-size:.68rem">وصف الموقع</label><input id="oAddr" placeholder="حي النرجس" style="padding:2px 5px;font-size:.78rem"></div>
+          <div class="field"><label style="font-size:.68rem">مدة الإيجار (أيام)</label><input id="oDueDays" inputmode="numeric" placeholder="3" style="padding:2px 5px;font-size:.78rem;text-align:center" oninput="calcDueDate()"><span id="oDueDisplay" style="font-size:.65rem;color:#F7A823"></span><input id="oDue" type="hidden"></div>
+          <div class="field" style="grid-column:1/-1;margin-top:10px"><label style="font-size:.68rem">رابط الموقع من واتساب/قوقل</label><input id="oLocUrl" placeholder="الصق الرابط هنا لاستخراج الإحداثيات تلقائياً" style="padding:2px 5px;font-size:.78rem"></div>
         </div>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-ghost" onclick="getLoc()" style="padding:8px 12px;font-size:.78rem;flex:1">📍 موقعي</button>
-          <button class="btn btn-ghost" onclick="extractOrderLocation()" style="padding:8px 12px;font-size:.78rem;flex:1">🔗 رابط العميل</button>
-          <button class="btn btn-amber" onclick="addOrder()" style="padding:8px 14px;font-size:.78rem;flex:2">＋ إنشاء الطلب</button>
+        <div style="display:flex;gap:10px;margin-top:8px">
+          <button class="btn btn-ghost" onclick="getLoc()" style="padding:4px 8px;font-size:.65rem;flex:1">📍 موقعي</button>
+          <button class="btn btn-ghost" onclick="extractOrderLocation()" style="padding:4px 8px;font-size:.65rem;flex:1">🔗 رابط العميل</button>
+          <button class="btn btn-amber" onclick="addOrder()" style="padding:4px 10px;font-size:.65rem;flex:2">＋ إنشاء الطلب</button>
         </div>
         <div id="locMsg"></div>
       </div>
       <div class="card">
         <div class="card-head"><h3>سجل الطلبات</h3></div>
-        <div class="tbl-wrap"><table><thead><tr><th>#</th><th>النوع</th><th>العميل</th><th>الأرقام</th><th>العقد</th><th>الاستحقاق</th><th>المبلغ</th><th>الحالة</th><th>إسناد</th><th>إشعار</th></tr></thead><tbody id="orderRows"></tbody></table></div>
+        <div class="tbl-wrap"><table><thead><tr><th>#</th><th>النوع</th><th>العميل</th><th>الأرقام</th><th>العقد</th><th>الاستحقاق</th><th>المبلغ</th><th>الحالة</th><th>إجراءات<br><span style="font-size:.68rem;color:#8DA1AF">تمديد / رفع / تبديل</span></th><th>إسناد</th><th>إشعار</th></tr></thead><tbody id="orderRows"></tbody></table></div>
       </div>
     </div>
 
@@ -548,14 +745,29 @@ td{padding:7px 10px;height:34px}
     <div class="page" id="page-containers">
       <div class="card" id="contForm">
         <div class="card-head"><h3>إضافة حاوية</h3></div>
-        <div style="display:flex;gap:11px;flex-wrap:wrap;align-items:flex-end">
-          <div class="field" style="flex:1;min-width:150px"><label>رقم الحاوية *</label><input id="cCode" placeholder="HW-101"></div>
-          <div class="field" style="flex:1;min-width:130px"><label>الحجم *</label><input id="cSize" placeholder="8 ياردة"></div>
-          <button class="btn btn-amber" onclick="addCont()" style="padding:9px 16px;margin-bottom:0">＋ إضافة</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+          <div class="field" style="flex:1;min-width:120px"><label>رقم الحاوية *</label><input id="cCode" placeholder="HW-101"></div>
+          <div class="field" style="flex:1;min-width:100px"><label>الحجم *</label><input id="cSize" placeholder="8 ياردة"></div>
+          <div class="field" style="flex:1;min-width:130px"><label>المستودع</label><select id="cWarehouse"><option value="">بدون مستودع</option></select></div>
+          <button class="btn btn-amber" onclick="addCont()" style="padding:7px 14px;margin-bottom:0">＋ إضافة</button>
         </div>
       </div>
-      <div class="card"><div class="card-head"><h3>الحاويات</h3></div>
-        <div class="tbl-wrap"><table><thead><tr><th>الرقم</th><th>الحجم</th><th>الحالة</th></tr></thead><tbody id="contRows"></tbody></table></div>
+      <div class="card"><div class="card-head"><h3>الحاويات</h3>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <select id="contFilterStatus" onchange="loadConts()" style="padding:4px 8px;font-size:.72rem;border:1px solid var(--line);border-radius:8px">
+            <option value="">كل الحالات</option>
+            <option value="IN_DEPOT">بالمستودع</option>
+            <option value="ON_SITE">بالموقع</option>
+            <option value="AWAIT_PICKUP">انتظار رفع</option>
+            <option value="IN_TRANSIT">بالطريق</option>
+            <option value="MAINTENANCE">صيانة</option>
+          </select>
+          <select id="contFilterWarehouse" onchange="loadConts()" style="padding:4px 8px;font-size:.72rem;border:1px solid var(--line);border-radius:8px">
+            <option value="">كل المستودعات</option>
+          </select>
+        </div>
+      </div>
+        <div class="tbl-wrap"><table><thead><tr><th>الرقم</th><th>الحجم</th><th>الحالة</th><th>المستودع</th><th>إجراءات<br><span style="font-size:.68rem;color:#8DA1AF">تمديد / رفع / تبديل</span></th></tr></thead><tbody id="contRows"></tbody></table></div>
       </div>
     </div>
 
@@ -575,7 +787,7 @@ td{padding:7px 10px;height:34px}
         <button class="btn btn-amber" onclick="addEmp()" style="padding:9px 16px">＋ إضافة الموظف</button>
       </div>
       <div class="card"><div class="card-head"><h3>فريق العمل</h3></div>
-        <div class="tbl-wrap"><table><thead><tr><th>الموظف</th><th>الوظيفة</th><th>الجوال</th><th>الشفت</th><th>الراتب</th><th>التعيين</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="empRows"></tbody></table></div>
+        <div class="tbl-wrap"><table><thead><tr><th>الموظف</th><th>الوظيفة</th><th>الجوال</th><th>الشفت</th><th>الراتب</th><th>التعيين</th><th>الحالة</th><th>إجراءات<br><span style="font-size:.68rem;color:#8DA1AF">تمديد / رفع / تبديل</span></th></tr></thead><tbody id="empRows"></tbody></table></div>
       </div>
     </div>
 
@@ -603,10 +815,16 @@ td{padding:7px 10px;height:34px}
     <!-- ===== الرواتب ===== -->
     <div class="page" id="page-payroll">
       <div class="kpis">
-        <div class="kpi v"><div class="lbl">إجمالي الرواتب</div><div class="val num" id="pTot">— <small>ر.س</small></div></div>
-        <div class="kpi g"><div class="lbl">تم صرفه</div><div class="val num" id="pPaid">0 <small>ر.س</small></div></div>
-        <div class="kpi r"><div class="lbl">خصومات الغياب</div><div class="val num" id="pDed">— <small>ر.س</small></div></div>
-        <div class="kpi"><div class="lbl">بدلات وإضافي</div><div class="val num" id="pExtra">— <small>ر.س</small></div></div>
+        <div class="kpi v"><div class="lbl">صافي الرواتب</div><div class="val num" id="pTot">— <small>ر.س</small></div><span class="delta flat">المستحق النهائي</span></div>
+        <div class="kpi g"><div class="lbl">تم صرفه</div><div class="val num" id="pPaid">0 <small>ر.س</small></div><span class="delta flat">المدفوع فعلياً</span></div>
+        <div class="kpi r"><div class="lbl">إجمالي الخصومات</div><div class="val num" id="pDed">— <small>ر.س</small></div><span class="delta flat">غياب + خصومات + سلف</span></div>
+        <div class="kpi"><div class="lbl">الزيادات والبدلات</div><div class="val num" id="pExtra">— <small>ر.س</small></div><span class="delta flat">بدلات + زيادات</span></div>
+      </div>
+      <div class="kpis">
+        <div class="kpi b"><div class="lbl">الدخل الشهري</div><div class="val num" id="pIncome">— <small>ر.س</small></div><span class="delta flat">من الطلبات المحصلة</span></div>
+        <div class="kpi r"><div class="lbl">المصروفات</div><div class="val num" id="pExpenses">— <small>ر.س</small></div><span class="delta flat">رواتب مصروفة + صيانة + مصروفات فعلية</span></div>
+        <div class="kpi g"><div class="lbl">الصافي بعد الرواتب</div><div class="val num" id="pNetAfter">— <small>ر.س</small></div><span class="delta flat">دخل - مصروفات</span></div>
+        <div class="kpi v"><div class="lbl">عدد الموظفين</div><div class="val num" id="pEmpCount">—</div><span class="delta flat">ضمن المسير</span></div>
       </div>
       <div class="card"><div class="card-head"><h3>مسير الرواتب</h3><span class="end">الخصومات تُحتسب من سجل الحضور</span></div>
         <div class="tbl-wrap"><table style="min-width:780px"><thead><tr><th>الموظف</th><th>الأساسي</th><th>بدل+إضافي</th><th>أيام غياب</th><th>الخصم</th><th>الصافي</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody id="payRows"></tbody></table></div>
@@ -632,7 +850,7 @@ td{padding:7px 10px;height:34px}
         <button class="btn btn-amber" onclick="addVeh()" style="padding:9px 16px">＋ إضافة السيارة</button>
       </div>
       <div class="card"><div class="card-head"><h3>الأسطول وعدادات الزيت</h3><span class="end">دورة الزيت: كل 5,000 كم</span></div>
-        <div class="tbl-wrap"><table style="min-width:820px"><thead><tr><th>السيارة</th><th>اللوحة</th><th>السائق</th><th>قراءة العداد</th><th>عداد الزيت</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="vehRows"></tbody></table></div>
+        <div class="tbl-wrap"><table style="min-width:820px"><thead><tr><th>السيارة</th><th>اللوحة</th><th>السائق</th><th>القراءة الحالية</th><th>تاريخ القراءة</th><th>آخر زيت</th><th>المستخدم</th><th>المتبقي</th><th>دورة الزيت</th><th>الحالة</th><th>إجراءات<br><span style="font-size:.68rem;color:#8DA1AF">تمديد / رفع / تبديل</span></th></tr></thead><tbody id="vehRows"></tbody></table></div>
       </div>
     </div>
 
@@ -678,7 +896,7 @@ td{padding:7px 10px;height:34px}
         <button class="btn btn-amber" onclick="addUser()" style="padding:9px 16px">＋ إضافة</button>
       </div>
       <div class="card"><div class="card-head"><h3>المستخدمون</h3></div>
-        <div class="tbl-wrap"><table><thead><tr><th>المستخدم</th><th>الدور</th><th>التاريخ</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody id="userRows"></tbody></table></div>
+        <div class="tbl-wrap"><table><thead><tr><th>المستخدم</th><th>الدور</th><th>التاريخ</th><th>الحالة</th><th>إجراءات<br><span style="font-size:.68rem;color:#8DA1AF">تمديد / رفع / تبديل</span></th></tr></thead><tbody id="userRows"></tbody></table></div>
       </div>
     </div>
 
@@ -741,6 +959,13 @@ td{padding:7px 10px;height:34px}
         </div>
       </div>
 
+
+
+
+
+      <!-- الدخل -->
+      
+
       <!-- المصروفات -->
       <div class="grid11">
         <div class="card">
@@ -775,11 +1000,11 @@ td{padding:7px 10px;height:34px}
               <option value="other">أخرى</option>
             </select>
           </div>
-          <div class="field"><label>المبلغ (ر.س) *</label><input id="expAmount" inputmode="numeric" placeholder="0"></div>
-          <div class="field"><label>التاريخ</label><input id="expDate" type="date"></div>
-          <div class="field"><label>الوصف</label><input id="expNote" placeholder="تفاصيل المصروف"></div>
+          <div class="field"><label>المبلغ (ر.س) *</label><input id="accExpAmount" inputmode="numeric" placeholder="0"></div>
+          <div class="field"><label>التاريخ</label><input id="accExpDate" type="date"></div>
+          <div class="field"><label>الوصف</label><input id="accExpNote" placeholder="تفاصيل المصروف"></div>
         </div>
-        <button class="btn btn-amber" onclick="addExpense()" style="padding:9px 16px">＋ إضافة مصروف</button>
+        <button class="btn btn-amber" onclick="addAccExpense()" style="padding:9px 16px">＋ إضافة مصروف</button>
       </div>
 
       <!-- ملخص مالي -->
@@ -816,6 +1041,168 @@ td{padding:7px 10px;height:34px}
     </div>
 
     <!-- ===== المستودعات ===== -->
+    <!-- ===== الإدارة المالية ===== -->
+    <div class="page" id="page-finance">
+      <!-- تبويبات -->
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+        <button onclick="finTab('report')" id="ftab-report" class="btn btn-amber" style="padding:8px 18px;font-size:.8rem">📊 التقارير</button>
+        <button onclick="finTab('income')" id="ftab-income" class="btn btn-ghost" style="padding:8px 18px;font-size:.8rem">💵 الدخل</button>
+        <button onclick="finTab('expenses')" id="ftab-expenses" class="btn btn-ghost" style="padding:8px 18px;font-size:.8rem">💸 المصروفات</button>
+        <button onclick="finTab('payroll')" id="ftab-payroll" class="btn btn-ghost" style="padding:8px 18px;font-size:.8rem">﷼ الرواتب</button>
+      </div>
+
+      <!-- تقارير -->
+      <div id="fin-report">
+        <div class="card" style="margin-bottom:14px">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <select id="finPeriod" onchange="loadFinReport()" style="padding:7px 12px;border:1px solid var(--line);border-radius:8px;font-size:.8rem">
+              <option value="day">يومي</option>
+              <option value="month" selected>شهري</option>
+              <option value="year">سنوي</option>
+            </select>
+            <input type="date" id="finDate" onchange="loadFinReport()" style="padding:7px 12px;border:1px solid var(--line);border-radius:8px;font-size:.8rem">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px">
+          <div class="card" style="text-align:center;border-top:3px solid var(--green)">
+            <div style="font-size:.72rem;color:var(--steel);margin-bottom:4px">إجمالي الدخل</div>
+            <div class="num" id="finTotalIn" style="font-size:1.6rem;font-weight:700;color:var(--green)">—</div>
+            <div style="font-size:.65rem;color:var(--muted)">ر.س</div>
+          </div>
+          <div class="card" style="text-align:center;border-top:3px solid var(--amber)">
+            <div style="font-size:.72rem;color:var(--steel);margin-bottom:4px">نقدي</div>
+            <div class="num" id="finCashIn" style="font-size:1.6rem;font-weight:700;color:var(--amber-d)">—</div>
+            <div style="font-size:.65rem;color:var(--muted)">ر.س</div>
+          </div>
+          <div class="card" style="text-align:center;border-top:3px solid var(--blue)">
+            <div style="font-size:.72rem;color:var(--steel);margin-bottom:4px">تحويل</div>
+            <div class="num" id="finTransferIn" style="font-size:1.6rem;font-weight:700;color:var(--blue)">—</div>
+            <div style="font-size:.65rem;color:var(--muted)">ر.س</div>
+          </div>
+          <div class="card" style="text-align:center;border-top:3px solid var(--red)">
+            <div style="font-size:.72rem;color:var(--steel);margin-bottom:4px">إجمالي المصروفات</div>
+            <div class="num" id="finTotalOut" style="font-size:1.6rem;font-weight:700;color:var(--red)">—</div>
+            <div style="font-size:.65rem;color:var(--muted)">ر.س</div>
+          </div>
+          <div class="card" style="text-align:center;border-top:3px solid var(--green)">
+            <div style="font-size:.72rem;color:var(--steel);margin-bottom:4px">صافي الربح</div>
+            <div class="num" id="finNetProfit" style="font-size:1.6rem;font-weight:700">—</div>
+            <div style="font-size:.65rem;color:var(--muted)">ر.س</div>
+          </div>
+          <div class="card" style="text-align:center;border-top:3px solid var(--steel)">
+            <div style="font-size:.72rem;color:var(--steel);margin-bottom:4px">عدد الطلبات</div>
+            <div class="num" id="finOrders" style="font-size:1.6rem;font-weight:700">—</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>تفاصيل المصروفات</h3></div>
+          <div id="finExpBreakdown" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;padding:8px"></div>
+        </div>
+      </div>
+
+      <!-- الدخل -->
+      <div id="fin-income" style="display:none">
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-head"><h3>تسجيل دخل</h3></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:10px">
+            <div class="field"><label>المصدر / الحاوية</label>
+              <div style="display:flex;gap:4px">
+                <input id="incSource" placeholder="اسم العميل / رقم الحاوية / المصدر" style="flex:1;min-width:0">
+                <select id="incContainer" onchange="if(this.value){document.getElementById('incSource').value=this.options[this.selectedIndex].text;this.value=''}" style="width:90px;font-size:.72rem">
+                  <option value="">حاوية...</option>
+                </select>
+              </div>
+            </div>
+            <div class="field"><label>المبلغ *</label><input id="incAmount" type="number" placeholder="0.00" inputmode="decimal"></div>
+            <div class="field"><label>نوع الدفع *</label>
+              <select id="incPayType">
+                <option value="CASH">نقدي 💵</option>
+                <option value="TRANSFER">تحويل 🏦</option>
+                <option value="CREDIT">آجل ⏳</option>
+              </select>
+            </div>
+            <div class="field"><label>التاريخ</label><input id="incDate" type="date"></div>
+            <div class="field"><label>دخل إضافي</label><input id="incExtra" type="number" placeholder="0.00" inputmode="decimal"></div>
+            <div class="field"><label>البيان</label><input id="incDesc" placeholder="وصف الدخل"></div>
+          </div>
+          <button class="btn btn-amber" onclick="addIncome()" style="padding:8px 18px">＋ تسجيل</button>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>سجل الدخل</h3>
+            <div style="display:flex;gap:6px">
+              <select id="incFilterPay" onchange="loadIncomes()" style="padding:4px 8px;font-size:.72rem;border:1px solid var(--line);border-radius:8px">
+                <option value="">كل أنواع الدفع</option>
+                <option value="CASH">نقدي</option>
+                <option value="TRANSFER">تحويل</option>
+                <option value="CREDIT">آجل</option>
+              </select>
+            </div>
+          </div>
+          <div class="tbl-wrap"><table><thead><tr><th>التاريخ</th><th>المصدر</th><th>المبلغ</th><th>نوع الدفع</th><th>البيان</th><th>الحالة</th><th></th></tr></thead><tbody id="incRows"></tbody></table></div>
+          <div style="margin-top:8px;padding:8px;background:var(--bg);border-radius:8px;font-size:.8rem;display:flex;gap:16px">
+            <span>الإجمالي: <b class="num" id="incTotal">0</b> ر.س</span>
+            <span style="color:var(--amber-d)">آجل: <b class="num" id="incCredit">0</b> ر.س</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- المصروفات -->
+      <div id="fin-expenses" style="display:none">
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-head"><h3>إضافة مصروف</h3></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:10px">
+            <div class="field"><label>المبلغ *</label><input id="expAmount" type="number" placeholder="0.00" inputmode="decimal"></div>
+            <div class="field"><label>الفئة *</label>
+              <select id="expCategory">
+                <option value="RENT">إيجار</option>
+                <option value="FUEL">وقود</option>
+                <option value="MAINTENANCE">صيانة</option>
+                <option value="SALARY">رواتب</option>
+                <option value="UTILITIES">كهرباء/ماء</option>
+                <option value="OTHER">أخرى</option>
+              </select>
+            </div>
+            <div class="field"><label>التاريخ</label><input id="expDate" type="date"></div>
+            <div class="field"><label>البيان</label><input id="expDesc" placeholder="وصف المصروف"></div>
+            <div class="field"><label>رقم مرجعي</label><input id="expRef" placeholder="فاتورة / عقد"></div>
+          </div>
+          <button class="btn btn-amber" onclick="addExpense()" style="padding:8px 18px">＋ إضافة</button>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>سجل المصروفات</h3>
+            <div style="display:flex;gap:6px">
+              <select id="expFilterCat" onchange="loadExpenses()" style="padding:4px 8px;font-size:.72rem;border:1px solid var(--line);border-radius:8px">
+                <option value="">كل الفئات</option>
+                <option value="RENT">إيجار</option>
+                <option value="FUEL">وقود</option>
+                <option value="MAINTENANCE">صيانة</option>
+                <option value="SALARY">رواتب</option>
+                <option value="UTILITIES">كهرباء/ماء</option>
+                <option value="OTHER">أخرى</option>
+              </select>
+            </div>
+          </div>
+          <div class="tbl-wrap"><table><thead><tr><th>التاريخ</th><th>الفئة</th><th>المبلغ</th><th>البيان</th><th>مرجع</th><th></th></tr></thead><tbody id="expRows"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- الرواتب -->
+      <div id="fin-payroll" style="display:none">
+        <div class="card" style="margin-bottom:14px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <input type="month" id="finPayMonth" onchange="loadFinPayroll()" style="padding:7px 12px;border:1px solid var(--line);border-radius:8px;font-size:.8rem">
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>مسير الرواتب</h3></div>
+          <div class="tbl-wrap"><table><thead><tr><th>الموظف</th><th>الأساسي</th><th>البدلات</th><th>الخصومات</th><th>الصافي</th><th>الحالة</th></tr></thead><tbody id="finPayRows"></tbody></table></div>
+          <div style="margin-top:10px;padding:10px;background:var(--bg);border-radius:8px;display:flex;justify-content:space-between;font-size:.8rem">
+            <span>إجمالي الرواتب: <b class="num" id="finPayTotal">—</b> ر.س</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="page" id="page-warehouses">
       <div class="card" id="whForm">
         <div class="card-head"><h3>إضافة مستودع جديد</h3></div>
@@ -833,6 +1220,30 @@ td{padding:7px 10px;height:34px}
       </div>
       <div id="warehouseCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px"></div>
     </div>
+
+    <!-- ===== خريطة الحاويات ===== -->
+    <div class="page" id="page-contmap">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center">
+        <button class="chip active" data-cmf="all">جميع الحاويات</button>
+        <button class="chip" data-cmf="ON_SITE">مؤجرة</button>
+        <button class="chip" data-cmf="IN_DEPOT">متاحة</button>
+        <button class="chip" data-cmf="MAINTENANCE">صيانة</button>
+        <div style="flex:1"></div>
+        <div class="map-legend">
+          <span><span class="sq" style="background:var(--amber)"></span>مؤجرة</span>
+          <span><span class="sq" style="background:#2FA877"></span>متاحة</span>
+          <span><span class="sq" style="background:#D86A6A"></span>صيانة</span>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:2.2fr 1fr;gap:14px">
+        <div class="card" style="padding:0;overflow:hidden"><div id="contMap"></div></div>
+        <div class="card">
+          <h3>الحاويات <span class="end" id="contMapCount"></span></h3>
+          <div class="cont-list" id="contMapList"></div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- content -->
 </div><!-- main -->
 </div><!-- layout -->
@@ -881,7 +1292,8 @@ td{padding:7px 10px;height:34px}
             <option value="OVERTIME">أوفر تايم</option>
             <option value="ADVANCE">سلفة</option>
             <option value="ADVANCE_REPAY">سداد سلفة</option>
-            <option value="DEDUCTION">خصم</option>
+            <option value="DEDUCTION">خصم بالقيمة</option>
+            <option value="DEDUCTION_DAYS">خصم بالأيام</option>
             <option value="PENALTY">جزاء</option>
           </select>
         </div>
@@ -922,13 +1334,18 @@ td{padding:7px 10px;height:34px}
 const T=localStorage.getItem('token');
 if(!T)location.href='/';
 const who=JSON.parse(localStorage.getItem('who')||'{}');
+document.addEventListener('DOMContentLoaded', () => {
+  if (who.role === 'ACCOUNTANT') {
+    document.querySelectorAll('.tracking-nav').forEach(el => el.remove());
+  }
+});
 const uname = who.name||'المستخدم';
 const uav = document.getElementById('userAv');
 if(uav) uav.textContent = uname[0];
 // تحديث اسم المستخدم في الشريط الجانبي
 const unEl = document.getElementById('userName');
 if(unEl) unEl.textContent = uname + ' · ' + (who.company||'');
-document.getElementById('pageDate').textContent=new Date().toLocaleDateString('ar-SA',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+document.getElementById('pageDate').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 if(window.innerWidth<=768)document.getElementById('menuBtn').style.display='grid';
 
 const api=(u,o={})=>fetch(u,{...o,headers:{'Content-Type':'application/json','Authorization':'Bearer '+T}})
@@ -936,8 +1353,13 @@ const api=(u,o={})=>fetch(u,{...o,headers:{'Content-Type':'application/json','Au
 
 const coApi=(u,o={})=>api('/api/co'+u,o);
 const hrApi=(u,o={})=>api('/api/hr'+u,o);
-const fmt=n=>(+n||0).toLocaleString('en-US');
-const fd=s=>s?new Date(s).toLocaleDateString('ar-SA'):'—';
+const fmt=n=>Number(n||0).toLocaleString('en-US');
+
+function enNums(v){
+  return String(v ?? '').replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+}
+
+const fd=s=>s?new Date(s).toLocaleDateString('en-US'):'—';
 
 /* ===== التوست ===== */
 function showToast(msg){
@@ -948,9 +1370,9 @@ function showToast(msg){
 }
 
 /* ===== التنقل ===== */
-const titles={dash:'لوحة التحكم',alerts:'التنبيهات',orders:'الطلبات',containers:'الحاويات',employees:'الموظفون',shifts:'الشفتات',attendance:'الحضور والانصراف',payroll:'الرواتب',vehicles:'السيارات وعداد الزيت',maintenance:'الصيانة',reports:'التقارير والإحصائيات',accounting:'المحاسبة',daily:'التقارير اليومية',warehouses:'المستودعات',users:'المستخدمون'};
+const titles={dash:'لوحة التحكم',alerts:'التنبيهات',orders:'الطلبات',containers:'الحاويات',employees:'الموظفون',shifts:'الشفتات',attendance:'الحضور والانصراف',payroll:'الرواتب',vehicles:'السيارات وعداد الزيت',maintenance:'الصيانة',reports:'التقارير والإحصائيات',accounting:'المحاسبة',daily:'التقارير اليومية',warehouses:'المستودعات',finance:'الإدارة المالية',users:'المستخدمون',contmap:'خريطة الحاويات'};
 const addLabels={orders:'＋ طلب جديد',containers:'＋ حاوية جديدة',employees:'＋ موظف جديد',vehicles:'＋ سيارة جديدة',maintenance:'＋ عملية صيانة',users:'＋ مستخدم جديد'};
-const loaders={dash:loadDash,alerts:loadAlerts,orders:loadOrders,containers:loadConts,employees:loadEmps,shifts:loadShifts,attendance:loadAtt,payroll:loadPayroll,vehicles:loadVehs,maintenance:loadMaint,reports:loadReports,accounting:loadAccounting,daily:loadDailyReport,warehouses:loadWarehouses,users:loadUsers};
+const loaders={dash:loadDash,alerts:loadAlerts,orders:loadOrders,containers:loadConts,employees:loadEmps,shifts:loadShifts,attendance:loadAtt,payroll:loadPayroll,vehicles:loadVehs,maintenance:loadMaint,reports:loadReports,accounting:loadAccounting,daily:loadDailyReport,warehouses:loadWarehouses,users:loadUsers,contmap:loadContMap,finance:loadFinance};
 let curPage='dash';
 
 function go(p){
@@ -979,6 +1401,26 @@ function refreshPage(){if(loaders[curPage])loaders[curPage]()}
 function closeModal(id){
   document.getElementById(id).classList.remove('open');
 }
+function showPhotos(photos){
+  const bg = document.createElement('div');
+  bg.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px';
+  bg.onclick=e=>{if(e.target===bg)bg.remove()};
+  const close = document.createElement('button');
+  close.textContent='✕ إغلاق';
+  close.style.cssText='background:#fff;border:0;border-radius:8px;padding:8px 18px;cursor:pointer;font-family:inherit;font-weight:700;align-self:flex-end';
+  close.onclick=()=>bg.remove();
+  bg.appendChild(close);
+  const wrap = document.createElement('div');
+  wrap.style.cssText='display:flex;gap:10px;flex-wrap:wrap;justify-content:center;overflow-y:auto;max-height:80vh';
+  photos.forEach(src=>{
+    const img=document.createElement('img');
+    img.src=src;
+    img.style.cssText='max-width:min(90vw,480px);max-height:70vh;border-radius:12px;object-fit:contain;box-shadow:0 8px 32px rgba(0,0,0,.5)';
+    wrap.appendChild(img);
+  });
+  bg.appendChild(wrap);
+  document.body.appendChild(bg);
+}
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sOverlay').classList.toggle('open')}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sOverlay').classList.remove('open')}
 function logout(){localStorage.clear();location.href='/'}
@@ -987,7 +1429,13 @@ function logout(){localStorage.clear();location.href='/'}
 let weekChart=null;
 async function loadDash(){
   try{
-    const [emps,att,vehs,orders,alerts]=await Promise.all([hrApi('/employees'),hrApi('/attendance'),hrApi('/vehicles'),coApi('/orders'),coApi('/alerts')]);
+    const [emps,att,vehs,orders,alerts]=await Promise.all([
+      hrApi('/employees'),
+      who.role === 'ACCOUNTANT' ? Promise.resolve([]) : hrApi('/attendance'),
+      hrApi('/vehicles'),
+      coApi('/orders'),
+      coApi('/alerts')
+    ]);
     // KPIs
     const active=emps.filter(e=>e.status==='ACTIVE');
     document.getElementById('dEmp').textContent=active.length;
@@ -998,6 +1446,28 @@ async function loadDash(){
     document.getElementById('dOil').textContent=oilDue;
     const activeOrders=orders.filter(o=>o.status!=='DONE'&&o.status!=='CANCELLED').length;
     document.getElementById('dOrders').textContent=activeOrders;
+
+    try{
+      const month = new Date().toISOString().slice(0,7).replace('-','/');
+      const [payroll, maint, manualExpenses] = await Promise.all([
+        hrApi('/payroll?month='+month),
+        hrApi('/maintenance'),
+        coApi('/expenses').catch(()=>[])
+      ]);
+      const income = orders.reduce((sum,o)=>sum + (+o.collectedAmount || 0), 0);
+      const payrollTotal = payroll.reduce((sum,e)=>sum + (+e.netSalary || 0), 0);
+      const maintTotal = maint.reduce((sum,m)=>sum + (+m.cost || 0), 0);
+      const paidPayrollTotal = payroll.filter(p=>p.paid).reduce((sum,p)=>sum + (+p.netSalary || 0), 0);
+      const manualTotal = manualExpenses.reduce((sum,e)=>sum + (+e.amount || 0), 0);
+      const expenses = paidPayrollTotal + maintTotal + manualTotal;
+      const profit = income - expenses;
+
+      document.getElementById('dIncome').innerHTML=fmt(income)+' <small>ر.س</small>';
+      document.getElementById('dPayroll').innerHTML=fmt(payrollTotal)+' <small>ر.س</small>';
+      document.getElementById('dExpenses').innerHTML=fmt(expenses)+' <small>ر.س</small>';
+      document.getElementById('dProfit').innerHTML=fmt(profit)+' <small>ر.س</small>';
+    }catch(_){}
+
     // شارة التنبيهات
     const badge=document.getElementById('alertBadge');
     const dot=document.getElementById('notifDot');
@@ -1015,13 +1485,42 @@ async function loadDash(){
     document.getElementById('dashAlerts').innerHTML=alerts.length?alerts.slice(0,3).map(a=>`
       <div class="alert-item" style="margin-bottom:8px">
         <div class="alert-ico">⏰</div>
-        <div class="alert-body"><div class="t">${a.message}</div><div class="s">${new Date(a.createdAt).toLocaleString('ar-SA')}</div></div>
+        <div class="alert-body"><div class="t">${a.message}</div><div class="s">${new Date(a.createdAt).toLocaleString('en-US')}</div></div>
         <button class="ack-btn" onclick="ackAlert(${a.id})">✓ اطلعت</button>
       </div>`).join(''):'<div style="color:var(--muted);font-size:.8rem;text-align:center;padding:16px">لا توجد تنبيهات</div>';
     // آخر الطلبات
     const typeAr={DROP:'إنزال',PICKUP:'رفع',SWAP:'تبديل',MOVE:'نقل',PROJECT_CYCLE:'دورة'};
     const stAr={NEW:'bd-blue',ASSIGNED:'bd-amber',EN_ROUTE:'bd-amber',DONE:'bd-green',CANCELLED:'bd-red'};
     const stLbl={NEW:'جديد',ASSIGNED:'مسند',EN_ROUTE:'بالطريق',DONE:'منفذ',CANCELLED:'ملغي'};
+
+function dueBadge(dueDate){
+  if(!dueDate) return '<span style="color:var(--muted)">—</span>';
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  const due = new Date(dueDate);
+  due.setHours(0,0,0,0);
+
+  const diff = Math.ceil((due - today) / 86400000);
+  const dateTxt = fd(dueDate);
+
+  if(diff > 3){
+    return `<div>${dateTxt}</div><span class="badge bd-green" style="margin-top:4px">🟢 باقي ${diff} أيام</span>`;
+  }
+  if(diff > 1){
+    return `<div>${dateTxt}</div><span class="badge bd-amber" style="margin-top:4px">🟡 باقي ${diff} أيام</span>`;
+  }
+  if(diff === 1){
+    return `<div>${dateTxt}</div><span class="badge bd-amber" style="margin-top:4px">🟡 باقي يوم</span>`;
+  }
+  if(diff === 0){
+    return `<div>${dateTxt}</div><span class="badge bd-red" style="margin-top:4px">🔴 ينتهي اليوم</span>`;
+  }
+
+  const late = Math.abs(diff);
+  return `<div>${dateTxt}</div><span class="badge bd-red" style="margin-top:4px">🔴 متأخر ${late} ${late===1?'يوم':'أيام'}</span>`;
+}
+
     document.getElementById('dashOrders').innerHTML=orders.length?orders.slice(0,4).map(o=>`
       <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)">
         <span class="badge bd-blue">${typeAr[o.type]||o.type}</span>
@@ -1049,7 +1548,7 @@ async function loadAlerts(){
     document.getElementById('alertList').innerHTML=al.length?al.map(a=>`
       <div class="alert-item">
         <div class="alert-ico">⏰</div>
-        <div class="alert-body"><div class="t">${a.message}</div><div class="s">${new Date(a.createdAt).toLocaleString('ar-SA')}</div></div>
+        <div class="alert-body"><div class="t">${a.message}</div><div class="s">${new Date(a.createdAt).toLocaleString('en-US')}</div></div>
         <button class="ack-btn" onclick="ackAlert(${a.id})">✓ تم الاطلاع</button>
       </div>`).join(''):'<div style="text-align:center;padding:32px;color:var(--muted)">✅ لا توجد تنبيهات نشطة</div>';
     const badge=document.getElementById('alertBadge');
@@ -1073,48 +1572,154 @@ function getLoc(){
     {enableHighAccuracy:true,timeout:10000}
   );
 }
+
+function orderDueActions(o){
+  if(!o || !o.dueDate || o.status === 'CANCELLED') return '';
+  const today = new Date(); today.setHours(0,0,0,0);
+  const due = new Date(o.dueDate); due.setHours(0,0,0,0);
+  const diff = Math.ceil((due - today) / 86400000);
+  if(diff > 0) return '';
+
+  return `
+    <div style="display:flex;gap:5px;justify-content:center;align-items:center;flex-wrap:nowrap;min-width:150px">
+      <button class="btn btn-green btn-sm" onclick="renewOrder(${o.id})" style="font-size:.78rem;padding:4px 8px;min-height:26px;border-radius:8px">♻ تمديد</button>
+      <button class="btn btn-ghost btn-sm" onclick="pickupOrder(${o.id})" style="font-size:.78rem;color:var(--red);padding:4px 8px;min-height:26px;border-radius:8px">🚛 رفع</button>
+      <button class="btn btn-ghost btn-sm" onclick="swapOrder(${o.id})" style="font-size:.78rem;color:var(--blue);padding:4px 8px;min-height:26px;border-radius:8px">🔄 تبديل</button>
+    </div>`;
+}
+
+async function renewOrder(orderId){
+  const days = parseInt(prompt('كم يوم تمديد؟', '3'));
+  if(!days || days < 1) return showToast('⚠ أدخل عدد أيام صحيح');
+
+  const order = (window.currentOrders || []).find(o => o.id === orderId);
+  if(!order || !order.dueDate) return showToast('⚠ لم يتم العثور على تاريخ الاستحقاق');
+
+  const due = new Date(order.dueDate);
+  due.setDate(due.getDate() + days);
+  const newDue = due.toISOString().split('T')[0];
+
+  if(!confirm('سيتم تمديد الطلب #' + orderId + ' إلى تاريخ ' + newDue + '. هل تريد المتابعة؟')) return;
+
+  try{
+    await coApi('/orders/' + orderId, {
+      method:'PATCH',
+      body: JSON.stringify({ dueDate: newDue })
+    });
+    showToast('✅ تم تمديد الطلب #' + orderId + ' لمدة ' + days + ' أيام');
+    loadOrders();
+  }catch(e){
+    showToast('⚠ تعذر تمديد الطلب');
+  }
+}
+
+async function pickupOrder(orderId){
+  if(!confirm('هل تريد إنشاء مهمة رفع لهذه الحاوية؟')) return;
+  showToast('سيتم ربط الرفع في الخطوة التالية');
+}
+
+async function swapOrder(orderId){
+  if(!confirm('هل تريد إنشاء مهمة تبديل لهذه الحاوية؟')) return;
+  showToast('سيتم ربط التبديل في الخطوة التالية');
+}
+
 async function loadOrders(){
   try{
     const os=await coApi('/orders');
+    window.currentOrders = os;
     // تحميل السائقين للإسناد
     let driversForAssign = [];
-    try{ driversForAssign = await hrApi('/employees'); }catch(e){}
-    const driversList = driversForAssign.filter(e=>e.role==='سائق'&&e.status==='ACTIVE');
+    try{ driversForAssign = await coApi('/drivers'); }catch(e){}
+    const driversList = driversForAssign;
     
     document.getElementById('orderRows').innerHTML=os.length?os.map(o=>`<tr>
       <td class="num" style="font-weight:700;color:var(--steel)">#${o.id}</td>
       <td><span class="badge bd-blue">${typeAr[o.type]||o.type}</span></td>
-      <td style="font-weight:600;font-size:.8rem">${o.customerName}${o.container?`<br><span style="font-size:.62rem;color:var(--steel)">${o.container.code}</span>`:''}<br><span style="font-size:.62rem;color:var(--muted)">${new Date(o.createdAt).toLocaleString('ar-SA',{dateStyle:'short',timeStyle:'short'})}</span></td>
+      <td style="font-weight:600;font-size:.8rem">${o.customerName}${o.container?`<br><span style="font-size:.78rem;color:var(--steel)">${o.container.code}</span>`:''}<br><span style="font-size:.78rem;color:var(--muted)">${new Date(o.createdAt).toLocaleString('en-US',{dateStyle:'short',timeStyle:'short'})}</span></td>
       <td style="font-size:.7rem;color:var(--steel)">${o.phone1}${o.phoneSite?'<br>'+o.phoneSite:''}</td>
       <td style="font-size:.72rem">${o.contractNo||'—'}</td>
-      <td style="font-size:.72rem">${fd(o.dueDate)}</td>
+      <td style="font-size:.72rem">
+        ${o.dueDate ? `
+          <div>${fd(o.dueDate)}</div>
+          ${(() => {
+            const today = new Date(); today.setHours(0,0,0,0);
+            const due = new Date(o.dueDate); due.setHours(0,0,0,0);
+            const diff = Math.ceil((due - today) / 86400000);
+            if (diff > 3) return `<span class="badge bd-green" style="margin-top:4px">🟢 باقي ${diff} أيام</span>`;
+            if (diff > 1) return `<span class="badge bd-amber" style="margin-top:4px">🟡 باقي ${diff} أيام</span>`;
+            if (diff === 1) return `<span class="badge bd-amber" style="margin-top:4px">🟡 باقي يوم</span>`;
+            if (diff === 0) return `<span class="badge bd-red" style="margin-top:4px">🔴 ينتهي اليوم</span>`;
+            return `<span class="badge bd-red" style="margin-top:4px">🔴 متأخر ${Math.abs(diff)} أيام</span>`;
+          })()}
+        ` : '—'}
+      </td>
       <td class="num" style="font-size:.76rem">
         ${o.price?`<span style="color:var(--steel)">${fmt(o.price)} ر.س</span>`:'—'}
         ${o.collectedAmount?`<br><span style="color:var(--green);font-weight:700">✓ ${fmt(o.collectedAmount)}</span>
         <br><span style="font-size:.6rem;color:var(--muted)">${o.paymentMethod==='transfer'?'تحويل':'نقدي'}</span>`:''}
       </td>
       <td><span class="badge ${stBd[o.status]||'bd-gray'}">${stLbl[o.status]||o.status}</span></td>
+      <td>${orderDueActions(o)}</td>
       <td>
-        <select onchange="assignOrder(${o.id},this.value)" style="border:1px solid var(--line);border-radius:7px;padding:4px 7px;font:inherit;font-size:.68rem;max-width:110px">
-          <option value="">— إسناد —</option>
-          ${driversList.map(d=>`<option value="${d.id}" ${o.assignedTo===d.id?'selected':''}>${d.name.split(' ')[0]}</option>`).join('')}
-        </select>
+        <button class="btn btn-ghost btn-sm" onclick="openAssignModal(${o.id},${o.assignedTo||'null'})" style="font-size:.7rem">
+          ${o.assignedTo?'🚚 معيّن':'+ إسناد'}
+        </button>
       </td>
       <td><button class="btn btn-ghost btn-sm" onclick="muteOrder(${o.id},${!o.alertMuted})">${o.alertMuted?'🔕':'🔔'}</button></td>
+      <td>${o.photos&&o.photos.length?`<button class="btn btn-ghost btn-sm" onclick='showPhotos(${JSON.stringify(o.photos)})' style="color:var(--blue)">📷 ${o.photos.length}</button>`:''}</td>
     </tr>`).join(''):'<tr><td colspan="9" style="text-align:center;padding:22px;color:var(--muted)">لا توجد طلبات</td></tr>';
   }catch(e){console.error(e)}
 }
 async function muteOrder(id,v){await coApi('/orders/'+id,{method:'PATCH',body:JSON.stringify({alertMuted:v})});loadOrders();showToast(v?'تم كتم التنبيه':'تم تفعيل التنبيه')}
+function calcDueDate(){
+  const days = parseInt(document.getElementById("oDueDays").value);
+  if (!days || days < 1) { document.getElementById("oDueDisplay").innerHTML = ""; document.getElementById("oDue").value = ""; return; }
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  document.getElementById("oDue").value = d.toISOString().split("T")[0];
+  const dayNames = ["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+  const dayName = dayNames[d.getDay()];
+  const dateStr = d.toLocaleDateString("en-US",{day:"2-digit",month:"2-digit",year:"numeric"});
+  document.getElementById("oDueDisplay").innerHTML = "📅 رفع: <b style='color:#fff;font-size:.65rem'>" + dayName + " " + dateStr + "</b>";
+}
+async function onTypeChange(){
+  const type = document.getElementById('oType').value;
+  const wrap = document.getElementById('contPickerWrap');
+  const picker = document.getElementById('oContPicker');
+  if(type === 'PICKUP' || type === 'SWAP'){
+    wrap.style.display = '';
+    try{
+      const cs = await coApi('/containers');
+      const valid = cs.filter(c => c.status === 'ON_SITE' || c.status === 'AWAIT_PICKUP');
+      picker.innerHTML = '<option value="">-- اختر الحاوية --</option>' +
+        valid.map(c => `<option value="${c.id}">${c.code} — ${c.size}${c.address?' — '+c.address:''}</option>`).join('');
+      if(!valid.length) picker.innerHTML = '<option value="">لا توجد حاويات بالمواقع</option>';
+    }catch(e){ picker.innerHTML = '<option value="">خطأ في التحميل</option>'; }
+  } else if(type === 'DROP'){
+    wrap.style.display = '';
+    try{
+      const cs = await coApi('/containers');
+      const valid = cs.filter(c => c.status === 'IN_DEPOT');
+      picker.innerHTML = '<option value="">-- اختر الحاوية (اختياري) --</option>' +
+        valid.map(c => `<option value="${c.id}">${c.code} — ${c.size}</option>`).join('');
+      if(!valid.length) picker.innerHTML = '<option value="">لا توجد حاويات في المستودع</option>';
+    }catch(e){ picker.innerHTML = '<option value="">خطأ في التحميل</option>'; }
+  } else {
+    wrap.style.display = 'none';
+    picker.innerHTML = '<option value="">-- اختر --</option>';
+  }
+}
 async function addOrder(){
   if(!document.getElementById('oCust').value||!document.getElementById('oP1').value)return showToast('⚠ اسم العميل والجوال مطلوبان');
   try{
     await coApi('/orders',{method:'POST',body:JSON.stringify({
       customerName:document.getElementById('oCust').value,phone1:document.getElementById('oP1').value,
       phoneSite:document.getElementById('oPS').value,phone3:document.getElementById('oP3').value,
-      type:document.getElementById('oType').value,size:document.getElementById('oSize').value,
+      type:document.getElementById('oType').value,size:document.getElementById('oSize').value,containerId:document.getElementById('oContPicker').value?parseInt(document.getElementById('oContPicker').value):null,
       contractNo:document.getElementById('oContract').value,dueDate:document.getElementById('oDue').value||null,
       price:document.getElementById('oPrice').value,address:document.getElementById('oAddr').value,
-      lat:loc.lat,lng:loc.lng
+      lat:loc.lat,lng:loc.lng,
+      locationUrl: document.getElementById('oLocUrl') ? document.getElementById('oLocUrl').value.trim() : null
     })});
     ['oCust','oP1','oPS','oP3','oSize','oContract','oPrice','oAddr'].forEach(i=>document.getElementById(i).value='');
     document.getElementById('oDue').value='';loc={lat:null,lng:null};
@@ -1128,13 +1733,69 @@ const cStLbl={IN_DEPOT:'بالمستودع',SCHEDULED:'مجدولة',ON_SITE:'ب
 const cStBd={IN_DEPOT:'bd-green',SCHEDULED:'bd-blue',ON_SITE:'bd-amber',AWAIT_PICKUP:'bd-amber',IN_TRANSIT:'bd-blue',MAINTENANCE:'bd-red'};
 async function loadConts(){
   try{
-    const cs=await coApi('/containers');
-    document.getElementById('contRows').innerHTML=cs.length?cs.map(c=>`<tr>
-      <td style="font-weight:700">${c.code}</td><td>${c.size}</td>
-      <td><span class="badge ${cStBd[c.status]||'bd-gray'}">${cStLbl[c.status]||c.status}</span></td>
-    </tr>`).join(''):'<tr><td colspan="3" style="text-align:center;padding:22px;color:var(--muted)">لا توجد حاويات</td></tr>';
+    const [cs, ws] = await Promise.all([coApi('/containers'), coApi('/warehouses')]);
+
+    const wFilter = document.getElementById('contFilterWarehouse');
+    if(wFilter){
+      const cur = wFilter.value;
+      wFilter.innerHTML = '<option value="">كل المستودعات</option>' +
+        ws.map(w=>'<option value="'+w.id+'">'+w.name+'</option>').join('');
+      wFilter.value = cur;
+    }
+    const wSel = document.getElementById('cWarehouse');
+    if(wSel){
+      const cur2 = wSel.value;
+      wSel.innerHTML = '<option value="">بدون مستودع</option>' +
+        ws.map(w=>'<option value="'+w.id+'">'+w.name+'</option>').join('');
+      wSel.value = cur2;
+    }
+
+    const stFilter = document.getElementById('contFilterStatus')?.value || '';
+    const whFilter = document.getElementById('contFilterWarehouse')?.value || '';
+    let filtered = cs;
+    if(stFilter) filtered = filtered.filter(c => c.status === stFilter);
+    if(whFilter) filtered = filtered.filter(c => c.warehouseId === +whFilter);
+
+    const wMap = {};
+    ws.forEach(w => wMap[w.id] = w.name);
+
+    document.getElementById('contRows').innerHTML = filtered.length ? filtered.map(c=>
+      '<tr>' +
+      '<td style="font-weight:700">'+c.code+'</td>' +
+      '<td>'+(c.size||'—')+'</td>' +
+      '<td><select onchange="changeContStatus('+c.id+',this.value)" style="font-size:.72rem;padding:3px 6px;border:1px solid var(--line);border-radius:7px">' +
+        ['IN_DEPOT','ON_SITE','AWAIT_PICKUP','IN_TRANSIT','MAINTENANCE'].map(s=>
+          '<option value="'+s+'"'+(c.status===s?' selected':'')+'>'+cStLbl[s]+'</option>'
+        ).join('') +
+      '</select></td>' +
+      '<td><select onchange="moveContWarehouse('+c.id+',this.value,this)" style="font-size:.72rem;padding:3px 6px;border:1px solid var(--line);border-radius:7px">' +
+        '<option value="0"'+(!c.warehouseId?' selected':'')+'>بدون مستودع</option>' +
+        ws.map(w=>'<option value="'+w.id+'"'+(c.warehouseId===w.id?' selected':'')+'>'+w.name+'</option>').join('') +
+      '</select></td>' +
+      '<td><button onclick="deleteCont('+c.id+',\''+c.code+'\')" style="background:var(--red-soft);color:var(--red);border:1px solid var(--red);border-radius:6px;padding:3px 8px;font-size:.68rem;cursor:pointer">حذف</button></td>' +
+      '</tr>'
+    ).join('') :
+    '<tr><td colspan="5" style="text-align:center;padding:22px;color:var(--muted)">لا توجد حاويات</td></tr>';
   }catch(e){console.error(e)}
 }
+
+async function changeContStatus(id, status){
+  try{
+    await coApi('/containers/'+id+'/status', {method:'PATCH', body:JSON.stringify({status})});
+    showToast('تم تحديث الحالة');
+    loadConts();
+  }catch(e){ showToast('خطأ'); }
+}
+
+async function deleteCont(id, code){
+  if(!confirm('حذف الحاوية ' + code + '؟')) return;
+  try{
+    await coApi('/containers/'+id, {method:'DELETE'});
+    showToast('تم الحذف');
+    loadConts();
+  }catch(e){ showToast('لا يمكن الحذف'); }
+}
+
 async function addCont(){
   if(!document.getElementById('cCode').value||!document.getElementById('cSize').value)return showToast('⚠ الرقم والحجم مطلوبان');
   try{
@@ -1266,6 +1927,16 @@ async function loadPayroll(){
     const month=new Date().toISOString().slice(0,7).replace('-','/');
     const data=await hrApi('/payroll?month='+month);
     let tot=0,extra=0,ded=0,paid=0;
+    let income=0, expenses=0, netAfter=0;
+    try{
+      const [orders, maint] = await Promise.all([
+        coApi('/orders'),
+        hrApi('/maintenance')
+      ]);
+      income = orders.reduce((sum,o)=>sum + (+o.collectedAmount || 0), 0);
+      const maintExp = maint.reduce((sum,m)=>sum + (+m.cost || 0), 0);
+      expenses = maintExp;
+    }catch(_){}
     document.getElementById('payRows').innerHTML=data.map(e=>{
       tot+=e.netSalary;extra+=e.extra;ded+=e.deduction;if(e.paid)paid+=e.netSalary;
       return `<tr>
@@ -1276,19 +1947,135 @@ async function loadPayroll(){
         <td class="num" style="color:var(--red);font-weight:600">−${fmt(e.deduction)}</td>
         <td class="num" style="font-weight:700">${fmt(e.netSalary)} ر.س</td>
         <td><span class="badge ${e.paid?'bd-green':'bd-amber'}">${e.paid?'تم الصرف':'مستحق'}</span></td>
-        <td>${e.paid?'<button class="btn btn-ghost btn-sm" onclick="showToast(\'تم الصرف مسبقاً\')">قسيمة</button>':`<button class="btn btn-amber btn-sm" onclick="payEmp(${e.id})">صرف</button>`}</td>
+        <td>${e.paid?`<div style="display:flex;gap:6px;justify-content:center"><button class="btn btn-ghost btn-sm" onclick="showToast('تم الصرف مسبقاً')">قسيمة</button>${(who.role==='OWNER'||who.role==='SUPER_ADMIN')?`<button class="btn btn-red btn-sm" onclick="cancelPayEmp(${e.id})">إلغاء الصرف</button>`:''}</div>`:`<div style="display:flex;gap:6px;justify-content:center"><button class="btn btn-ghost btn-sm" onclick="openEmpTrans(${e.id}, \'${e.name}\')">إجراءات الراتب</button><button class="btn btn-amber btn-sm" onclick="payEmp(${e.id})">تنفيذ الصرف</button></div>`}</td>
       </tr>`;
     }).join('');
+    expenses += paid;
+    netAfter = income - expenses;
     document.getElementById('pTot').innerHTML=fmt(tot)+' <small>ر.س</small>';
     document.getElementById('pPaid').innerHTML=fmt(paid)+' <small>ر.س</small>';
     document.getElementById('pDed').innerHTML=fmt(ded)+' <small>ر.س</small>';
     document.getElementById('pExtra').innerHTML=fmt(extra)+' <small>ر.س</small>';
+    document.getElementById('pIncome').innerHTML=fmt(income)+' <small>ر.س</small>';
+    document.getElementById('pExpenses').innerHTML=fmt(expenses)+' <small>ر.س</small>';
+    document.getElementById('pNetAfter').innerHTML=fmt(netAfter)+' <small>ر.س</small>';
+    document.getElementById('pEmpCount').innerHTML=data.length;
   }catch(e){console.error(e)}
 }
+async function addPayrollTransaction(employeeId, type, amount, days, note){
+  if ((!amount || +amount <= 0) && (!days || +days <= 0)) return;
+  await hrApi('/transactions', {
+    method:'POST',
+    body: JSON.stringify({
+      employeeId,
+      type,
+      amount: amount ? +amount : 0,
+      days: days ? +days : 0,
+      note: note || ''
+    })
+  });
+}
+
+
+
+
+
+
+
+async function openEmpTrans(id, name=''){
+  document.getElementById('empTransModal')?.remove();
+  document.body.insertAdjacentHTML('beforeend', `
+  <div id="empTransModal" style="position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px">
+    <div style="background:#fff;border-radius:22px;width:min(850px,96vw);direction:rtl;box-shadow:0 25px 70px rgba(0,0,0,.30);overflow:hidden">
+      <div style="padding:18px 22px;background:#fff7ed;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:12px;color:#64748b;margin-bottom:4px">إجراءات الراتب</div>
+          <div style="font-size:22px;font-weight:900;color:#0f172a">راتب : ${name || 'الموظف'}</div>
+        </div>
+        <button onclick="document.getElementById('empTransModal').remove()" style="width:38px;height:38px;border:0;border-radius:12px;background:#fff;color:#0f172a;font-size:22px;cursor:pointer">×</button>
+      </div>
+
+      <div style="padding:22px">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+          ${[
+            ['trBonus','زيادة مبلغ','0.01'],
+            ['trDeduction','خصم مبلغ','0.01'],
+            ['trAdvance','سلفة','0.01'],
+            ['trAddDays','زيادة أيام','0.5'],
+            ['trAbsence','خصم أيام','0.5']
+          ].map(x=>`
+            <label style="border:1px solid #dbe4ee;background:#f8fafc;border-radius:16px;padding:12px;display:block">
+              <div style="font-size:14px;font-weight:800;text-align:center;margin-bottom:10px;color:#0f172a">${x[1]}</div>
+              <input id="${x[0]}" type="number" step="${x[2]}" placeholder="0" style="width:100%;box-sizing:border-box;height:42px;border:1px solid #cbd5e1;border-radius:12px;text-align:center;font-size:18px;font-weight:900;outline:none;background:white">
+            </label>
+          `).join('')}
+        </div>
+
+        <label style="display:block;margin-top:14px;border:1px solid #dbe4ee;background:#f8fafc;border-radius:16px;padding:12px">
+          <div style="font-size:14px;font-weight:800;text-align:center;margin-bottom:10px;color:#0f172a">ملاحظات</div>
+          <input id="trNote" placeholder="اكتب ملاحظات التسوية" style="width:100%;box-sizing:border-box;height:42px;border:1px solid #cbd5e1;border-radius:12px;text-align:center;font-weight:700;outline:none;background:white">
+        </label>
+
+        <div style="display:grid;grid-template-columns:1fr 150px;gap:10px;margin-top:16px">
+          <button class="btn btn-amber" style="height:46px;font-weight:900" onclick="saveEmpTrans(${id})">+ تنفيذ إجراءات الراتب</button>
+          <button class="btn btn-ghost" style="height:46px" onclick="document.getElementById('empTransModal').remove()">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </div>`);
+}
+
+async function saveEmpTrans(id){
+  const bonus=+document.getElementById('trBonus').value || 0;
+  const deduction=+document.getElementById('trDeduction').value || 0;
+  const advance=+document.getElementById('trAdvance').value || 0;
+  const addDays=+document.getElementById('trAddDays').value || 0;
+  const absence=+document.getElementById('trAbsence').value || 0;
+  const note=document.getElementById('trNote').value || '';
+
+  if(bonus<=0 && deduction<=0 && advance<=0 && addDays<=0 && absence<=0){
+    return showToast('أدخل تسوية واحدة على الأقل');
+  }
+
+  if(bonus>0) await addPayrollTransaction(id,'BONUS_AMOUNT',bonus,0,note);
+  if(deduction>0) await addPayrollTransaction(id,'DEDUCTION',deduction,0,note);
+  if(advance>0) await addPayrollTransaction(id,'ADVANCE',advance,0,note);
+  if(addDays>0) await addPayrollTransaction(id,'BONUS_DAYS',0,addDays,note);
+  if(absence>0) await addPayrollTransaction(id,'DEDUCTION_DAYS',0,absence,note);
+
+  document.getElementById('empTransModal').remove();
+  await loadPayroll();
+  showToast('تم تنفيذ إجراءات الراتب ✓');
+}
+
+
+async function cancelPayEmp(id){
+  if(!confirm('هل تريد إلغاء صرف راتب هذا الموظف؟')) return;
+  const month=new Date().toISOString().slice(0,7).replace('-','/');
+  await hrApi('/payroll/cancel',{method:'POST',body:JSON.stringify({employeeId:id,month})});
+  await loadPayroll();
+  showToast('تم إلغاء صرف الراتب ✓');
+}
+
 async function payEmp(id){
   const month=new Date().toISOString().slice(0,7).replace('-','/');
+
+  const bonusAmount = prompt('زيادة بالقيمة؟ اتركها فارغة إذا لا يوجد', '');
+  const bonusDays = prompt('زيادة بالأيام؟ اتركها فارغة إذا لا يوجد', '');
+  const deductionAmount = prompt('خصم بالقيمة؟ اتركها فارغة إذا لا يوجد', '');
+  const deductionDays = prompt('خصم بالأيام؟ اتركها فارغة إذا لا يوجد', '');
+  const advanceAmount = prompt('سلفة؟ اتركها فارغة إذا لا يوجد', '');
+  const note = prompt('ملاحظة اختيارية على صرف الراتب', '') || '';
+
+  if (bonusAmount) await addPayrollTransaction(id, 'BONUS_AMOUNT', bonusAmount, 0, note);
+  if (bonusDays) await addPayrollTransaction(id, 'BONUS_DAYS', 0, bonusDays, note);
+  if (deductionAmount) await addPayrollTransaction(id, 'DEDUCTION', deductionAmount, 0, note);
+  if (deductionDays) await addPayrollTransaction(id, 'DEDUCTION_DAYS', 0, deductionDays, note);
+  if (advanceAmount) await addPayrollTransaction(id, 'ADVANCE', advanceAmount, 0, note);
+
   await hrApi('/payroll/pay',{method:'POST',body:JSON.stringify({employeeId:id,month})});
-  loadPayroll();showToast('تم صرف الراتب ✓');
+  loadPayroll();
+  showToast('تم حفظ الحركات وصرف الراتب ✓');
 }
 
 /* ===== الأسطول ===== */
@@ -1332,6 +2119,15 @@ async function loadVehs(){
     document.getElementById('mnVeh').innerHTML=vehs.map(v=>`<option value="${v.id}">${v.type} — ${v.plate}</option>`).join('');
   }catch(e){console.error(e)}
 }
+
+async function editOilInterval(id,current){
+  const val=prompt('اكتب عدد الكيلوات المسموحة قبل تغيير الزيت', current || 5000);
+  if(!val || isNaN(val) || +val<=0) return showToast('رقم غير صحيح');
+  await hrApi('/vehicles/'+id+'/oil-interval',{method:'PATCH',body:JSON.stringify({oilInterval:+val})});
+  loadVehs();
+  showToast('تم تعديل دورة الزيت ✓');
+}
+
 async function updateOdo(id,cur){
   const val=prompt(`القراءة الحالية: ${fmt(cur)} كم\nأدخل القراءة الجديدة:`);
   if(!val)return;
@@ -1361,7 +2157,7 @@ async function loadMaint(){
     document.getElementById('mCount').textContent=thisMonth.length;
     document.getElementById('mAvg').innerHTML=fmt(Math.round(tot/Math.max(1,thisMonth.length)))+' <small>ر.س</small>';
     document.getElementById('maintRows').innerHTML=data.length?data.map(m=>`<tr>
-      <td>${new Date(m.date).toLocaleString('ar-SA',{dateStyle:'short',timeStyle:'short'})}</td>
+      <td>${new Date(m.date).toLocaleString('en-US',{dateStyle:'short',timeStyle:'short'})}</td>
       <td class="num" style="font-weight:600">${m.vehicle?.plate||'—'}</td>
       <td>${m.type}</td>
       <td style="color:var(--steel)">${m.details||'—'}</td>
@@ -1394,7 +2190,7 @@ async function loadUsers(){
         <div><div style="font-weight:600;font-size:.84rem">${u.name}</div><div style="font-size:.68rem;color:var(--steel)">${u.phone}</div></div>
       </div></td>
       <td><span class="badge bd-blue">${roleAr[u.role]||u.role}</span></td>
-      <td style="font-size:.72rem;color:var(--steel)">${u.createdAt?new Date(u.createdAt).toLocaleDateString('ar-SA'):'—'}</td>
+      <td style="font-size:.72rem;color:var(--steel)">${u.createdAt?new Date(u.createdAt).toLocaleDateString('en-US'):'—'}</td>
       <td><span class="badge ${u.active!==false?'bd-green':'bd-red'}">${u.active!==false?'نشط':'معطل'}</span></td>
       <td>
         <div style="display:flex;gap:5px;flex-wrap:wrap">
@@ -1508,11 +2304,11 @@ async function loadReports(){
 
 /* ===== نظام الصلاحيات ===== */
 const PERMISSIONS = {
-  OWNER:       ['dash','alerts','orders','containers','employees','shifts','attendance','payroll','vehicles','maintenance','reports','accounting','daily','warehouses','users'],
+  OWNER:       ['dash','alerts','orders','containers','contmap','employees','shifts','attendance','payroll','vehicles','maintenance','reports','accounting','daily','warehouses','users','finance'],
   BRANCH_MGR:  ['dash','alerts','orders','containers','employees','shifts','attendance','vehicles','maintenance'],
-  TRAFFIC_MGR: ['dash','alerts','orders','containers','attendance','vehicles','maintenance','reports','warehouses'],
+  TRAFFIC_MGR: ['dash','alerts','orders','containers','contmap','attendance','vehicles','maintenance','reports','warehouses'],
   DISPATCHER:  ['dash','alerts','orders','containers'],
-  ACCOUNTANT:  ['dash','payroll','accounting','daily'],
+  ACCOUNTANT:  ['dash','payroll','accounting','daily','finance'],
   DRIVER:      ['dash','orders'],
   SUPER_ADMIN: ['dash','alerts','orders','containers','employees','shifts','attendance','payroll','vehicles','maintenance','reports','users'],
 };
@@ -1629,7 +2425,7 @@ async function loadAccounting(){
     // جدول الصيانة
     document.getElementById('acMaintRows').innerHTML = thisMaint.length ?
       thisMaint.map(m=>`<tr>
-        <td class="num" style="font-size:.74rem">${new Date(m.date).toLocaleDateString('ar-SA')}</td>
+        <td class="num" style="font-size:.74rem">${new Date(m.date).toLocaleDateString('en-US')}</td>
         <td class="num">${m.vehicle?.plate||'—'}</td>
         <td>${m.type}</td>
         <td class="num" style="font-weight:700;color:var(--red)">${fmt(m.cost)} ر.س</td>
@@ -1670,7 +2466,7 @@ async function loadAccounting(){
           <div style="font-size:.78rem;font-weight:700;color:var(--ink2);margin-bottom:8px">المصروفات الإضافية:</div>
           ${extraExpenses.map(e=>`<div style="display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)">
             <div style="flex:1;font-size:.78rem">${expTypeAr[e.type]||e.type} — ${e.note||''}</div>
-            <div style="font-size:.8rem;color:var(--muted);margin-inline-end:8px">${new Date(e.date).toLocaleDateString('ar-SA')}</div>
+            <div style="font-size:.8rem;color:var(--muted);margin-inline-end:8px">${new Date(e.date).toLocaleDateString('en-US')}</div>
             <div class="num" style="font-weight:700;color:var(--red)">${fmt(e.amount)} ر.س</div>
           </div>`).join('')}
         </div>` : ''}`;
@@ -1685,15 +2481,15 @@ async function payEmpFromAc(id){
   showToast('تم صرف الراتب ✓');
 }
 
-function addExpense(){
-  const amount = document.getElementById('expAmount').value;
+function addAccExpense(){
+  const amount = document.getElementById('accExpAmount').value;
   const type = document.getElementById('expType').value;
-  const date = document.getElementById('expDate').value || new Date().toISOString().split('T')[0];
-  const note = document.getElementById('expNote').value;
-  if(!amount) return showToast('⚠ المبلغ مطلوب');
+  const date = document.getElementById('accExpDate').value || new Date().toISOString().split('T')[0];
+  const note = document.getElementById('accExpNote').value;
+  if(!amount && !extra) return showToast('⚠ أدخل المبلغ أو الدخل الإضافي');
   extraExpenses.push({type, amount:+amount, date, note});
-  document.getElementById('expAmount').value='';
-  document.getElementById('expNote').value='';
+  document.getElementById('accExpAmount').value='';
+  document.getElementById('accExpNote').value='';
   loadAccounting();
   showToast('تمت إضافة المصروف ✓');
 }
@@ -1720,7 +2516,7 @@ async function loadDailyReport(){
     
     document.getElementById('dailyRows').innerHTML = reports.length ?
       reports.map(r=>`<tr>
-        <td class="num" style="font-size:.76rem">${new Date(r.date).toLocaleDateString('ar-SA',{weekday:'short',month:'short',day:'numeric'})}</td>
+        <td class="num" style="font-size:.76rem">${new Date(r.date).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</td>
         <td class="num" style="font-weight:600">${r.orders}</td>
         <td class="num" style="color:var(--green);font-weight:700">${fmt(r.cash)} ر.س</td>
         <td class="num" style="color:var(--blue);font-weight:700">${fmt(r.transfer)} ر.س</td>
@@ -1747,6 +2543,258 @@ function closeMobileMenu(){
 
 /* ===== المستودعات ===== */
 let whLat = null, whLng = null;
+
+
+/* ===== الإدارة المالية ===== */
+function fmtNum(n){ return (+n||0).toLocaleString('en-US'); }
+
+
+const payTypeLbl = {CASH:'نقدي 💵', TRANSFER:'تحويل 🏦', CREDIT:'آجل ⏳'};
+const payTypeColor = {CASH:'var(--green)', TRANSFER:'var(--blue)', CREDIT:'var(--amber-d)'};
+
+async function loadIncomes(){
+  try{
+    const [incs, cs] = await Promise.all([
+      coApi('/incomes'+(document.getElementById('incFilterPay')?.value ? '?payType='+document.getElementById('incFilterPay').value : '')),
+      coApi('/containers')
+    ]);
+
+    // تعبئة قائمة الحاويات
+    const sel = document.getElementById('incContainer');
+    if(sel){
+      const cur = sel.value;
+      sel.innerHTML = '<option value="">اختر حاوية (اختياري)</option>' +
+        cs.map(c=>'<option value="'+c.id+'">'+c.code+(c.size?' — '+c.size:'')+'</option>').join('');
+      sel.value = cur;
+    }
+
+    let total = 0, credit = 0;
+    document.getElementById('incRows').innerHTML = incs.length ? incs.map(inc => {
+      total += inc.amount;
+      if(inc.payType==='CREDIT' && !inc.isPaid) credit += inc.amount;
+      return '<tr>'+
+        '<td style="font-size:.75rem">'+new Date(inc.date).toLocaleDateString('en-US')+'</td>'+
+        '<td style="font-weight:600;color:var(--amber-d)">'+(inc.container ? inc.container.code : '—')+'</td>'+
+        '<td class="num" style="font-weight:700">'+fmtNum(inc.amount)+'</td>'+
+        '<td><span style="font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:8px;background:var(--bg);color:'+payTypeColor[inc.payType]+'">'+payTypeLbl[inc.payType]+'</span></td>'+
+        '<td style="font-size:.75rem">'+(inc.description||'—')+'</td>'+
+        '<td>'+(inc.payType==='CREDIT' ? (inc.isPaid ?
+          '<span style="font-size:.65rem;color:var(--green);font-weight:600">✓ مدفوع</span>' :
+          '<button onclick="payIncome('+inc.id+')" style="background:var(--green-soft);color:var(--green);border:1px solid var(--green);border-radius:6px;padding:2px 8px;font-size:.65rem;cursor:pointer">تحصيل</button>'
+        ) : '<span style="font-size:.65rem;color:var(--green);font-weight:600">✓ محصّل</span>')+'</td>'+
+        '<td><button onclick="deleteIncome('+inc.id+')" style="background:var(--red-soft);color:var(--red);border:1px solid var(--red);border-radius:6px;padding:2px 8px;font-size:.65rem;cursor:pointer">حذف</button></td>'+
+      '</tr>';
+    }).join('') : '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--muted)">لا يوجد دخل مسجل</td></tr>';
+
+    document.getElementById('incTotal').textContent = fmtNum(total);
+    document.getElementById('incCredit').textContent = fmtNum(credit);
+  }catch(e){console.error(e)}
+}
+
+async function addIncome(){
+  const containerId = null;
+  const sourceText = document.getElementById('incSource').value;
+  const amount = document.getElementById('incAmount').value;
+  const payType = document.getElementById('incPayType').value;
+  const date = document.getElementById('incDate').value;
+  const description = document.getElementById('incDesc').value;
+  const extra = +document.getElementById('incExtra').value || 0;
+
+  if(!amount) return showToast('⚠ المبلغ مطلوب');
+
+  // رسالة تأكيد
+  const contSel = document.getElementById('incContainer');
+  const contText = contSel.value ? contSel.options[contSel.selectedIndex].text : 'بدون حاوية';
+  const payText = payTypeLbl[payType];
+  if(!confirm('تأكيد تسجيل دخل\n\nالحاوية: '+contText+'\nالمبلغ: '+amount+' ر.س\nنوع الدفع: '+payText)) return;
+
+  try{
+    await coApi('/incomes', {method:'POST', body:JSON.stringify({
+      amount, payType, description,
+      containerId: containerId || null,
+      amount: +amount + extra,
+      description: (sourceText ? '['+sourceText+'] ' : '') + description + (extra ? ' (إضافي: '+extra+')' : ''),
+      date: date || new Date().toISOString().slice(0,10),
+      isPaid: payType !== 'CREDIT'
+    })});
+    showToast('✓ تم تسجيل الدخل');
+    document.getElementById('incAmount').value='';
+    document.getElementById('incDesc').value='';
+    document.getElementById('incClient').value='';
+    document.getElementById('incSource').value='';
+    document.getElementById('incExtra').value='';
+    document.getElementById('incContainer').value='';
+    loadIncomes();
+  }catch(e){ showToast('⚠ خطأ'); }
+}
+
+async function payIncome(id){
+  if(!confirm('تأكيد تحصيل المبلغ الآجل؟')) return;
+  try{
+    await coApi('/incomes/'+id+'/pay', {method:'PATCH'});
+    showToast('✓ تم التحصيل');
+    loadIncomes();
+  }catch(e){ showToast('⚠ خطأ'); }
+}
+
+async function deleteIncome(id){
+  if(!confirm('حذف هذا السجل؟')) return;
+  try{
+    await coApi('/incomes/'+id, {method:'DELETE'});
+    showToast('✓ تم الحذف');
+    loadIncomes();
+  }catch(e){ showToast('⚠ خطأ'); }
+}
+
+function loadFinance(){
+  document.getElementById('finDate').value = new Date().toISOString().slice(0,10);
+  document.getElementById('finPayMonth').value = new Date().toISOString().slice(0,7);
+  finTab('report');
+}
+
+const expCatLbl = {RENT:'إيجار',FUEL:'وقود',MAINTENANCE:'صيانة',SALARY:'رواتب',UTILITIES:'كهرباء/ماء',OTHER:'أخرى'};
+const expCatColor = {RENT:'var(--blue)',FUEL:'var(--amber-d)',MAINTENANCE:'var(--red)',SALARY:'var(--green)',UTILITIES:'var(--steel)',OTHER:'var(--muted)'};
+
+function finTab(tab) {
+  ['report','income','expenses','payroll'].forEach(t => {
+    document.getElementById('fin-'+t).style.display = t===tab ? '' : 'none';
+    const btn = document.getElementById('ftab-'+t);
+    if(btn){ btn.className = t===tab ? 'btn btn-amber' : 'btn btn-ghost'; btn.style.padding='8px 18px'; btn.style.fontSize='.8rem'; }
+  });
+  if(tab==='report') loadFinReport();
+  if(tab==='income'){ document.getElementById('incDate').value=new Date().toISOString().slice(0,10); loadIncomes(); }
+  if(tab==='expenses'){ document.getElementById('expDate').value=new Date().toISOString().slice(0,10); loadExpenses(); }
+  if(tab==='payroll') loadFinPayroll();
+}
+
+async function loadFinReport() {
+  try {
+    const period = document.getElementById('finPeriod')?.value || 'month';
+    const date = document.getElementById('finDate')?.value || new Date().toISOString().slice(0,10);
+    const r = await coApi('/financial-report?period='+period+'&date='+date);
+    document.getElementById('finTotalIn').textContent = fmtNum(r.totalIn);
+    document.getElementById('finCashIn').textContent = fmtNum(r.cashIn);
+    document.getElementById('finTransferIn').textContent = fmtNum(r.transferIn);
+    document.getElementById('finTotalOut').textContent = fmtNum(r.totalOut);
+    document.getElementById('finOrders').textContent = r.totalOrders;
+    const net = r.netProfit;
+    const netEl = document.getElementById('finNetProfit');
+    netEl.textContent = net.toLocaleString('en-US');
+    netEl.style.color = net >= 0 ? 'var(--green)' : 'var(--red)';
+    const breakdown = document.getElementById('finExpBreakdown');
+    if(Object.keys(r.expByCategory).length) {
+      breakdown.innerHTML = Object.entries(r.expByCategory).map(([cat,amt]) =>
+        '<div style="background:var(--bg);border-radius:8px;padding:10px;text-align:center">'+
+        '<div style="font-size:.68rem;color:'+expCatColor[cat]+';font-weight:600;margin-bottom:4px">'+expCatLbl[cat]+'</div>'+
+        '<div class="num" style="font-size:1.1rem;font-weight:700">'+fmtNum(amt)+'</div>'+
+        '<div style="font-size:.78rem;color:var(--muted)">ر.س</div></div>'
+      ).join('');
+    } else {
+      breakdown.innerHTML = '<div style="color:var(--muted);font-size:.8rem;padding:12px">لا توجد مصروفات في هذه الفترة</div>';
+    }
+  } catch(e){ console.error(e); }
+}
+
+async function loadExpenses() {
+  try {
+    const cat = document.getElementById('expFilterCat')?.value || '';
+    const exps = await coApi('/expenses'+(cat?'?category='+cat:''));
+    document.getElementById('expRows').innerHTML = exps.length ? exps.map(e =>
+      '<tr>'+
+      '<td style="font-size:.75rem">'+new Date(e.date).toLocaleDateString('en-US')+'</td>'+
+      '<td><span style="font-size:.68rem;font-weight:600;color:'+expCatColor[e.category]+'">'+expCatLbl[e.category]+'</span></td>'+
+      '<td class="num" style="font-weight:700">'+fmtNum(e.amount)+'</td>'+
+      '<td style="font-size:.75rem">'+(e.description||'—')+'</td>'+
+      '<td style="font-size:.72rem;color:var(--steel)">'+(e.ref||'—')+'</td>'+
+      '<td style="display:flex;gap:4px">'+
+      '<button onclick="editExpense('+e.id+','+e.amount+',\''+e.category+'\',\''+( e.description||'')+'\',\''+( e.ref||'')+'\',\''+e.date.slice(0,10)+'\')" style="background:var(--amber-soft);color:var(--amber-d);border:1px solid var(--amber);border-radius:6px;padding:2px 8px;font-size:.65rem;cursor:pointer">تعديل</button>'+
+      '<button onclick="deleteExpense('+e.id+')" style="background:var(--red-soft);color:var(--red);border:1px solid var(--red);border-radius:6px;padding:2px 8px;font-size:.65rem;cursor:pointer">حذف</button>'+
+      '</td>'+
+      '</tr>'
+    ).join('') : '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted)">لا توجد مصروفات</td></tr>';
+  } catch(e){ console.error(e); }
+}
+
+async function addExpense() {
+  const amount = document.getElementById('expAmount').value;
+  const category = document.getElementById('expCategory').value;
+  const description = document.getElementById('expDesc').value;
+  const ref = document.getElementById('expRef').value;
+  const date = document.getElementById('expDate').value;
+  if(!amount || !category) return showToast('⚠ المبلغ والفئة مطلوبان');
+  try {
+    await coApi('/expenses', {method:'POST', body:JSON.stringify({amount,category,description,ref,date})});
+    showToast('✓ تم إضافة المصروف');
+    document.getElementById('expAmount').value='';
+    document.getElementById('expDesc').value='';
+    document.getElementById('expRef').value='';
+    document.getElementById('expDate').value=new Date().toISOString().slice(0,10);
+    loadExpenses();
+  } catch(e){ showToast('⚠ خطأ'); }
+}
+
+function editExpense(id, amount, category, description, ref, date){
+  document.getElementById('expAmount').value = amount;
+  document.getElementById('expCategory').value = category;
+  document.getElementById('expDesc').value = description;
+  document.getElementById('expRef').value = ref;
+  document.getElementById('expDate').value = date;
+  // غير زر الإضافة لزر حفظ التعديل
+  const btn = document.querySelector('#fin-expenses .btn.btn-amber');
+  btn.textContent = '💾 حفظ التعديل';
+  btn.onclick = async () => {
+    try {
+      await coApi('/expenses/'+id, {method:'DELETE'});
+      await coApi('/expenses', {method:'POST', body:JSON.stringify({
+        amount: document.getElementById('expAmount').value,
+        category: document.getElementById('expCategory').value,
+        description: document.getElementById('expDesc').value,
+        ref: document.getElementById('expRef').value,
+        date: document.getElementById('expDate').value,
+      })});
+      showToast('✓ تم التعديل');
+      btn.textContent = '＋ إضافة';
+      btn.onclick = addExpense;
+      document.getElementById('expAmount').value='';
+      document.getElementById('expDesc').value='';
+      document.getElementById('expRef').value='';
+      document.getElementById('expDate').value=new Date().toISOString().slice(0,10);
+      loadExpenses();
+    } catch(e){ showToast('⚠ خطأ'); }
+  };
+  document.getElementById('expAmount').scrollIntoView({behavior:'smooth'});
+}
+
+async function deleteExpense(id) {
+  if(!confirm('حذف هذا المصروف؟')) return;
+  try {
+    await coApi('/expenses/'+id, {method:'DELETE'});
+    showToast('✓ تم الحذف');
+    loadExpenses();
+  } catch(e){ showToast('⚠ خطأ'); }
+}
+
+async function loadFinPayroll() {
+  try {
+    const month = document.getElementById('finPayMonth')?.value?.replace('-','/') || new Date().toISOString().slice(0,7).replace('-','/');
+    const data = await hrApi('/payroll?month='+month);
+    let total = 0;
+    document.getElementById('finPayRows').innerHTML = data.length ? data.map(e => {
+      const allowances = (e.housingAllowance||0)+(e.transportAllowance||0)+(e.extra||0);
+      const deductions = (e.deduction||0)+(e.penalties||0)-(e.bonus||0)-(e.overtime||0);
+      total += e.netSalary||0;
+      return '<tr>'+
+        '<td style="font-weight:600">'+e.name+'</td>'+
+        '<td class="num">'+e.salary.toLocaleString('en-US')+'</td>'+
+        '<td class="num" style="color:var(--green)">+'+fmtNum(allowances)+'</td>'+
+        '<td class="num" style="color:var(--red)">-'+fmtNum(e.deduction||0)+'</td>'+
+        '<td class="num" style="font-weight:700">'+fmtNum(e.netSalary||0)+'</td>'+
+        '<td><span style="font-size:.68rem;padding:2px 8px;border-radius:8px;background:'+(e.paid?'var(--green-soft)':'var(--amber-soft)')+';color:'+(e.paid?'var(--green)':'var(--amber-d)')+';">'+(e.paid?'مدفوع':'معلق')+'</span></td>'+
+      '</tr>';
+    }).join('') : '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted)">لا يوجد موظفون</td></tr>';
+    document.getElementById('finPayTotal').textContent = fmtNum(total);
+  } catch(e){ console.error(e); }
+}
 
 async function loadWarehouses(){
   try{
@@ -1837,18 +2885,6 @@ async function extractOrderLocation(){
       document.getElementById('locMsg').innerHTML = `<div class="loc-msg loc-err">✗ ${res.message}</div>`;
     }
   }catch(e){showToast('خطأ في استخراج الموقع')}
-}
-
-/* ===== إشعار طلب جديد عند الإنشاء ===== */
-const _origAddOrder = addOrder;
-async function addOrder(){
-  await _origAddOrder();
-  // إرسال إشعار للمديرين
-  if(appSocket && appSocket.connected){
-    const cust = document.getElementById('oCust')?.value || '';
-    const type = document.getElementById('oType')?.value || '';
-    appSocket.emit('notify:new-order', { customerName: cust, type });
-  }
 }
 
 
@@ -1956,19 +2992,19 @@ async function editEmpShift(id){
 /* ===== المعاملات المالية ===== */
 let currentTransEmpId = null;
 const typeAr2 = {
-  BONUS_AMOUNT:'زيادة قيمة', BONUS_DAYS:'زيادة أيام',
+  BONUS_AMOUNT:'زيادة قيمة', BONUS_DAYS:'زيادة أيام', DEDUCTION_DAYS:'خصم أيام',
   OVERTIME:'أوفر تايم', ADVANCE:'سلفة',
   ADVANCE_REPAY:'سداد سلفة', DEDUCTION:'خصم', PENALTY:'جزاء'
 };
 const typeColor = {
   BONUS_AMOUNT:'var(--green)', BONUS_DAYS:'var(--green)',
-  OVERTIME:'var(--blue)', ADVANCE:'var(--red)',
+  OVERTIME:'var(--blue)', DEDUCTION_DAYS:'var(--red)', ADVANCE:'var(--red)',
   ADVANCE_REPAY:'var(--green)', DEDUCTION:'var(--red)', PENALTY:'var(--red)'
 };
 
 // تحديث حقل الأيام عند تغيير النوع
 document.getElementById('tType').addEventListener('change', function(){
-  const isDays = this.value === 'BONUS_DAYS';
+  const isDays = this.value === 'BONUS_DAYS' || this.value === 'DEDUCTION_DAYS';
   document.getElementById('tDaysField').style.display = isDays ? 'block' : 'none';
   document.getElementById('tAmountLabel').textContent = isDays ? 'القيمة (تحسب تلقائياً)' : 'القيمة (ر.س) *';
   if(isDays) document.getElementById('tAmount').placeholder = 'اختياري';
@@ -2009,15 +3045,15 @@ async function loadTransactions(){
       data.transactions.map(t=>`
         <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)">
           <div style="width:32px;height:32px;border-radius:8px;background:var(--bg);display:grid;place-items:center;font-size:.8rem;flex-shrink:0">
-            ${{BONUS_AMOUNT:'⬆️',BONUS_DAYS:'📅',OVERTIME:'⏰',ADVANCE:'💳',ADVANCE_REPAY:'✓',DEDUCTION:'⬇️',PENALTY:'⚠️'}[t.type]||'💰'}
+            ${{BONUS_AMOUNT:'⬆️',BONUS_DAYS:'📅',OVERTIME:'⏰',ADVANCE:'💳',ADVANCE_REPAY:'✓',DEDUCTION:'⬇️',DEDUCTION_DAYS:'📅',PENALTY:'⚠️'}[t.type]||'💰'}
           </div>
           <div style="flex:1">
             <div style="font-size:.8rem;font-weight:600">${typeAr2[t.type]||t.type}</div>
             <div style="font-size:.66rem;color:var(--steel)">${t.note||'—'} · ${t.month||''}</div>
           </div>
           <div class="num" style="font-weight:700;color:${typeColor[t.type]||'var(--ink)'}">
-            ${['DEDUCTION','ADVANCE','PENALTY'].includes(t.type)?'−':'+'}${fmt(t.amount)} ر.س
-            ${t.days?`<div style="font-size:.62rem;color:var(--muted)">${t.days} أيام</div>`:''}
+            ${['DEDUCTION','DEDUCTION_DAYS','ADVANCE','PENALTY'].includes(t.type)?'−':'+'}${fmt(t.amount)} ر.س
+            ${t.days?`<div style="font-size:.78rem;color:var(--muted)">${t.days} أيام</div>`:''}
           </div>
           <button onclick="deleteTransaction(${t.id})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.8rem;padding:4px" title="حذف">✕</button>
         </div>`).join('') :
@@ -2051,6 +3087,148 @@ async function deleteTransaction(id){
   showToast('تم حذف المعاملة ✓');
 }
 
+
+/* ===== خريطة الحاويات ===== */
+let contMapObj = null, contMarkers = {}, contMapFilter = 'all';
+const cStMap = {
+  ON_SITE:['مؤجرة','bd-amber','cm-amber'],
+  IN_DEPOT:['متاحة','bd-green','cm-green'],
+  MAINTENANCE:['صيانة','bd-red','cm-red'],
+};
+
+function contIcon(st){
+  const cls = cStMap[st]?.[2] || 'cm-amber';
+  return L.divIcon({className:'',html:`<div class="cmark ${cls}"></div>`,iconSize:[34,33],iconAnchor:[17,33],popupAnchor:[0,-30]});
+}
+
+async function loadContMap(){
+  try{
+    const conts = await coApi('/containers');
+    if(!contMapObj){
+      contMapObj = L.map('contMap',{zoomControl:true}).setView([24.80,46.66],11);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(contMapObj);
+    }
+    contMapObj.invalidateSize();
+
+    // إزالة العلامات القديمة
+    Object.values(contMarkers).forEach(m=>contMapObj.removeLayer(m));
+    contMarkers = {};
+
+    // إضافة الحاويات التي لها موقع
+    const withLoc = conts.filter(c=>c.lat&&c.lng);
+    const withoutLoc = conts.filter(c=>!c.lat||!c.lng);
+
+    withLoc.forEach(c=>{
+      const [lbl,bd] = cStMap[c.status] || ['—','bd-gray'];
+      const popup = `
+        <div class="pp-code">${c.code}<span class="badge ${bd}">${lbl}</span></div>
+        <div class="pp-row"><span>الحجم</span><b>${c.size||'—'}</b></div>
+        ${c.order?`<div class="pp-row"><span>العميل</span><b>${c.order.customerName||'—'}</b></div>`:''}
+        <a href="https://www.google.com/maps?q=${c.lat},${c.lng}" target="_blank"
+           style="display:block;text-align:center;margin-top:8px;background:#F7A823;color:#141F28;font-weight:600;border-radius:8px;padding:6px;text-decoration:none;font-size:.76rem">
+          فتح في خرائط قوقل ⌖
+        </a>`;
+      contMarkers[c.code] = L.marker([c.lat,c.lng],{icon:contIcon(c.status)})
+        .addTo(contMapObj).bindPopup(popup);
+    });
+
+    // تحديث القائمة الجانبية
+    applyContMapFilter(conts);
+
+    // ضبط الخريطة لتشمل الحاويات
+    if(withLoc.length>1){
+      contMapObj.fitBounds(withLoc.map(c=>[c.lat,c.lng]),{padding:[40,40]});
+    } else if(withLoc.length===1){
+      contMapObj.setView([withLoc[0].lat,withLoc[0].lng],14);
+    }
+
+    // تخزين للفلترة
+    contMapObj._allConts = conts;
+  }catch(e){console.error(e)}
+}
+
+function applyContMapFilter(conts){
+  if(!conts) conts = contMapObj?._allConts || [];
+  const filtered = contMapFilter==='all' ? conts : conts.filter(c=>c.status===contMapFilter);
+
+  // إظهار/إخفاء العلامات
+  conts.forEach(c=>{
+    if(!contMarkers[c.code]) return;
+    const show = contMapFilter==='all' || c.status===contMapFilter;
+    if(show) contMarkers[c.code].addTo(contMapObj);
+    else contMapObj.removeLayer(contMarkers[c.code]);
+  });
+
+  document.getElementById('contMapCount').textContent = filtered.length + ' حاوية';
+  document.getElementById('contMapList').innerHTML = filtered.map(c=>{
+    const [lbl,bd] = cStMap[c.status] || ['—','bd-gray'];
+    return `<div class="li" onclick="flyToCont('${c.code}')">
+      <div style="width:36px;height:36px;border-radius:9px;background:var(--bg);display:grid;place-items:center;font-family:'Changa';font-weight:700;font-size:.7rem;flex-shrink:0;color:var(--steel)">${c.code.slice(-3)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;font-size:.82rem">${c.code} · ${c.size||''}</div>
+        <div style="font-size:.68rem;color:var(--steel)">${c.order?.customerName||c.notes||'متاحة'}</div>
+      </div>
+      <span class="badge ${bd}">${lbl}</span>
+    </div>`;
+  }).join('') || '<div style="text-align:center;padding:20px;color:var(--muted);font-size:.8rem">لا توجد حاويات</div>';
+}
+
+function flyToCont(code){
+  const c = (contMapObj?._allConts||[]).find(x=>x.code===code);
+  if(c?.lat&&c?.lng){
+    contMapObj.flyTo([c.lat,c.lng],16,{duration:.8});
+    contMarkers[code]?.openPopup();
+  }
+}
+
+// فلترة خريطة الحاويات
+document.addEventListener('click', e=>{
+  const btn = e.target.closest('[data-cmf]');
+  if(!btn) return;
+  document.querySelectorAll('[data-cmf]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  contMapFilter = btn.dataset.cmf;
+  applyContMapFilter();
+});
+
+/* ===== إسناد الطلب لسائق ===== */
+async function assignOrder(orderId, driverId){
+  try{
+    await coApi('/orders/'+orderId+'/assign',{method:'POST',body:JSON.stringify({driverId:driverId||null})});
+    loadOrders();
+    showToast(driverId?'تم إسناد الطلب للسائق ✓':'تم إلغاء الإسناد');
+  }catch(e){showToast('⚠ خطأ في الإسناد')}
+}
+
+// نافذة إسناد الطلب
+function openAssignModal(orderId, currentDriverId){
+  coApi('/drivers').then(drivers=>{
+    const opts = `<option value="">— بدون إسناد —</option>` +
+      drivers.map(d=>`<option value="${d.id}" ${d.id===currentDriverId?'selected':''}>${d.name}</option>`).join('');
+      drivers.map(d=>`<option value="${d.id}" ${d.id===currentDriverId?'selected':''}>${d.name}</option>`).join('');
+
+    const modal = document.createElement('div');
+    modal.className = 'modal-bg open';
+    modal.innerHTML = `
+      <div class="modal" style="max-width:360px">
+        <h3>إسناد الطلب #${orderId} لسائق</h3>
+        <div class="field">
+          <label>اختر السائق</label>
+          <select id="assignDriverSel">${opts}</select>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:14px">
+          <button class="btn btn-amber" style="flex:1;justify-content:center" onclick="
+            assignOrder(${orderId}, document.getElementById('assignDriverSel').value);
+            this.closest('.modal-bg').remove();
+          ">تأكيد الإسناد</button>
+          <button class="btn btn-ghost" onclick="this.closest('.modal-bg').remove()">إلغاء</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.onclick = e=>{ if(e.target===modal) modal.remove(); };
+  });
+}
+
 /* ===== التشغيل الأولي ===== */
 // Socket.IO للإشعارات
 let appSocket = null;
@@ -2070,12 +3248,383 @@ setTimeout(initAppSocket, 2000);
 
 // تطبيق الصلاحيات
 applyPermissions();
+document.body.style.visibility='visible';
 // تحميل الصفحة الافتراضية حسب الدور
 const role = who.role || 'DRIVER';
 const allowed = PERMISSIONS[role] || ['dash'];
 const startPage = allowed[0] || 'dash';
 go(startPage);
 setInterval(()=>{if(curPage==='dash')loadDash();if(curPage==='alerts')loadAlerts()},60000);
+
+
 </script>
 </body>
 </html>
+
+<style>
+#orderForm .order-form-title h3{
+  font-size:1.05rem !important;
+}
+#orderForm input,
+#orderForm select{
+  height:38px !important;
+  min-height:38px !important;
+  font-size:.78rem !important;
+}
+#orderForm .btn-amber{
+  height:42px !important;
+  font-size:.82rem !important;
+}
+</style>
+
+<style>
+#orderForm input,
+#orderForm select{
+  height:42px !important;
+  min-height:42px !important;
+}
+#orderForm .btn{
+  height:44px !important;
+}
+#orderForm .order-form-title h3{
+  font-size:1.1rem !important;
+  font-weight:800 !important;
+}
+</style>
+
+<style>
+#oDueDays{
+  width:100% !important;
+}
+#orderForm .field{
+  overflow:visible !important;
+}
+#orderForm input,
+#orderForm select{
+  box-sizing:border-box !important;
+}
+</style>
+
+<style>
+/* ===== FINAL ORDER FORM CLEAN FIX ===== */
+
+#orderForm{
+  max-width:1180px !important;
+  margin:24px auto 14px auto !important;
+  padding:0 14px 14px 14px !important;
+}
+
+#orderForm > div:nth-child(2){
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:14px 16px !important;
+  align-items:end !important;
+  margin-bottom:14px !important;
+}
+
+#orderForm .field{
+  min-width:0 !important;
+  margin:0 !important;
+  overflow:visible !important;
+}
+
+#orderForm .field label{
+  display:block !important;
+  height:16px !important;
+  line-height:16px !important;
+  margin-bottom:6px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  font-size:.72rem !important;
+}
+
+#orderForm input,
+#orderForm select{
+  width:100% !important;
+  height:40px !important;
+  min-height:40px !important;
+  padding:0 10px !important;
+  font-size:.78rem !important;
+  box-sizing:border-box !important;
+}
+
+#orderForm .field:has(#oCust){
+  grid-column:span 2 !important;
+}
+
+#orderForm .field:has(#oAddr){
+  grid-column:span 2 !important;
+}
+
+#orderForm .field:has(#oDueDays){
+  grid-column:span 2 !important;
+}
+
+#orderForm .field:has(#oLocUrl){
+  grid-column:1 / -1 !important;
+  margin-top:0 !important;
+}
+
+#oDueDays{
+  width:100% !important;
+  text-align:center !important;
+}
+
+#oDueDisplay{
+  display:none !important;
+}
+
+#orderForm > div:nth-child(3){
+  display:grid !important;
+  grid-template-columns:1fr 1fr 2fr !important;
+  gap:12px !important;
+  margin-top:12px !important;
+}
+
+#orderForm .btn{
+  height:42px !important;
+  font-size:.8rem !important;
+}
+
+@media(max-width:900px){
+  #orderForm{
+    max-width:100% !important;
+  }
+  #orderForm > div:nth-child(2){
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+}
+
+@media(max-width:560px){
+  #orderForm > div:nth-child(2),
+  #orderForm > div:nth-child(3){
+    grid-template-columns:1fr !important;
+  }
+  #orderForm .field{
+    grid-column:1 / -1 !important;
+  }
+}
+</style>
+
+<style>
+/* ===== FIX FORM SIZE AFTER SHRINK ===== */
+#orderForm{
+  max-width:1500px !important;
+  width:96% !important;
+  margin:22px auto 14px auto !important;
+}
+
+#orderForm > div:nth-child(2){
+  grid-template-columns:repeat(4,minmax(180px,1fr)) !important;
+  gap:14px 18px !important;
+}
+
+#orderForm .field:has(#oLocUrl){
+  grid-column:1 / -1 !important;
+}
+
+#orderForm input,
+#orderForm select{
+  height:42px !important;
+  font-size:.82rem !important;
+}
+
+#orderForm .field label{
+  font-size:.76rem !important;
+}
+
+#orderForm > div:nth-child(3){
+  grid-template-columns:1fr 1fr 2fr !important;
+}
+
+@media(max-width:900px){
+  #orderForm{
+    width:98% !important;
+  }
+  #orderForm > div:nth-child(2){
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+}
+</style>
+
+<style>
+/* ===== PROFESSIONAL ORDERS PAGE FINAL OVERRIDE ===== */
+
+#page-orders{
+  padding-top:18px !important;
+}
+
+#page-orders #orderForm.card{
+  width:90% !important;
+  max-width:1350px !important;
+  min-width:900px !important;
+  margin:22px auto 22px auto !important;
+  padding:0 18px 18px 18px !important;
+  border-radius:16px !important;
+  overflow:visible !important;
+}
+
+#page-orders #orderForm .order-form-title{
+  height:50px !important;
+  margin:0 -18px 18px -18px !important;
+  padding:0 18px !important;
+  display:flex !important;
+  align-items:center !important;
+}
+
+#page-orders #orderForm .order-form-title h3{
+  font-size:18px !important;
+  font-weight:800 !important;
+}
+
+#page-orders #orderForm > div:nth-child(2){
+  display:grid !important;
+  grid-template-columns:repeat(4, minmax(0, 1fr)) !important;
+  gap:18px 18px !important;
+  align-items:end !important;
+  margin-bottom:18px !important;
+}
+
+#page-orders #orderForm .field{
+  margin:0 !important;
+  min-width:0 !important;
+  overflow:visible !important;
+}
+
+#page-orders #orderForm .field label{
+  display:block !important;
+  font-size:14px !important;
+  font-weight:800 !important;
+  line-height:18px !important;
+  height:18px !important;
+  margin-bottom:7px !important;
+  color:#082130 !important;
+  white-space:nowrap !important;
+}
+
+#page-orders #orderForm input,
+#page-orders #orderForm select{
+  width:100% !important;
+  height:46px !important;
+  min-height:46px !important;
+  padding:0 14px !important;
+  font-size:16px !important;
+  font-weight:600 !important;
+  border-radius:10px !important;
+  box-sizing:border-box !important;
+}
+
+#page-orders #orderForm input::placeholder{
+  font-size:14px !important;
+}
+
+#page-orders #orderForm .field:has(#oCust){
+  grid-column:span 2 !important;
+}
+
+#page-orders #orderForm .field:has(#oAddr){
+  grid-column:span 2 !important;
+}
+
+#page-orders #orderForm .field:has(#oDueDays){
+  grid-column:span 1 !important;
+}
+
+#page-orders #orderForm .field:has(#oLocUrl){
+  grid-column:1 / -1 !important;
+}
+
+#oDueDays{
+  width:100% !important;
+  text-align:center !important;
+}
+
+#oDueDisplay{
+  display:none !important;
+}
+
+#page-orders #orderForm > div:nth-child(3){
+  display:grid !important;
+  grid-template-columns:1fr 1fr 2fr !important;
+  gap:14px !important;
+  margin-top:16px !important;
+}
+
+#page-orders #orderForm .btn{
+  height:46px !important;
+  font-size:15px !important;
+  font-weight:800 !important;
+  border-radius:10px !important;
+}
+
+#page-orders > .card:not(#orderForm){
+  width:96% !important;
+  margin:0 auto 20px auto !important;
+}
+
+#page-orders table{
+  font-size:13px !important;
+}
+
+@media(max-width:1100px){
+  #page-orders #orderForm.card{
+    width:96% !important;
+    min-width:0 !important;
+  }
+  #page-orders #orderForm > div:nth-child(2){
+    grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media(max-width:650px){
+  #page-orders #orderForm > div:nth-child(2),
+  #page-orders #orderForm > div:nth-child(3){
+    grid-template-columns:1fr !important;
+  }
+  #page-orders #orderForm .field{
+    grid-column:1 / -1 !important;
+  }
+}
+</style>
+
+<style>
+@media (max-width: 700px){
+  .form-grid,
+  .grid,
+  .finance-grid{
+    display:grid !important;
+    grid-template-columns:1fr !important;
+    gap:12px !important;
+  }
+
+  input, select, textarea{
+    width:100% !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
+    font-size:16px !important;
+  }
+
+  .card, .panel, .section{
+    overflow:hidden !important;
+  }
+
+  table{
+    font-size:13px !important;
+  }
+
+  .btn, button{
+    min-height:44px !important;
+  }
+}
+
+
+
+/* ===== HIDE INC CONTAINER SELECT ON MOBILE ===== */
+@media (max-width: 700px) {
+  #incContainer {
+    display: none !important;
+  }
+}
+
+</style>
