@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>خريطة الحاويات — حاويات برو</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root{--bg:#0f1923;--card:#16232f;--line:#22333f;--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--gray:#64748b;--txt:#e2e8f0;--muted:#94a3b8}
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'IBM Plex Sans Arabic',system-ui,sans-serif}
+  body{background:var(--bg);color:var(--txt);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+  .topbar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--card);border-bottom:1px solid var(--line);flex-shrink:0}
+  .topbar h1{font-size:1rem;font-weight:700}
+  .topbar a{margin-inline-start:auto;color:var(--muted);text-decoration:none;font-size:.8rem;padding:6px 12px;border:1px solid var(--line);border-radius:8px;transition:.2s}
+  .topbar a:hover{color:var(--txt);border-color:var(--gray)}
+  .stats{display:flex;gap:8px;font-size:.72rem}
+  .stat{background:var(--bg);padding:4px 10px;border-radius:7px;border:1px solid var(--line)}
+  .stat b{color:var(--green)}
+  #map{flex:1;width:100%}
+  .cmarker{width:34px;height:34px;border-radius:9px;border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.4);display:grid;place-items:center;font-size:1rem;background:var(--amber)}
+  .cmarker.depot{background:var(--gray)}
+  .cmarker-lbl{background:rgba(15,25,35,.92);color:#fff;font-size:.56rem;font-weight:700;padding:2px 6px;border-radius:6px;margin-top:2px;text-align:center;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1)}
+  .leaflet-popup-content-wrapper{background:var(--card);color:var(--txt);border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.5)}
+  .leaflet-popup-tip{background:var(--card)}
+  .popup h3{font-size:.9rem;margin-bottom:6px;color:var(--amber)}
+  .popup-row{display:flex;justify-content:space-between;gap:14px;font-size:.75rem;padding:2px 0;border-top:1px solid var(--line)}
+  .popup-row span{color:var(--muted)}
+  .empty-note{position:absolute;top:70px;left:50%;transform:translateX(-50%);z-index:500;background:var(--card);border:1px solid var(--line);padding:10px 18px;border-radius:10px;font-size:.8rem;color:var(--muted);box-shadow:0 4px 16px rgba(0,0,0,.4)}
+  .status-IN_DEPOT{color:var(--gray)} .status-ON_SITE{color:var(--green)} .status-MAINTENANCE{color:var(--red)}
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>📦 خريطة الحاويات</h1>
+    <div class="stats">
+      <div class="stat">الكل <b id="stTotal">0</b></div>
+      <div class="stat">على الخريطة <b id="stMapped">0</b></div>
+    </div>
+    <a href="/app.html">→ لوحة التحكم</a>
+  </div>
+  <div id="map"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const T = localStorage.getItem('token');
+if (!T) { location.href = '/index.html'; }
+const map = L.map('map', { zoomControl: true }).setView([24.7136, 46.6753], 11);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19, attribution: '© OpenStreetMap'
+}).addTo(map);
+const STATUS_AR = { IN_DEPOT:'في المستودع', ON_SITE:'في الموقع', MAINTENANCE:'صيانة', RESERVED:'محجوزة' };
+const markers = [];
+function makeIcon(inDepot){
+  return L.divIcon({
+    className:'', iconSize:[34,48], iconAnchor:[17,34], popupAnchor:[0,-34],
+    html:'<div class="cmarker '+(inDepot?'depot':'')+'">📦</div>'
+  });
+}
+function popupHtml(c, loc){
+  const st = STATUS_AR[c.status] || c.status || '—';
+  const ord = c.orders && c.orders[0];
+  return '<div class="popup">'
+    +'<h3>📦 '+(c.code||'حاوية')+'</h3>'
+    +'<div class="popup-row"><span>الحالة</span><b class="status-'+c.status+'">'+st+'</b></div>'
+    +(c.size?'<div class="popup-row"><span>الحجم</span><b>'+c.size+'</b></div>':'')
+    +'<div class="popup-row"><span>المصدر</span><b>'+loc.src+'</b></div>'
+    +(ord?'<div class="popup-row"><span>طلب</span><b>#'+ord.id+' — '+(ord.customerName||'')+'</b></div>':'')
+    +'<div class="popup-row"><span>الموقع</span><b><a href="https://www.google.com/maps?q='+loc.lat+','+loc.lng+'" target="_blank" style="color:var(--green)">فتح بالخرائط ↗</a></b></div>'
+    +'</div>';
+}
+function resolveLocation(c){
+  const ord = (c.orders || []).find(function(o){ return o.lat != null && o.lng != null; });
+  if (ord) return { lat: ord.lat, lng: ord.lng, src: 'آخر طلب نشط', inDepot:false };
+  return null;
+}
+async function load(){
+  let list = [];
+  try {
+    const res = await fetch('/api/co/containers', { headers: { 'Authorization': 'Bearer ' + T } });
+    if (res.status === 401) { location.href = '/index.html'; return; }
+    list = await res.json();
+    if (!Array.isArray(list)) list = [];
+  } catch(e){ console.error(e); }
+  document.getElementById('stTotal').textContent = list.length;
+  const pts = [];
+  list.forEach(function(c){
+    const loc = resolveLocation(c);
+    if (!loc) return;
+    const m = L.marker([loc.lat, loc.lng], { icon: makeIcon(loc.inDepot) })
+      .addTo(map).bindPopup(popupHtml(c, loc));
+    markers.push(m);
+    pts.push([loc.lat, loc.lng]);
+  });
+  document.getElementById('stMapped').textContent = pts.length;
+  if (pts.length) {
+    map.fitBounds(pts, { padding:[60,60], maxZoom:15 });
+  } else {
+    const note = document.createElement('div');
+    note.className = 'empty-note';
+    note.textContent = 'لا توجد حاويات لها موقع بعد — يظهر موقع الحاوية تلقائياً عند إسناد طلب له إحداثيات.';
+    document.body.appendChild(note);
+  }
+}
+load();
+</script>
+</body>
+</html>

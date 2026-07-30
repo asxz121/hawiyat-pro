@@ -19,7 +19,11 @@ async function syncContainerOnComplete(order) {
 router.get('/containers', async (req, res) => {
   res.json(await prisma.container.findMany({
     where: scope(req),
-    include: { orders: { where: { status: { in: ['ASSIGNED','EN_ROUTE','NEW'] } }, take: 1, orderBy: { id: "desc" } } },
+    include: { orders: {
+      where: { lat: { not: null } },
+      select: { id: true, lat: true, lng: true, customerName: true, status: true },
+      take: 1, orderBy: { id: "desc" }
+    } },
     orderBy: { code: 'asc' },
   }));
 });
@@ -112,11 +116,18 @@ router.post('/alerts/:id/ack', async (req, res) => {
 
 // ===== مستخدمو الشركة =====
 router.get('/drivers', requireRole('OWNER', 'BRANCH_MGR', 'TRAFFIC_MGR', 'DISPATCHER'), async (req, res) => {
-  res.json(await prisma.user.findMany({
+  const drivers = await prisma.user.findMany({
     where: { ...scope(req), role: 'DRIVER', active: true },
     select: { id: true, name: true, phone: true, role: true, active: true },
     orderBy: { id: 'asc' },
-  }));
+  });
+  const counts = await prisma.order.groupBy({
+    by: ['assignedTo'],
+    where: { ...scope(req), status: { in: ['ASSIGNED','EN_ROUTE','NEW'] }, assignedTo: { not: null } },
+    _count: true,
+  });
+  const map = Object.fromEntries(counts.map(c => [c.assignedTo, c._count]));
+  res.json(drivers.map(d => ({ ...d, activeCount: map[d.id] || 0 })));
 });
 
 router.get('/users', requireRole('OWNER', 'BRANCH_MGR'), async (req, res) => {

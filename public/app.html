@@ -3104,6 +3104,11 @@ function contIcon(st){
 async function loadContMap(){
   try{
     const conts = await coApi('/containers');
+    // اشتقاق موقع الحاوية من آخر طلب نشط (الحاوية نفسها بلا إحداثيات)
+    conts.forEach(function(c){
+      var o=(c.orders||[]).find(function(x){return x.lat!=null&&x.lng!=null;});
+      if(o){ c.lat=o.lat; c.lng=o.lng; c.order=o; }
+    });
     if(!contMapObj){
       contMapObj = L.map('contMap',{zoomControl:true}).setView([24.80,46.66],11);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(contMapObj);
@@ -3203,9 +3208,13 @@ async function assignOrder(orderId, driverId){
 // نافذة إسناد الطلب
 function openAssignModal(orderId, currentDriverId){
   coApi('/drivers').then(drivers=>{
+    drivers.sort((a,b)=>(a.activeCount||0)-(b.activeCount||0));
     const opts = `<option value="">— بدون إسناد —</option>` +
-      drivers.map(d=>`<option value="${d.id}" ${d.id===currentDriverId?'selected':''}>${d.name}</option>`).join('');
-      drivers.map(d=>`<option value="${d.id}" ${d.id===currentDriverId?'selected':''}>${d.name}</option>`).join('');
+      drivers.map(d=>{
+        const n=d.activeCount||0;
+        const tag = n===0 ? '\uD83D\uDFE2 متاح' : `\uD83D\uDFE1 مشغول (${n})`;
+        return `<option value="${d.id}" ${d.id===currentDriverId?'selected':''}>${d.name} — ${tag}</option>`;
+      }).join('');
 
     const modal = document.createElement('div');
     modal.className = 'modal-bg open';
