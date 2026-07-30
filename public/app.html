@@ -601,6 +601,20 @@ table thead th {
 </style>
 
 <link rel="stylesheet" href="/pro-ui.css">
+
+<style id="orderCompactStyles">
+#orderForm input, #orderForm select, #orderForm textarea{
+  padding:5px 9px !important;
+  font-size:.8rem !important;
+  min-height:32px !important;
+  height:32px !important;
+  border-radius:8px !important;
+}
+#orderForm .field{margin-bottom:0 !important}
+#orderForm .field label{font-size:.66rem !important;margin-bottom:2px !important}
+#orderForm > div:nth-child(2){gap:8px 10px !important}
+#orderForm{padding-bottom:10px !important}
+</style>
 </head>
 <body style="visibility:hidden">
 <div class="app">
@@ -3128,7 +3142,13 @@ async function loadContMap(){
       const popup = `
         <div class="pp-code">${c.code}<span class="badge ${bd}">${lbl}</span></div>
         <div class="pp-row"><span>الحجم</span><b>${c.size||'—'}</b></div>
-        ${c.order?`<div class="pp-row"><span>العميل</span><b>${c.order.customerName||'—'}</b></div>`:''}
+        ${c.order?`
+        <div class="pp-row"><span>العميل</span><b>${c.order.customerName||'—'}</b></div>
+        ${c.order.price!=null?`<div class="pp-row"><span>المبلغ</span><b>${c.order.price} ر.س</b></div>`:''}
+        ${(c.order&&c.order.startDate?new Date(c.order.startDate).toLocaleDateString('ar-SA-u-ca-gregory',{year:'numeric',month:'numeric',day:'numeric'}):null)?`<div class="pp-row"><span>البدء</span><b>${(c.order&&c.order.startDate?new Date(c.order.startDate).toLocaleDateString('ar-SA-u-ca-gregory',{year:'numeric',month:'numeric',day:'numeric'}):null)}</b></div>`:''}
+        ${(c.order&&c.order.dueDate?new Date(c.order.dueDate).toLocaleDateString('ar-SA-u-ca-gregory',{year:'numeric',month:'numeric',day:'numeric'}):null)?`<div class="pp-row"><span>الاستحقاق</span><b>${(c.order&&c.order.dueDate?new Date(c.order.dueDate).toLocaleDateString('ar-SA-u-ca-gregory',{year:'numeric',month:'numeric',day:'numeric'}):null)}</b></div>`:''}
+        ${c.order.driverName?`<div class="pp-row"><span>السائق</span><b>🚚 ${c.order.driverName}</b></div>`:''}
+      `:''}
         <a href="https://www.google.com/maps?q=${c.lat},${c.lng}" target="_blank"
            style="display:block;text-align:center;margin-top:8px;background:#F7A823;color:#141F28;font-weight:600;border-radius:8px;padding:6px;text-decoration:none;font-size:.76rem">
           فتح في خرائط قوقل ⌖

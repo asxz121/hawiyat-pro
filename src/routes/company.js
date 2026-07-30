@@ -17,15 +17,21 @@ async function syncContainerOnComplete(order) {
 
 // ===== الحاويات =====
 router.get('/containers', async (req, res) => {
-  res.json(await prisma.container.findMany({
+  const conts = await prisma.container.findMany({
     where: scope(req),
     include: { orders: {
       where: { lat: { not: null } },
-      select: { id: true, lat: true, lng: true, customerName: true, status: true },
+      select: { id: true, lat: true, lng: true, customerName: true, status: true, startDate: true, dueDate: true, price: true, assignedTo: true },
       take: 1, orderBy: { id: "desc" }
     } },
     orderBy: { code: 'asc' },
-  }));
+  });
+  // جلب أسماء السائقين المسندين (assignedTo رقم فقط بلا علاقة)
+  const ids = [...new Set(conts.flatMap(c => c.orders.map(o => o.assignedTo)).filter(Boolean))];
+  const drivers = ids.length ? await prisma.user.findMany({ where: { id: { in: ids } }, select: { id: true, name: true } }) : [];
+  const dmap = Object.fromEntries(drivers.map(d => [d.id, d.name]));
+  conts.forEach(c => c.orders.forEach(o => { o.driverName = o.assignedTo ? (dmap[o.assignedTo] || null) : null; }));
+  res.json(conts);
 });
 
 router.post('/containers', requireRole('OWNER', 'BRANCH_MGR', 'TRAFFIC_MGR', 'DISPATCHER'), async (req, res) => {
