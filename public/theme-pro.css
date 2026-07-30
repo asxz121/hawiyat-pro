@@ -1,0 +1,124 @@
+/* ===== حاويات برو — ثيم احترافي (قائمة داكنة + محتوى فاتح) ===== */
+
+/* 1) خلفية المحتوى أنعم */
+body{background:#F4F6F9 !important}
+
+/* 2) البطاقات: حواف أنعم، ظل خفيف راقٍ، إزالة الشريط الملوّن العلوي */
+.card, .kpi{
+  border-radius:16px !important;
+  box-shadow:0 1px 3px rgba(20,31,40,.06), 0 1px 2px rgba(20,31,40,.04) !important;
+  border:1px solid #E8EDF2 !important;
+}
+.card:hover{box-shadow:0 4px 12px rgba(20,31,40,.08) !important}
+
+/* KPI: إزالة الخط الملوّن العلوي، واستبداله بحدّ جانبي رفيع أنيق */
+.kpi{border-top:1px solid #E8EDF2 !important;position:relative;overflow:hidden;transition:transform .15s,box-shadow .15s}
+.kpi::before{content:"";position:absolute;top:0;bottom:0;right:0;width:4px;border-radius:0 4px 4px 0}
+.kpi:hover{transform:translateY(-2px)}
+.kpi.k-purple::before{background:#8B5CF6}
+.kpi.k-red::before{background:var(--red)}
+.kpi.k-green::before{background:var(--green)}
+.kpi.k-blue::before{background:#3B82F6}
+.kpi.k-amber::before{background:var(--amber)}
+/* إخفاء أي border-top ملوّن قديم على البطاقات العلوية */
+.kpi[style*="border-top"]{border-top:1px solid #E8EDF2 !important}
+
+/* 3) رؤوس الجداول: فاتحة أنيقة بدل الأسود الصريح */
+table thead tr, table thead th, .tbl-wrap thead th{
+  background:#F7F9FB !important;
+  color:var(--steel) !important;
+  font-weight:700 !important;
+  font-size:.72rem !important;
+  letter-spacing:.2px;
+  border-bottom:2px solid #E8EDF2 !important;
+}
+table thead th span{color:var(--muted) !important}
+table tbody tr{border-bottom:1px solid #EEF2F6 !important;transition:background .12s}
+table tbody tr:hover{background:#F9FBFC !important}
+table td{padding:11px 12px !important;font-size:.82rem}
+
+/* 4) الأزرار: نعومة أكثر */
+.btn{border-radius:10px !important;font-weight:600 !important;transition:all .15s !important}
+.btn-amber{box-shadow:0 2px 8px rgba(247,168,35,.25) !important}
+.btn-amber:hover{box-shadow:0 4px 14px rgba(247,168,35,.35) !important;transform:translateY(-1px)}
+.btn-sm{border-radius:8px !important}
+
+/* 5) الشارات (badges): أنعم */
+.badge{border-radius:7px !important;font-weight:600 !important;font-size:.7rem !important;padding:3px 9px !important}
+
+/* 6) عناوين البطاقات (card-head): تمييز أنيق بخط ذهبي جانبي */
+.card-head{border-bottom:1px solid #EEF2F6 !important;padding-bottom:12px !important;margin-bottom:14px !important}
+.card-head h3{position:relative;padding-inline-start:12px;font-size:.95rem}
+.card-head h3::before{content:"";position:absolute;right:0;top:50%;transform:translateY(-50%);width:4px;height:16px;background:var(--amber);border-radius:3px}
+
+/* 7) القائمة الجانبية الداكنة: تباعد أنعم، حالة نشطة راقية */
+.nav-item{border-radius:10px !important;margin:2px 0;transition:all .15s}
+.nav-item:not(.active):hover{background:rgba(255,255,255,.07) !important}
+.nav-item.active{box-shadow:0 4px 14px rgba(247,168,35,.3) !important}
+.nav-sec{opacity:.55;font-size:.6rem !important;letter-spacing:1px !important}
+
+/* 8) حقول الإدخال: موحّدة أنيقة (يحل فوضى الـ inline) */
+input:not([type=checkbox]):not([type=radio]), select, textarea{
+  border-radius:10px !important;
+  border:1px solid var(--line) !important;
+  transition:border-color .15s, box-shadow .15s !important;
+}
+input:focus, select:focus, textarea:focus{
+  border-color:var(--amber) !important;
+  box-shadow:0 0 0 3px rgba(247,168,35,.12) !important;
+  outline:none !important;
+}
+label{font-weight:600 !important;color:var(--steel) !important}
+
+/* 9) الأرقام السالبة تظهر حمراء (لوحة التحكم) */
+.kpi .val.neg, .neg-value{color:var(--red) !important}
+
+/* 10) الحالات الفارغة (رسوم فارغة، جداول فارغة): أنيقة */
+.empty-state, [style*="لا توجد"]{color:var(--muted)}
+
+/* 11) شريط التمرير أنعم */
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#CBD5DF;border-radius:8px;border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:#AEB9C4;background-clip:content-box}
+
+/* ===== دفعة 2: إضافة حياة ولون احترافي ===== */
+
+/* KPI: خلفية متدرّجة خفيفة + رقم أبرز + حدّ جانبي ملوّن حسب الترتيب */
+.kpi{background:linear-gradient(135deg,#fff 0%,#FCFDFE 100%) !important;padding:18px 20px !important}
+.kpi .val, .kpi b, .kpi [style*="font-size"][style*="700"]{font-weight:800 !important}
+
+/* تلوين البطاقات بالتناوب عبر nth-child (بدون الحاجة لأصناف) */
+.grid-kpi > .kpi:nth-child(4n+1)::before,
+.cards > .kpi:nth-child(4n+1)::before,
+.kpi:nth-child(4n+1)::before{content:"";position:absolute;top:0;bottom:0;right:0;width:4px;background:#8B5CF6;border-radius:0 4px 4px 0}
+.kpi:nth-child(4n+2)::before{content:"";position:absolute;top:0;bottom:0;right:0;width:4px;background:var(--red);border-radius:0 4px 4px 0}
+.kpi:nth-child(4n+3)::before{content:"";position:absolute;top:0;bottom:0;right:0;width:4px;background:var(--green);border-radius:0 4px 4px 0}
+.kpi:nth-child(4n+4)::before{content:"";position:absolute;top:0;bottom:0;right:0;width:4px;background:#3B82F6;border-radius:0 4px 4px 0}
+
+/* خلفية المحتوى: تدرّج خفيف بدل الرمادي الميت */
+body{background:linear-gradient(180deg,#EEF2F6 0%,#F4F6F9 100%) !important;background-attachment:fixed !important}
+
+/* عناوين الصفحات (topbar): أكبر وأوضح */
+.topbar h2, .topbar h1{font-weight:800 !important;font-size:1.5rem !important;color:var(--ink) !important}
+
+/* الأزرار الثانوية (التقارير/الدخل/المصروفات): لمسة لون عند التحويم */
+.btn-ghost{border:1px solid var(--line) !important;background:#fff !important}
+.btn-ghost:hover{border-color:var(--amber) !important;background:var(--amber-soft) !important;color:var(--amber-d) !important}
+
+/* رؤوس الجداول: لمسة ذهبية خفيفة جداً بدل الرمادي التام */
+table thead th, .tbl-wrap thead th{background:linear-gradient(180deg,#FBF7EF 0%,#F7F9FB 100%) !important;color:var(--ink) !important;border-bottom:2px solid var(--amber) !important}
+
+/* البطاقات الرئيسية: حدّ علوي ذهبي رفيع جداً للتمييز */
+.card{border-top:2px solid transparent !important;background:#fff !important}
+.card:hover{border-top-color:rgba(247,168,35,.3) !important}
+
+/* الأرقام الكبيرة في KPI: حجم أكبر */
+.kpi [style*="font-size:1.5"], .kpi [style*="font-size:1.6"], .kpi [style*="font-size:1.7"]{font-size:1.8rem !important;font-weight:800 !important}
+
+/* عنوان القائمة الجانبية (brand): توهّج ذهبي */
+.brand, .sidebar-head{color:#fff !important}
+
+/* الشارات: ألوان أوضح */
+.badge.bd-green, .badge[class*="green"]{background:var(--green-soft) !important;color:var(--green) !important}
+.badge.bd-red, .badge[class*="red"]{background:var(--red-soft) !important;color:var(--red) !important}
+.badge.bd-amber, .badge[class*="amber"]{background:var(--amber-soft) !important;color:var(--amber-d) !important}
