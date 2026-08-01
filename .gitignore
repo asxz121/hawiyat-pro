@@ -32,3 +32,4 @@ if
 # Seed/demo data
 src/seed-demo.js
 src/seed-demo-2.js
+.env
