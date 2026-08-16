@@ -17,6 +17,7 @@ const io = new Server(server, {
 
 app.use(cors());
 app.use(express.json({ limit: '5mb' }));
+app.set('io', io);
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // الواجهات البرمجية

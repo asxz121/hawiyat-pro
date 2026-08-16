@@ -729,17 +729,12 @@ table thead th {
     <div class="page" id="page-orders">
       <div class="card" id="orderForm">
         <div class="card-head order-form-title"><h3>طلب جديد</h3></div>
-        <div style="display:grid;grid-template-columns:2fr 1.3fr 1fr 1fr;gap:8px;align-items:end">
+        <div style="display:grid;grid-template-columns:2fr 1.3fr 1fr 1fr auto;gap:8px;align-items:end">
           <div class="field"><label style="font-size:.68rem">اسم العميل *</label><input id="oCust" placeholder="مؤسسة البنيان" style="padding:2px 5px;font-size:.78rem"></div>
           <div class="field"><label style="font-size:.68rem">رقم العميل *</label><input id="oP1" inputmode="tel" placeholder="05XXXXXXXX" style="padding:2px 5px;font-size:.78rem"></div>
           <div class="field"><label style="font-size:.68rem">نوع الطلب</label><select id="oType" style="padding:2px 5px;font-size:.78rem" onchange="onTypeChange()"><option value="DROP">إنزال</option><option value="PICKUP">رفع</option><option value="SWAP">تبديل</option><option value="MOVE">نقل</option><option value="PROJECT_CYCLE">دورة مشروع</option></select></div>
           <div class="field"><label style="font-size:.68rem">السعر (ر.س)</label><input id="oPrice" inputmode="numeric" placeholder="0" style="padding:2px 5px;font-size:.78rem"></div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:8px;align-items:end;margin-top:8px">
-          <div class="field"><label style="font-size:.68rem">رابط الموقع من واتساب/قوقل</label><input id="oLocUrl" placeholder="الصق الرابط هنا لاستخراج الإحداثيات تلقائياً" style="padding:2px 5px;font-size:.78rem"></div>
-          <button class="btn btn-ghost" onclick="getLoc()" style="padding:6px 10px;font-size:.65rem;white-space:nowrap">📍 موقعي</button>
-          <button class="btn btn-ghost" onclick="extractOrderLocation()" style="padding:6px 10px;font-size:.65rem;white-space:nowrap">🔗 رابط العميل</button>
-          <button class="btn btn-amber" onclick="addOrder()" style="padding:6px 14px;font-size:.7rem;white-space:nowrap">＋ إنشاء الطلب</button>
+          <button class="btn btn-amber" onclick="addOrder()" style="padding:6px 12px;font-size:.7rem;white-space:nowrap">＋ إنشاء الطلب</button>
         </div>
         <div style="margin-top:6px"><button type="button" class="btn btn-ghost" onclick="var d=document.getElementById('orderMore');var x=d.style.display==='none';d.style.display=x?'block':'none';this.textContent=(x?'▴ إخفاء التفاصيل':'▾ تفاصيل أكثر')" style="padding:2px 8px;font-size:.62rem">▾ تفاصيل أكثر</button></div>
         <div id="orderMore" style="display:none;margin-top:8px">
@@ -751,6 +746,11 @@ table thead th {
             <div class="field"><label style="font-size:.68rem">رقم العقد</label><input id="oContract" placeholder="بدون عقد" style="padding:2px 5px;font-size:.78rem"></div>
             <div class="field"><label style="font-size:.68rem">وصف الموقع</label><input id="oAddr" placeholder="حي النرجس" style="padding:2px 5px;font-size:.78rem"></div>
             <div class="field"><label style="font-size:.68rem">مدة الإيجار (أيام)</label><input id="oDueDays" inputmode="numeric" placeholder="3" style="padding:2px 5px;font-size:.78rem;text-align:center" oninput="calcDueDate()"><span id="oDueDisplay" style="font-size:.65rem;color:#F7A823"></span><input id="oDue" type="hidden"></div>
+            <div class="field" style="grid-column:1/-1"><label style="font-size:.68rem">رابط الموقع من واتساب/قوقل</label><input id="oLocUrl" placeholder="الصق الرابط هنا لاستخراج الإحداثيات تلقائياً" style="padding:2px 5px;font-size:.78rem"></div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:8px">
+            <button class="btn btn-ghost" onclick="getLoc()" style="padding:4px 8px;font-size:.65rem;flex:1">📍 موقعي</button>
+            <button class="btn btn-ghost" onclick="extractOrderLocation()" style="padding:4px 8px;font-size:.65rem;flex:1">🔗 رابط العميل</button>
           </div>
         </div>
         <div id="locMsg"></div>
@@ -1681,7 +1681,6 @@ async function loadOrders(){
       <td><span class="badge ${stBd[o.status]||'bd-gray'}">${stLbl[o.status]||o.status}</span></td>
       <td>${orderDueActions(o)}</td>
       <td>
-        <button class="btn btn-ghost btn-sm" onclick="openEditModal(${o.id})" style="font-size:.7rem;margin-inline-end:4px">✏️ تعديل</button>
         <button class="btn btn-ghost btn-sm" onclick="openAssignModal(${o.id},${o.assignedTo||'null'})" style="font-size:.7rem">
           ${o.assignedTo?'🚚 معيّن':'+ إسناد'}
         </button>
@@ -1690,58 +1689,6 @@ async function loadOrders(){
       <td>${o.photos&&o.photos.length?`<button class="btn btn-ghost btn-sm" onclick='showPhotos(${JSON.stringify(o.photos)})' style="color:var(--blue)">📷 ${o.photos.length}</button>`:''}</td>
     </tr>`).join(''):'<tr><td colspan="9" style="text-align:center;padding:22px;color:var(--muted)">لا توجد طلبات</td></tr>';
   }catch(e){console.error(e)}
-}
-async function openEditModal(id){
-  const o=(window.currentOrders||[]).find(x=>x.id===id);
-  if(!o){showToast('تعذّر جلب الطلب');return;}
-  const typeOpts=[['DROP','إنزال'],['PICKUP','رفع'],['SWAP','تبديل'],['MOVE','نقل'],['PROJECT_CYCLE','دورة مشروع']]
-    .map(t=>`<option value="${t[0]}" ${o.type===t[0]?'selected':''}>${t[1]}</option>`).join('');
-  const modal=document.createElement('div');
-  modal.className='modal-bg open';
-  modal.innerHTML=`
-    <div class="modal" style="max-width:520px">
-      <h3>✏️ تعديل الطلب #${id}</h3>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div class="field"><label>اسم العميل</label><input id="eCust" value="${(o.customerName||'').replace(/"/g,'&quot;')}"></div>
-        <div class="field"><label>رقم العميل</label><input id="eP1" value="${o.phone1||''}"></div>
-        <div class="field"><label>رقم الموقع</label><input id="ePS" value="${o.phoneSite||''}"></div>
-        <div class="field"><label>نوع الطلب</label><select id="eType">${typeOpts}</select></div>
-        <div class="field"><label>السعر (ر.س)</label><input id="ePrice" value="${o.price||''}"></div>
-        <div class="field"><label>رقم العقد</label><input id="eContract" value="${(o.contractNo||'').replace(/"/g,'&quot;')}"></div>
-        <div class="field" style="grid-column:1/-1"><label>وصف الموقع</label><input id="eAddr" value="${(o.address||'').replace(/"/g,'&quot;')}"></div>
-        <div class="field" style="grid-column:1/-1"><label>رابط الموقع الجديد (اختياري — لتصحيح الإحداثيات)</label><input id="eLocUrl" placeholder="الصق رابط واتساب/قوقل الجديد"></div>
-      </div>
-      <div id="editMsg" style="margin-top:8px;font-size:.75rem"></div>
-      <div style="display:flex;gap:8px;margin-top:12px">
-        <button class="btn btn-amber" style="flex:2;justify-content:center" onclick="saveOrderEdit(${id}, this)">💾 حفظ التعديل</button>
-        <button class="btn btn-ghost" onclick="this.closest('.modal-bg').remove()">إلغاء</button>
-      </div>
-    </div>`;
-  document.body.appendChild(modal);
-  modal.onclick=e=>{ if(e.target===modal) modal.remove(); };
-}
-async function saveOrderEdit(id, btn){
-  const g=x=>document.getElementById(x).value.trim();
-  const body={
-    customerName:g('eCust'), phone1:g('eP1'),
-    phoneSite:g('ePS')||null, type:document.getElementById('eType').value,
-    price:parseFloat(g('ePrice'))||null,
-    contractNo:g('eContract')||null, address:g('eAddr')||null
-  };
-  const url=g('eLocUrl');
-  const msg=document.getElementById('editMsg');
-  if(url){
-    try{
-      const res=await coApi('/extract-location',{method:'POST',body:JSON.stringify({url})});
-      if(res.found){ body.lat=res.lat; body.lng=res.lng; }
-      else{ msg.innerHTML='<span style="color:var(--red)">⚠️ '+(res.message||'تعذّر استخراج الإحداثيات')+'</span>'; return; }
-    }catch(e){ msg.innerHTML='<span style="color:var(--red)">خطأ في استخراج الموقع</span>'; return; }
-  }
-  try{
-    await coApi('/orders/'+id,{method:'PATCH',body:JSON.stringify(body)});
-    if(btn) btn.closest('.modal-bg').remove();
-    loadOrders(); showToast('تم تعديل الطلب ✓ وسيصل السائق');
-  }catch(e){ msg.innerHTML='<span style="color:var(--red)">فشل الحفظ</span>'; }
 }
 async function muteOrder(id,v){await coApi('/orders/'+id,{method:'PATCH',body:JSON.stringify({alertMuted:v})});loadOrders();showToast(v?'تم كتم التنبيه':'تم تفعيل التنبيه')}
 function calcDueDate(){

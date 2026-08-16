@@ -109,23 +109,24 @@ module.exports = router;
 router.patch('/orders/:id', verifyToken, async (req, res) => {
   try {
     const orderId = parseInt(req.params.id);
-    const updateData = req.body;
-    
-    // التأكد من أن الطلب يخص نفس الشركة
+    // حقول مسموح تعديلها فقط (حماية من الحقن)
+    const ALLOWED = ['type','size','customerName','phone1','phoneSite','phone3','lat','lng','address','contractNo','dueDate','price','notes','alertMuted','status'];
+    const data = {};
+    for (const k of ALLOWED) if (k in req.body) data[k] = req.body[k];
+    data.updatedBy = req.user.id;
+
     const existingOrder = await prisma.order.findFirst({
       where: { id: orderId, companyId: req.user.companyId }
     });
-    
-    if (!existingOrder) {
-      return res.status(404).json({ error: 'الطلب غير موجود' });
+    if (!existingOrder) return res.status(404).json({ error: 'الطلب غير موجود' });
+
+    const updatedOrder = await prisma.order.update({ where: { id: orderId }, data });
+
+    // إشعار السائق المسند فوراً
+    const _io = req.app.get('io');
+    if (_io && existingOrder.assignedTo) {
+      _io.to('company-' + req.user.companyId).emit('order:updated', { orderId, by: req.user.id });
     }
-
-    // تحديث الطلب
-    const updatedOrder = await prisma.order.update({
-      where: { id: orderId },
-      data: updateData
-    });
-
     res.json(updatedOrder);
   } catch (error) {
     console.error(error);
