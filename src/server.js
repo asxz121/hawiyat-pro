@@ -23,7 +23,7 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 app.post('/api/login', login);
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/co', require('./routes/company'));
-app.use('/api/hr', require('./routes/hr'));
+app.use('/api', require('./routes/index'));
 
 app.get('/api/health', (req, res) => res.json({ ok: true, time: new Date() }));
 
@@ -81,15 +81,20 @@ io.on('connection', (socket) => {
     };
 
     // إرسال الموقع لكل مدراء الشركة
-    socket.to(companyRoom).emit('driver:moved', {
-      driverId: user.id,
-      name: user.name,
-      lat, lng, orderId,
-      containerCode: containerCode || null,
-      heading: heading || null,
-      speed: speed || null,
-      time: new Date(),
-    });
+  socket.to(companyRoom).emit('driver:moved', {
+    driverId: user.id,
+    name: user.name,
+    lat, lng, orderId,
+    containerCode: containerCode || null,
+    heading: heading || null,
+    speed: speed || null,
+    time: new Date(),
+  });
+  // التحقق من وجود طلب مرتبط بالسائق
+  if (orderId) {
+    // إرسال إشارة للمراقبين بأن السائق متجه لموقع الطلب
+    socket.to(companyRoom).emit('driver:heading_to_order', { driverId: user.id, orderId, lat, lng });
+  }
   });
 
   // مدير الحركة يطلب مواقع السائقين الحالية

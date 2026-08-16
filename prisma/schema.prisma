@@ -90,6 +90,7 @@ enum ContainerStatus {
 model Container {
   id          Int             @id @default(autoincrement())
   code        String
+  lat          Float?
   size        String?
   status      ContainerStatus @default(IN_DEPOT)
   company     Company         @relation(fields: [companyId], references: [id])
@@ -102,6 +103,7 @@ model Container {
   notes       String?
 
   @@unique([companyId, code])
+  lat          Float?
   incomes     Income[]
 }
 
