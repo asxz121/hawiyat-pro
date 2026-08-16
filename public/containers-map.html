@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>خريطة الحاويات — حاويات برو</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
 <style>
   :root{--bg:#0f1923;--card:#16232f;--line:#22333f;--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--gray:#64748b;--txt:#e2e8f0;--muted:#94a3b8}
   *{margin:0;padding:0;box-sizing:border-box;font-family:'IBM Plex Sans Arabic',system-ui,sans-serif}
@@ -40,6 +42,7 @@
   </div>
   <div id="map"></div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <script>
 const T = localStorage.getItem('token');
 if (!T) { location.href = '/index.html'; }
@@ -47,6 +50,14 @@ const map = L.map('map', { zoomControl: true }).setView([24.7136, 46.6753], 11);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19, attribution: '© OpenStreetMap'
 }).addTo(map);
+var cluster = L.markerClusterGroup({
+  maxClusterRadius: 40,
+  spiderfyOnMaxZoom: true,
+  showCoverageOnHover: false,
+  spiderfyDistanceMultiplier: 1.6,
+  disableClusteringAtZoom: 19
+});
+map.addLayer(cluster);
 const STATUS_AR = { IN_DEPOT:'في المستودع', ON_SITE:'في الموقع', MAINTENANCE:'صيانة', RESERVED:'محجوزة' };
 const markers = [];
 function makeIcon(inDepot){
@@ -86,7 +97,7 @@ async function load(){
     const loc = resolveLocation(c);
     if (!loc) return;
     const m = L.marker([loc.lat, loc.lng], { icon: makeIcon(loc.inDepot) })
-      .addTo(map).bindPopup(popupHtml(c, loc));
+      .addTo(cluster).bindPopup(popupHtml(c, loc));
     markers.push(m);
     pts.push([loc.lat, loc.lng]);
   });

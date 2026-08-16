@@ -168,23 +168,3 @@ router.get('/orders/:id', verifyToken, async (req, res) => {
 });
 
 // ----- جلب الحاويات مع مواقعها للخريطة -----
-router.get('/containers/map', verifyToken, async (req, res) => {
-  try {
-    const containers = await prisma.container.findMany({
-      where: { companyId: req.user.companyId },
-      select: {
-        id: true,
-        code: true,
-        size: true,
-        status: true,
-        lat: true,
-        lng: true,
-        warehouse: { select: { name: true } }
-      }
-    });
-    res.json(containers);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'خطأ في جلب الحاويات للخريطة' });
-  }
-});
