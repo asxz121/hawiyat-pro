@@ -33,3 +33,8 @@ if
 src/seed-demo.js
 src/seed-demo-2.js
 .env
+*.bak
+*.bak2
+*.bak3
+*.bak4
+public/*.bak*
