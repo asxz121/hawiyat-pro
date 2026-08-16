@@ -278,7 +278,7 @@ function autoStartTracking() {
       heading: pos.coords.heading, speed: pos.coords.speed,
     });
   }
-  navigator.geolocation.watchPosition(send, ()=>{}, { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 });
+  navigator.geolocation.watchPosition(send, (err)=>{ console.warn('تتبع الموقع:', err.message); }, { enableHighAccuracy: false, timeout: 30000, maximumAge: 10000 });
 }
 
 /* ===== تحميل الطلبات ===== */
