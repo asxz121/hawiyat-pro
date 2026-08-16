@@ -1967,15 +1967,15 @@ async function loadAtt(){
     const att=await hrApi('/attendance');
     let p=0,l=0,a=0,o=0;
     document.getElementById('attRows').innerHTML=att.map(e=>{
-      const at=e.attendance||{}; const st=at.status||'none';
+      const st=e.attendance.status||'none';
       if(st==='in')p++;else if(st==='late'){p++;l++}else if(st==='absent')a++;else if(st==='out')o++;
       const canIn=st==='none'||st==='absent';
       const canOut=st==='in'||st==='late';
       return `<tr>
         <td><div class="cell-emp"><span class="emp-av">${e.name[0]}</span><b>${e.name}</b></div></td>
         <td><span class="badge ${shiftBd[e.shift]||'bd-gray'}">${shiftLbl[e.shift]||e.shift}</span></td>
-        <td class="num">${at.checkIn||'—'}</td>
-        <td class="num">${at.checkOut||'—'}</td>
+        <td class="num">${e.attendance.checkIn||'—'}</td>
+        <td class="num">${e.attendance.checkOut||'—'}</td>
         <td><span class="badge ${attBd[st]}">${attLbl[st]}</span></td>
         <td><div class="att-btns">
           <button class="btn btn-sm ${canIn?'btn-amber':'btn-ghost'}" ${canIn?'':'disabled style="opacity:.4"'} onclick="checkIn(${e.id})">حضور</button>
