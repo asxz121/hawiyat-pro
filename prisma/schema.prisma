@@ -103,7 +103,6 @@ model Container {
   notes       String?
 
   @@unique([companyId, code])
-  lat          Float?
   incomes     Income[]
 }
 

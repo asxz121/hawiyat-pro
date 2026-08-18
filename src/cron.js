@@ -1,6 +1,8 @@
 // المهام المجدولة: فحص الاشتراكات يومياً + استحقاق الحاويات كل 6 ساعات
 const cron = require('node-cron');
 const prisma = require('./db');
+const fs = require('fs');
+const path = require('path');
 
 const DUE_HOURS = 48;      // التنبيه قبل الاستحقاق بيومين
 const REPEAT_CRON = '0 */6 * * *'; // يتكرر كل 6 ساعات حتى «تم الاطلاع» أو الكتم
@@ -58,13 +60,64 @@ async function checkSubscriptions() {
   if (count) console.log(`[اشتراكات] تم إيقاف ${count} شركة منتهية الاشتراك (البيانات محفوظة)`);
 }
 
+// 3) حذف صور الطلبات الأقدم من 20 يوم
+const PHOTO_MAX_DAYS = 20;
+async function cleanOldPhotos() {
+  const baseDir = path.join(__dirname, '..', 'public', 'uploads', 'orders');
+  if (!fs.existsSync(baseDir)) return;
+  const cutoff = Date.now() - PHOTO_MAX_DAYS * 86400000;
+  let deleted = 0;
+  const affectedOrders = new Set();
+
+  for (const orderId of fs.readdirSync(baseDir)) {
+    const orderDir = path.join(baseDir, orderId);
+    let stat;
+    try { stat = fs.statSync(orderDir); } catch { continue; }
+    if (!stat.isDirectory()) continue;
+
+    for (const file of fs.readdirSync(orderDir)) {
+      const fp = path.join(orderDir, file);
+      try {
+        const fstat = fs.statSync(fp);
+        if (fstat.mtimeMs < cutoff) {
+          fs.unlinkSync(fp);
+          deleted++;
+          affectedOrders.add(parseInt(orderId));
+        }
+      } catch {}
+    }
+    // حذف المجلد لو صار فارغاً
+    try { if (fs.readdirSync(orderDir).length === 0) fs.rmdirSync(orderDir); } catch {}
+  }
+
+  // تنظيف مسارات الصور المحذوفة من الطلبات
+  for (const oid of affectedOrders) {
+    try {
+      const o = await prisma.order.findUnique({ where: { id: oid }, select: { photos: true } });
+      if (o && Array.isArray(o.photos) && o.photos.length) {
+        const remaining = o.photos.filter(p => {
+          const abs = path.join(__dirname, '..', 'public', p.replace(/^\//, ''));
+          return fs.existsSync(abs);
+        });
+        if (remaining.length !== o.photos.length) {
+          await prisma.order.update({ where: { id: oid }, data: { photos: remaining } });
+        }
+      }
+    } catch (e) { console.error('تنظيف صور الطلب', oid, e.message); }
+  }
+
+  if (deleted) console.log(`[صور] حُذفت ${deleted} صورة أقدم من ${PHOTO_MAX_DAYS} يوم`);
+}
+
 function startJobs() {
   cron.schedule(REPEAT_CRON, checkDueOrders);
   cron.schedule('0 8 * * *', checkSubscriptions);
+  cron.schedule('0 4 * * *', cleanOldPhotos);
   // تشغيل فوري عند الإقلاع حتى ترى التنبيهات في التجارب مباشرة
   checkDueOrders().catch(console.error);
   checkSubscriptions().catch(console.error);
-  console.log('✓ المهام المجدولة تعمل: الاستحقاق كل 6 ساعات، الاشتراكات يومياً 8 صباحاً');
+  cleanOldPhotos().catch(console.error);
+  console.log('✓ المهام المجدولة تعمل: الاستحقاق كل 6 ساعات، الاشتراكات 8ص، حذف الصور القديمة 4ص');
 }
 
 module.exports = { startJobs };

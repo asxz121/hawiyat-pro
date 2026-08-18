@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حاويات برو - السائق</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .bg-driver { background: linear-gradient(135deg, #1a365d 0%, #2d3748 100%); }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-around; padding: 8px 0; z-index: 100; }
+        .bottom-nav a { display: flex; flex-direction: column; align-items: center; color: #a0aec0; font-size: 12px; text-decoration: none; padding: 4px 12px; }
+        .bottom-nav a.active { color: #2b6cb0; }
+        .bottom-nav a i { font-size: 22px; margin-bottom: 2px; }
+        .status-badge { padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: bold; }
+        .status-pending { background: #ecc94b; color: #744210; }
+        .status-accepted { background: #4299e1; color: white; }
+        .status-arrived { background: #9f7aea; color: white; }
+        .status-completed { background: #48bb78; color: white; }
+        .status-cancelled { background: #fc8181; color: white; }
+        .order-card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-right: 4px solid #2b6cb0; cursor: pointer; }
+        .page-content { display: none; padding: 16px; padding-bottom: 80px; }
+        .page-content.active { display: block; }
+        .map-container { height: 300px; width: 100%; border-radius: 12px; overflow: hidden; background: #e2e8f0; }
+    </style>
+</head>
+<body>
+    <!-- شريط الحالة -->
+    <div class="bg-driver text-white p-4 shadow-lg">
+        <div class="flex justify-between items-center">
+            <div><h1 class="text-xl font-bold">🚛 حاويات برو</h1><p class="text-sm opacity-75" id="driverName">السائق: ...</p></div>
+            <div class="flex items-center gap-3">
+                <span class="text-sm" id="onlineStatus">🟢 متصل</span>
+                <button onclick="toggleOnline()" class="bg-white/20 px-3 py-1 rounded-full text-sm">🔌</button>
+            </div>
+        </div>
+        <div class="flex gap-4 mt-2 text-sm">
+            <span><i class="fas fa-box"></i> <span id="activeOrders">0</span> طلبات</span>
+            <span><i class="fas fa-money-bill"></i> <span id="todayEarnings">0</span> ريال</span>
+        </div>
+    </div>
+
+    <!-- الصفحات -->
+    <div id="page-orders" class="page-content active">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-bold">📋 طلباتي</h2>
+            <button onclick="loadOrders()" class="text-blue-600"><i class="fas fa-sync-alt"></i></button>
+        </div>
+        <div id="ordersList"><div class="text-center py-10 text-gray-500"><i class="fas fa-spinner fa-spin text-3xl"></i><p>جاري التحميل...</p></div></div>
+    </div>
+
+    <div id="page-map" class="page-content">
+        <h2 class="text-lg font-bold mb-3">📍 موقعي</h2>
+        <div id="mapContainer" class="map-container"><iframe id="mapFrame" width="100%" height="100%" frameborder="0"></iframe></div>
+        <div class="flex gap-2 mt-3">
+            <button onclick="startTracking()" class="flex-1 bg-blue-600 text-white py-2 rounded-lg"><i class="fas fa-play"></i> تتبع</button>
+            <button onclick="stopTracking()" class="flex-1 bg-red-600 text-white py-2 rounded-lg"><i class="fas fa-stop"></i> إيقاف</button>
+        </div>
+    </div>
+
+    <div id="page-reports" class="page-content">
+        <h2 class="text-lg font-bold mb-3">📊 تقاريري</h2>
+        <div class="grid grid-cols-2 gap-3">
+            <div class="bg-white rounded-lg shadow p-4 text-center"><p class="text-2xl font-bold text-blue-600" id="totalOrders">0</p><p class="text-sm text-gray-500">إجمالي</p></div>
+            <div class="bg-white rounded-lg shadow p-4 text-center"><p class="text-2xl font-bold text-green-600" id="completedOrders">0</p><p class="text-sm text-gray-500">مكتملة</p></div>
+            <div class="bg-white rounded-lg shadow p-4 text-center"><p class="text-2xl font-bold text-yellow-600" id="totalEarnings">0</p><p class="text-sm text-gray-500">أرباح</p></div>
+        </div>
+    </div>
+
+    <!-- شريط سفلي -->
+    <div class="bottom-nav">
+        <a href="#" class="active" data-page="orders" onclick="switchPage('orders')"><i class="fas fa-list-ul"></i><span>الطلبات</span></a>
+        <a href="#" data-page="map" onclick="switchPage('map')"><i class="fas fa-map-marked-alt"></i><span>الخريطة</span></a>
+        <a href="#" data-page="reports" onclick="switchPage('reports')"><i class="fas fa-chart-bar"></i><span>التقارير</span></a>
+    </div>
+
+    <!-- مودال تفاصيل الطلب -->
+    <div id="orderModal" class="fixed inset-0 bg-black/50 hidden flex items-end justify-center z-50">
+        <div class="bg-white w-full max-h-[90vh] rounded-t-3xl overflow-y-auto p-6">
+            <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold">📦 تفاصيل الطلب</h2><button onclick="closeModal()" class="text-2xl">&times;</button></div>
+            <div id="orderDetails"></div>
+            <div id="orderActions" class="mt-4 space-y-3"></div>
+        </div>
+    </div>
+
+    <!-- مودال الكاميرا -->
+    <div id="photoModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-6 max-w-md w-full">
+            <h3 class="font-bold mb-3">📸 تصوير الحاوية</h3>
+            <video id="cameraPreview" class="w-full rounded-lg bg-black h-64" autoplay></video>
+            <div class="flex gap-3 mt-4">
+                <button onclick="capturePhoto()" class="flex-1 bg-blue-600 text-white py-2 rounded-lg"><i class="fas fa-camera"></i> التقط</button>
+                <button onclick="closePhotoModal()" class="flex-1 bg-gray-300 py-2 rounded-lg">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = 'http://localhost:3004/api';
+        let token = localStorage.getItem('driverToken') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzI0MjExMjAwfQ.fake';
+        let orders = [];
+        let watchId = null;
+
+        function getHeaders() { return { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }; }
+
+        function switchPage(page) {
+            document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('page-' + page).classList.add('active');
+            document.querySelectorAll('.bottom-nav a').forEach(el => el.classList.remove('active'));
+            document.querySelector(`.bottom-nav a[data-page="${page}"]`).classList.add('active');
+            if (page === 'map') updateMap();
+            if (page === 'reports') loadReports();
+        }
+
+        async function loadOrders() {
+            try {
+                const res = await fetch(`${API}/driver/orders`, { headers: getHeaders() });
+                const data = await res.json();
+                if (data.success) {
+                    orders = data.orders;
+                    document.getElementById('activeOrders').textContent = orders.filter(o => o.status !== 'completed' && o.status !== 'cancelled').length;
+                    renderOrders(orders);
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        function renderOrders(list) {
+            const container = document.getElementById('ordersList');
+            if (!list || list.length === 0) {
+                container.innerHTML = `<div class="text-center py-10 text-gray-500"><i class="fas fa-inbox text-4xl"></i><p>لا توجد طلبات</p></div>`;
+                return;
+            }
+            container.innerHTML = list.map(order => `
+                <div class="order-card" onclick="showOrder(${order.id})">
+                    <div class="flex justify-between">
+                        <div><span class="font-bold">#${order.id}</span> <span class="status-badge status-${order.status}">${order.status}</span></div>
+                        <span class="font-bold text-green-600">${order.amount || 0} ريال</span>
+                    </div>
+                    <div class="text-sm text-gray-600 mt-1"><i class="fas fa-user"></i> ${order.customer?.name || 'عميل'} <i class="fas fa-box mr-2"></i> ${order.container?.code || 'غير محدد'}</div>
+                    <div class="text-sm text-gray-500"><i class="fas fa-map-marker-alt"></i> ${order.location || 'موقع غير محدد'}</div>
+                </div>
+            `).join('');
+        }
+
+        let currentOrderId = null;
+        async function showOrder(id) {
+            const order = orders.find(o => o.id === id);
+            if (!order) return;
+            currentOrderId = id;
+            const modal = document.getElementById('orderModal');
+            document.getElementById('orderDetails').innerHTML = `
+                <div class="space-y-2 p-3 bg-gray-50 rounded-lg"><b>العميل:</b> ${order.customer?.name || 'غير محدد'} (${order.customer?.phone || ''})</div>
+                <div class="space-y-2 p-3 bg-gray-50 rounded-lg"><b>الحاوية:</b> ${order.container?.code || 'غير محدد'}</div>
+                <div class="space-y-2 p-3 bg-gray-50 rounded-lg"><b>الموقع:</b> ${order.location || 'غير محدد'}</div>
+                <div class="space-y-2 p-3 bg-gray-50 rounded-lg"><b>المبلغ:</b> ${order.amount || 0} ريال</div>
+                <div class="space-y-2 p-3 bg-gray-50 rounded-lg"><b>الحالة:</b> <span class="status-badge status-${order.status}">${order.status}</span></div>
+            `;
+            
+            let actions = '';
+            if (order.status === 'pending') actions = `<button onclick="acceptOrder(${order.id})" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold"><i class="fas fa-check"></i> قبول</button><button onclick="rejectOrder(${order.id})" class="w-full bg-red-600 text-white py-3 rounded-lg font-bold"><i class="fas fa-times"></i> رفض</button>`;
+            else if (order.status === 'accepted') actions = `<button onclick="arriveOrder(${order.id})" class="w-full bg-purple-600 text-white py-3 rounded-lg font-bold"><i class="fas fa-flag-checkered"></i> وصلت</button><button onclick="openCamera(${order.id})" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold"><i class="fas fa-camera"></i> تصوير</button>`;
+            else if (order.status === 'arrived') actions = `<button onclick="completeOrder(${order.id})" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold"><i class="fas fa-check-circle"></i> إكمال</button>`;
+            else if (order.status === 'completed') actions = `<div class="text-center text-green-600 font-bold py-3"><i class="fas fa-check-circle text-2xl"></i><p>تم الإكمال</p></div>`;
+            document.getElementById('orderActions').innerHTML = actions;
+            modal.classList.remove('hidden');
+        }
+
+        async function acceptOrder(id) {
+            const res = await fetch(`${API}/driver/orders/${id}/accept`, { method: 'POST', headers: getHeaders() });
+            if (res.ok) { closeModal(); loadOrders(); }
+        }
+        async function rejectOrder(id) {
+            if (!confirm('رفض الطلب؟')) return;
+            const res = await fetch(`${API}/driver/orders/${id}/reject`, { method: 'POST', headers: getHeaders() });
+            if (res.ok) { closeModal(); loadOrders(); }
+        }
+        async function arriveOrder(id) {
+            const res = await fetch(`${API}/driver/orders/${id}/arrive`, { method: 'POST', headers: getHeaders() });
+            if (res.ok) { closeModal(); loadOrders(); }
+        }
+        async function completeOrder(id) {
+            if (!confirm('إكمال الطلب؟')) return;
+            const res = await fetch(`${API}/driver/orders/${id}/complete`, { method: 'POST', headers: getHeaders() });
+            if (res.ok) { closeModal(); loadOrders(); }
+        }
+
+        function closeModal() { document.getElementById('orderModal').classList.add('hidden'); }
+
+        // الكاميرا
+        async function openCamera(id) {
+            currentOrderId = id;
+            document.getElementById('photoModal').classList.remove('hidden');
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                document.getElementById('cameraPreview').srcObject = stream;
+            } catch(e) { alert('لا يمكن الوصول إلى الكاميرا'); closePhotoModal(); }
+        }
+        function closePhotoModal() {
+            document.getElementById('photoModal').classList.add('hidden');
+            const video = document.getElementById('cameraPreview');
+            if (video.srcObject) { video.srcObject.getTracks().forEach(t => t.stop()); video.srcObject = null; }
+        }
+        async function capturePhoto() {
+            const video = document.getElementById('cameraPreview');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            const photo = canvas.toDataURL('image/jpeg', 0.8);
+            const res = await fetch(`${API}/driver/orders/${currentOrderId}/photo`, {
+                method: 'POST', headers: getHeaders(), body: JSON.stringify({ photo })
+            });
+            if (res.ok) { alert('✅ تم رفع الصورة'); closePhotoModal(); loadOrders(); }
+        }
+
+        // الخريطة
+        function updateMap() {
+            if (!navigator.geolocation) return;
+            navigator.geolocation.getCurrentPosition(pos => {
+                document.getElementById('mapFrame').src = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${pos.coords.latitude},${pos.coords.longitude}&zoom=15`;
+                updateLocation(pos.coords.latitude, pos.coords.longitude);
+            });
+        }
+        function startTracking() {
+            if (!navigator.geolocation) return;
+            watchId = navigator.geolocation.watchPosition(pos => {
+                document.getElementById('mapFrame').src = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${pos.coords.latitude},${pos.coords.longitude}&zoom=15`;
+                updateLocation(pos.coords.latitude, pos.coords.longitude);
+            }, null, { enableHighAccuracy: true });
+            alert('✅ بدأ التتبع');
+        }
+        function stopTracking() { if (watchId) { navigator.geolocation.clearWatch(watchId); watchId = null; alert('⏹️ تم الإيقاف'); } }
+        async function updateLocation(lat, lng) {
+            await fetch(`${API}/driver/location`, { method: 'POST', headers: getHeaders(), body: JSON.stringify({ lat, lng }) });
+        }
+
+        // التقارير
+        async function loadReports() {
+            const res = await fetch(`${API}/driver/reports`, { headers: getHeaders() });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('totalOrders').textContent = data.totalOrders;
+                document.getElementById('completedOrders').textContent = data.completedOrders;
+                document.getElementById('totalEarnings').textContent = data.totalEarnings;
+            }
+        }
+
+        function toggleOnline() {
+            const el = document.getElementById('onlineStatus');
+            el.textContent = el.textContent.includes('🟢') ? '🔴 غير متصل' : '🟢 متصل';
+        }
+
+        // بدء التشغيل
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('driverName').textContent = 'السائق: تجريبي';
+            loadOrders();
+            setInterval(loadOrders, 30000);
+        });
+    </script>
+</body>
+</html>
